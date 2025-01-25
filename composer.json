@@ -1,0 +1,6 @@
+{
+  "require": {
+    "phpoffice/phpspreadsheet": "^3.8",
+    "twbs/bootstrap-icons": "^1.11"
+  }
+}
