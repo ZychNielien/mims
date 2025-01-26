@@ -91,10 +91,22 @@ if (isset($_POST['req_part'])) {
             $sql_query = mysqli_query($con, $sql);
 
             if ($sql_query) {
-                $_SESSION['status'] = "Request sent successfully!";
-                $_SESSION['status_code'] = "success";
-                header("location: ../view/userModule/userDashboard.php");
-                exit();
+                $mensahe = 'The ' . $req_by . ' has requested ' . $part_qty . ' of ' . $part_name . '. Click here for more details.';
+                $for = "admin";
+
+
+                $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at,for_who) VALUES ('$req_by', '$mensahe',0,'$dts','$for')";
+                $sql_notif_query = mysqli_query($con, $sql_notif);
+
+                if ($sql_notif_query) {
+                    $_SESSION['status'] = "Request sent successfully!";
+                    $_SESSION['status_code'] = "success";
+                    header("location: ../view/userModule/userDashboard.php");
+                    exit();
+                }
+
+
+
             } else {
                 echo "Error: " . mysqli_error($con);
             }
@@ -137,5 +149,49 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete_selected' && isset($
     }
 
     echo "Success";
+}
+
+
+if (isset($_POST['delete_multiple']) && isset($_POST['selected_items'])) {
+
+    $selected_items = json_decode($_POST['selected_items']);
+
+    $ids = implode(",", array_map('intval', $selected_items));
+
+    $sql = "DELETE FROM `tbl_inventory` WHERE `id` IN ($ids)";
+
+    if (mysqli_query($con, $sql)) {
+        echo json_encode([
+            'success' => true,
+            'message' => 'Selected items deleted successfully.'
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Error deleting items: ' . mysqli_error($con)
+        ]);
+    }
+} else {
+    echo json_encode([
+        'success' => false,
+        'message' => 'No items selected for deletion.'
+    ]);
+}
+
+if (isset($_POST['update_namedesc'])) {
+    $part_id = $_POST['id'];
+    $part_name = $_POST['part_name'];
+    $part_desc = $_POST['part_desc'];
+
+    $sql = "UPDATE `tbl_inventory` SET part_name = '$part_name' , part_desc = '$part_desc' WHERE id = '$part_id'";
+    $sql_query = mysqli_query($con, $sql);
+    if ($sql_query) {
+        $_SESSION['status'] = "Updated successfully!";
+        $_SESSION['status_code'] = "success";
+        header("location: ../view/adminModule/adminDashboard.php");
+        exit();
+    } else {
+        echo "Error: " . mysqli_error($con);
+    }
 }
 ?>

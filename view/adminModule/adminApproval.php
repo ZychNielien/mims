@@ -40,7 +40,7 @@ include "../../model/dbconnection.php";
             <tbody>
                 <?php
                 $userName = $_SESSION['username'];
-                $sql = "SELECT * FROM tbl_requested WHERE status = 'Pending'";
+                $sql = "SELECT * FROM tbl_requested WHERE status = 'Pending' ORDER BY dts DESC";
                 $sql_query = mysqli_query($con, $sql);
 
                 if ($sql_query) {
@@ -50,7 +50,8 @@ include "../../model/dbconnection.php";
                             <td data-label="Action">
                                 <input type="checkbox" class="select-row" data-id="<?php echo $sqlRow['id']; ?>"
                                     data-qty="<?php echo $sqlRow['part_qty']; ?>"
-                                    data-part_name="<?php echo $sqlRow['part_name']; ?>">
+                                    data-part_name="<?php echo $sqlRow['part_name']; ?>"
+                                    data-req_by="<?php echo $sqlRow['req_by']; ?>">
                             </td>
                             <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts']; ?></td>
                             <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
@@ -78,8 +79,14 @@ include "../../model/dbconnection.php";
 
         $('#approve-btn').on('click', function () {
             var selectedIds = [];
+            var selectedQty = [];
+            var selectedReq = [];
+            var selectedPartNames = [];
             $('.select-row:checked').each(function () {
                 selectedIds.push($(this).data('id'));
+                selectedQty.push($(this).data('qty'));
+                selectedReq.push($(this).data('req_by'));
+                selectedPartNames.push($(this).data('part_name'));
             });
 
             if (selectedIds.length > 0) {
@@ -88,7 +95,10 @@ include "../../model/dbconnection.php";
                     type: 'POST',
                     data: {
                         action: 'approve',
-                        ids: selectedIds
+                        ids: selectedIds,
+                        qty: selectedQty,
+                        req_by: selectedReq,
+                        part_name: selectedPartNames
                     },
                     success: function (response) {
                         Swal.fire({
@@ -124,11 +134,13 @@ include "../../model/dbconnection.php";
         $('#reject-btn').on('click', function () {
             var selectedIds = [];
             var selectedQty = [];
+            var selectedReq = [];
             var selectedPartNames = [];
 
             $('.select-row:checked').each(function () {
                 selectedIds.push($(this).data('id'));
                 selectedQty.push($(this).data('qty'));
+                selectedReq.push($(this).data('req_by'));
                 selectedPartNames.push($(this).data('part_name'));
             });
 
@@ -140,6 +152,7 @@ include "../../model/dbconnection.php";
                         action: 'reject',
                         ids: selectedIds,
                         qty: selectedQty,
+                        req_by: selectedReq,
                         part_name: selectedPartNames
                     },
                     success: function (response) {

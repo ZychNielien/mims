@@ -93,71 +93,205 @@ include "../../model/dbconnection.php";
             <div class="containerTitle">
                 <h4 class="text-center" style="color: #900008;">Available Parts</h4>
             </div>
-            <table class="table table-striped w-100">
-                <thead>
-                    <tr style="background-color: #900008; color: white;">
-                        <th scope="col">#</th>
-                        <th scope="col">Part Name</th>
-                        <th scope="col">Item Description</th>
-                        <th scope="col">Qty.</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-
-                    $sql = "SELECT * FROM `tbl_inventory`";
-                    $sql_query = mysqli_query($con, $sql);
-
-                    if ($sql_query) {
-                        while ($sql_row = mysqli_fetch_assoc($sql_query)) {
-                            ?>
-                            <tr>
-                                <td><input type="checkbox"></td>
-                                <td data-label="Part Name"><?php echo $sql_row['part_name'] ?></td>
-                                <td data-label="Part Desc"><?php echo $sql_row['part_desc'] ?></td>
-                                <td data-label="Part Qty"><?php echo $sql_row['part_qty'] ?></td>
-                            </tr>
-                            <?php
+            <form id="deleteAll" method="POST" action="../../controller/inventory.php">
+                <button type="button" class="btn btn-danger my-2" id="delete-selected-btn">Delete Selected</button>
+                <table class="table table-striped w-100">
+                    <thead>
+                        <tr class="text-center"
+                            style="background-color: #900008; color: white; vertical-align: middle;">
+                            <th scope="col">
+                                <input type="checkbox" id="select-all"> Select All
+                            </th>
+                            <th scope="col">Part Name</th>
+                            <th scope="col">Item Description</th>
+                            <th scope="col">Qty.</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $sql = "SELECT * FROM `tbl_inventory`";
+                        $sql_query = mysqli_query($con, $sql);
+                        if ($sql_query) {
+                            while ($sql_row = mysqli_fetch_assoc($sql_query)) {
+                                ?>
+                                <tr>
+                                    <td><input type="checkbox" name="selected_items[]" value="<?php echo $sql_row['id']; ?>">
+                                    </td>
+                                    <td data-label="Part Name"><?php echo $sql_row['part_name']; ?></td>
+                                    <td data-label="Part Desc"><?php echo $sql_row['part_desc']; ?></td>
+                                    <td data-label="Part Qty"><?php echo $sql_row['part_qty']; ?></td>
+                                    <td data-label="Action"> <a class="btn btn-primary edit-btn"
+                                            data-id="<?php echo $sql_row['id']; ?>"
+                                            data-name="<?php echo $sql_row['part_name']; ?>"
+                                            data-desc="<?php echo $sql_row['part_desc']; ?>">Edit</a></td>
+                                </tr>
+                                <?php
+                            }
                         }
-                    }
+                        ?>
+                    </tbody>
+                </table>
 
-                    ?>
-                </tbody>
-            </table>
+            </form>
+
         </div>
-    </div>
-</section>
 
-<script>
-    document.getElementById('partSelect').addEventListener('change', function () {
-        var partId = this.value;
+        <div class="modal" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel">Edit Part</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editForm" method="POST" action="../../controller/inventory.php">
+                            <input type="hidden" id="part_id" name="id">
+                            <div class="form-group my-1">
+                                <label for="part_name">Part Name</label>
+                                <input type="text" class="form-control" id="part_name" name="part_name" required>
+                            </div>
+                            <div class="form-group my-1">
+                                <label for="part_desc">Item Description</label>
+                                <textarea class="form-control" id="part_desc" name="part_desc" rows="3"
+                                    required></textarea>
+                            </div>
 
-        if (partId) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'fetch_part_desc.php?part_id=' + partId, true);
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" name="update_namedesc" class="btn btn-primary">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    try {
-                        var data = JSON.parse(xhr.responseText);
 
-                        if (data.part_desc) {
-                            document.getElementById('itemDetails').style.display = 'block';
+        <script>
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const partId = this.getAttribute('data-id');
+                    const partName = this.getAttribute('data-name');
+                    const partDesc = this.getAttribute('data-desc');
 
-                            document.getElementById('exampleTextarea').value = data.part_desc;
-                        } else {
-                            document.getElementById('exampleTextarea').value = 'No description available';
+                    document.getElementById('part_id').value = partId;
+                    document.getElementById('part_name').value = partName;
+                    document.getElementById('part_desc').value = partDesc;
+
+                    $('#editModal').modal('show');
+                });
+            });
+
+        </script>
+
+
+        <script>
+            document.getElementById('select-all').addEventListener('change', function () {
+                var checkboxes = document.querySelectorAll('input[name="selected_items[]"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+            });
+
+            document.getElementById('delete-selected-btn').addEventListener('click', function () {
+                var selectedItems = document.querySelectorAll('input[name="selected_items[]"]:checked');
+
+                if (selectedItems.length > 0) {
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You won't be able to revert this!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, delete them!',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            var selectedIds = [];
+                            selectedItems.forEach(item => {
+                                selectedIds.push(item.value);
+                            });
+
+                            var formData = new FormData(document.getElementById('deleteAll'));
+                            formData.append('delete_multiple', true);
+                            formData.append('selected_items', JSON.stringify(selectedIds));
+
+                            $.ajax({
+                                url: '../../controller/inventory.php',
+                                method: 'POST',
+                                data: formData,
+                                processData: false,
+                                contentType: false,
+                                success: function (response) {
+                                    var data = JSON.parse(response);
+                                    if (data.success) {
+                                        Swal.fire({
+                                            title: 'Deleted!',
+                                            text: data.message,
+                                            icon: 'success'
+                                        }).then(() => {
+                                            location.reload();
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            title: 'Error!',
+                                            text: data.message,
+                                            icon: 'error'
+                                        });
+                                    }
+                                },
+                                error: function (xhr, status, error) {
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: "There was an issue with the request. Please try again.",
+                                        icon: 'error'
+                                    });
+                                }
+                            });
                         }
-                    } catch (e) {
-                        console.error('Error parsing JSON:', e);
-                    }
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'No items selected!',
+                        text: "Please select at least one item to delete.",
+                        icon: 'error'
+                    });
                 }
-            };
+            });
+        </script>
 
-            xhr.send();
-        } else {
-            document.getElementById('itemDetails').style.display = 'none';
-            document.getElementById('exampleTextarea').value = '';
-        }
-    });
-</script>
+
+        <script>
+            document.getElementById('partSelect').addEventListener('change', function () {
+                var partId = this.value;
+
+                if (partId) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', 'fetch_part_desc.php?part_id=' + partId, true);
+
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            try {
+                                var data = JSON.parse(xhr.responseText);
+
+                                if (data.part_desc) {
+                                    document.getElementById('itemDetails').style.display = 'block';
+
+                                    document.getElementById('exampleTextarea').value = data.part_desc;
+                                } else {
+                                    document.getElementById('exampleTextarea').value = 'No description available';
+                                }
+                            } catch (e) {
+                                console.error('Error parsing JSON:', e);
+                            }
+                        }
+                    };
+
+                    xhr.send();
+                } else {
+                    document.getElementById('itemDetails').style.display = 'none';
+                    document.getElementById('exampleTextarea').value = '';
+                }
+            });
+        </script>

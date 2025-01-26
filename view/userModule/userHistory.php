@@ -51,7 +51,7 @@ include "navBar.php";
                 $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 
                 $userName = $_SESSION['username'];
-                $sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND NOT status = 'Pending'";
+                $sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND NOT status = 'Pending'  ORDER BY dts DESC";
 
                 if ($start_date && $end_date) {
                     $start_date = $start_date . ' 00:00:00';

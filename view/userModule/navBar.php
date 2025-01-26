@@ -47,6 +47,85 @@ if (!isset($_SESSION['username'])) {
         .nav-item a {
             text-align: center;
         }
+
+        .amessage {
+            text-decoration: none;
+            list-style: none;
+            color: #000;
+        }
+
+        .notification-bell {
+            position: relative;
+            z-index: 9999;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .notification-bell .badge {
+            position: absolute;
+            top: -10px;
+            right: -15px;
+            background-color: red;
+            color: white;
+            border-radius: 50%;
+            padding: 5px 10px;
+        }
+
+        #notification-menu {
+            width: 300px;
+            max-height: 400px;
+            overflow-y: scroll;
+        }
+
+        #notification-menu {
+            width: 300px;
+            max-height: 400px;
+            overflow-y: scroll;
+            padding: 10px;
+        }
+
+        #notification-menu::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #notification-menu::-webkit-scrollbar-track {
+            background: #f1f1f1;
+
+        }
+
+        #notification-menu::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        #notification-menu::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        #notification-menu::-webkit-scrollbar-corner {
+            background: #ccc;
+        }
+
+
+        .notification-separator {
+            border: 0;
+            height: 2px;
+            background-color: #000;
+            margin: 10px 0;
+        }
+
+        .notification-message {
+            max-width: 300px;
+            margin: 0;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+        }
+
+        #notification-menu .dropdown-item.no-notifications {
+            color: #888;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -86,6 +165,17 @@ if (!isset($_SESSION['username'])) {
                     " href="#">Withdrawal History</a>
                     </li>
                 </ul>
+                <div class="btn-group float-end mx-3">
+                    <div class="notification-bell" id="notification-bell" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="bi bi-bell-fill" style="font-size: 20px; color: #fff;"></i>
+                        <span class="badge" id="notification-count" style="display: none;">0</span>
+                    </div>
+
+                    <ul class="dropdown-menu dropdown-menu-end" id="notification-menu">
+                    </ul>
+                </div>
+
 
                 <div class="btn-group float-end">
                     <a href="#" class="dropdown-toggle text-decoration-none text-light" data-bs-toggle="dropdown">
@@ -205,6 +295,124 @@ if (!isset($_SESSION['username'])) {
                 }
             });
         });
+
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            fetchNotifications();
+
+            setInterval(fetchNotifications, 2000);
+
+            $('#notification-bell').on('click', function () {
+                markAllAsRead();
+            });
+        });
+
+        function timeAgo(timestamp) {
+            const now = new Date();
+            const past = new Date(timestamp);
+            const diffInSeconds = Math.floor((now - past) / 1000);
+
+            const seconds = diffInSeconds;
+            const minutes = Math.floor(diffInSeconds / 60);
+            const hours = Math.floor(diffInSeconds / 3600);
+            const days = Math.floor(diffInSeconds / 86400);
+            const months = Math.floor(diffInSeconds / 2592000);
+            const years = Math.floor(diffInSeconds / 31536000);
+
+            if (years > 0) {
+                return years === 1 ? "1 year ago" : years + " years ago";
+            } else if (months > 0) {
+                return months === 1 ? "1 month ago" : months + " months ago";
+            } else if (days > 0) {
+                return days === 1 ? "1 day ago" : days + " days ago";
+            } else if (hours > 0) {
+                return hours === 1 ? "1 hour ago" : hours + " hours ago";
+            } else if (minutes > 0) {
+                return minutes === 1 ? "1 minute ago" : minutes + " minutes ago";
+            } else {
+                return seconds === 1 ? "1 second ago" : seconds + " seconds ago";
+            }
+        }
+
+        function fetchNotifications() {
+            $.ajax({
+                url: '../../controller/get_notif.php',
+                method: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    const notificationMenu = $('#notification-menu');
+                    const notificationCount = $('#notification-count');
+
+                    notificationMenu.empty();
+
+                    if (response.message && response.message === 'No notifications') {
+                        notificationMenu.append('<li class="dropdown-item">No notifications</li>');
+                        notificationCount.hide();
+                        return;
+                    }
+
+                    let unreadCount = 0;
+
+                    response.forEach(function (notification) {
+                        const notificationElement = $('<li class="dropdown-item" data-id="' + notification.id + '">');
+
+                        const formattedTimeAgo = timeAgo(notification.created_at);
+
+                        notificationElement.append(`
+                    <div><a class="amessage" href="adminApproval.php">
+                        <div class="d-flex justify-content-between">
+                            <strong>${notification.username}</strong>  
+                            <small>${formattedTimeAgo}</small>
+                        </div>
+                        <p class="notification-message">${notification.message}</p>
+                        </a>
+                    </div>
+                `);
+
+                        if (notification.is_read === 0) {
+                            notificationElement.addClass('unread');
+                        }
+
+                        notificationMenu.append(notificationElement);
+
+                        notificationMenu.append('<hr class="notification-separator">');
+
+                        if (notification.is_read == 0) {
+                            unreadCount++;
+                        }
+                    });
+
+                    if (unreadCount > 0) {
+                        notificationCount.text(unreadCount).show();
+                    } else {
+                        notificationCount.hide();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error fetching notifications:', xhr, status, error);
+                }
+            });
+        }
+
+        function markAllAsRead() {
+            $.ajax({
+                url: '../../controller/mark_read.php',
+                method: 'POST',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        fetchNotifications();
+                    } else {
+                        console.error('Error marking all notifications as read:', response.error);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX request failed:', status, error);
+                }
+            });
+        }
 
     </script>
 

@@ -170,7 +170,7 @@ include "../../model/dbconnection.php";
                 <tbody>
                     <?php
                     $userName = $_SESSION['username'];
-                    $sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'Pending'";
+                    $sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'Pending'  ORDER BY dts DESC";
                     $sql_query = mysqli_query($con, $sql);
 
                     if ($sql_query) {
