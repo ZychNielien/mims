@@ -183,6 +183,16 @@ if (!isset($_SESSION['username'])) {
                     " href="#">History</a>
                     </li>
                     <li class="nav-item">
+                        <a href="adminScrap.php" class=" <?php
+                        if ($page == "adminScrap.php") {
+                            echo "nav-link active";
+                        } else {
+                            echo "nav-link text-white";
+                        }
+                        ?>
+                    " href="#">Scrap Material</a>
+                    </li>
+                    <li class="nav-item">
                         <a href="accReg.php" class=" <?php
                         if ($page == "accReg.php") {
                             echo "nav-link active";

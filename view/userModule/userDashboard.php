@@ -92,7 +92,7 @@ include "../../model/dbconnection.php";
                 ?>
 
                 <div class="mb-3">
-                    <label for="part_name" class="form-label">Part Name</label>
+                    <label for="partSelect" class="form-label">Part Name</label>
                     <select class="form-select" id="partSelect" name="part_name">
                         <option value="">Select a Part</option>
                         <?php
@@ -155,7 +155,7 @@ include "../../model/dbconnection.php";
             <table class="table table-striped">
                 <thead>
                     <tr class="text-center" style="background-color: #900008; color: white; vertical-align: middle;">
-                        <th scope="col"><input type="checkbox" id="select-all"> Select All</th>
+                        <th scope="col"><input type="checkbox" id="select-all"></th>
                         <th scope="col">Date / Time / Shift</th>
                         <th scope="col">Lot ID</th>
                         <th scope="col">Part Name</th>

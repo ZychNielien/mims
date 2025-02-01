@@ -72,4 +72,29 @@ if (isset($_POST['action']) && isset($_POST['ids']) && !empty($_POST['ids'])) {
         }
     }
 }
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $lot_id = $_POST['lot_id'];
+    $return_qty = $_POST['return_qty'];
+    $return_reason = $_POST['return_reason'];
+    $dts = date('Y-m-d H:i:s');
+
+    if ($return_qty <= 0) {
+        echo json_encode(['status' => 'error', 'message' => 'Invalid quantity.']);
+        exit();
+    }
+
+    $sql = "UPDATE tbl_requested 
+            SET status = 'returned', return_reason = '$return_reason', dts_return = '$dts', return_qty = '$return_qty'
+            WHERE lot_id = '$lot_id' AND status = 'approved'";
+
+    if (mysqli_query($con, $sql)) {
+        echo json_encode(['status' => 'success', 'message' => 'Item successfully returned.']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Error updating item: ' . mysqli_error($con)]);
+    }
+} else {
+    echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
+}
+
 ?>
