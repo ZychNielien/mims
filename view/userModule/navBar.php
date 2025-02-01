@@ -361,7 +361,7 @@ if (!isset($_SESSION['username'])) {
                         const formattedTimeAgo = timeAgo(notification.created_at);
 
                         notificationElement.append(`
-                    <div><a class="amessage" href="adminApproval.php">
+                    <div><a class="amessage" href="userHistory.php">
                         <div class="d-flex justify-content-between">
                             <strong>${notification.username}</strong>  
                             <small>${formattedTimeAgo}</small>

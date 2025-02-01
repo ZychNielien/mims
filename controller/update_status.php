@@ -78,6 +78,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $return_qty = $_POST['return_qty'];
     $return_reason = $_POST['return_reason'];
     $dts = date('Y-m-d H:i:s');
+    $req_by = $_POST['req_by'];
+    $part_name = $_POST['part_name'];
+    $mensahe = $req_by . ' has returned ' . $return_qty . ' of ' . $part_name . '. Click here for more details.';
+    $for = "admin";
 
     if ($return_qty <= 0) {
         echo json_encode(['status' => 'error', 'message' => 'Invalid quantity.']);
@@ -89,7 +93,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             WHERE lot_id = '$lot_id' AND status = 'approved'";
 
     if (mysqli_query($con, $sql)) {
-        echo json_encode(['status' => 'success', 'message' => 'Item successfully returned.']);
+
+
+
+
+        $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at,for_who) VALUES ('$req_by', '$mensahe',0,'$dts','$for')";
+        $sql_notif_query = mysqli_query($con, $sql_notif);
+
+        if ($sql_notif_query) {
+            echo json_encode(['status' => 'success', 'message' => 'Item successfully returned.']);
+        }
+
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Error updating item: ' . mysqli_error($con)]);
     }

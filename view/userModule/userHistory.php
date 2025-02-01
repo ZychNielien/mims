@@ -60,6 +60,15 @@ include "navBar.php";
                                             <label for="returnQty" class="form-label">Quantity</label>
                                             <input type="number" class="form-control" id="returnQty" name="return_qty">
                                         </div>
+                                        <div class="mb-3" style="display: noe;">
+                                            <label for="reqBy" class="form-label">Quantity</label>
+                                            <input type="text" class="form-control" id="reqBy" name="req_by">
+                                        </div>
+                                        <div class="mb-3" style="display: noe;">
+                                            <label for="part_namereturn" class="form-label">Quantity</label>
+                                            <input type="text" class="form-control" id="part_namereturn"
+                                                name="part_name">
+                                        </div>
                                         <div id="quantityMessage" class="alert alert-info">
                                             Your requested quantity for this part is [X]. Please return a quantity below
                                             [X].
@@ -131,7 +140,9 @@ include "navBar.php";
                                         <td data-label="Action">
                                             <button class="btn btn-primary return-btn" data-bs-toggle="modal"
                                                 data-bs-target="#returnModal" data-lot-id="<?php echo $sqlRow['lot_id']; ?>"
-                                                data-part-qty="<?php echo $sqlRow['part_qty']; ?>">Return</button>
+                                                data-part-qty="<?php echo $sqlRow['part_qty']; ?>"
+                                                data-req-by="<?php echo $sqlRow['req_by']; ?>"
+                                                data-part-name="<?php echo $sqlRow['part_name']; ?>">Return</button>
                                         </td>
                                     </tr>
                                     <?php
@@ -345,9 +356,13 @@ include "navBar.php";
     $(document).on('click', '.return-btn', function () {
         var lotId = $(this).data('lot-id');
         var partQty = $(this).data('part-qty');
+        var reqBy = $(this).data('req-by');
+        var partName = $(this).data('part-name');
+        $('#part_namereturn').val(partName);
         $('#lot_id').val(lotId);
-        $('#return_qty').attr('max', partQty);
-        $('#return_qty').val('');
+        $('#reqBy').val(reqBy);
+        $('#returnQty').attr('max', partQty);
+        $('#returnQty').val('');
 
         $('#quantityMessage').text('Your requested quantity for this part is ' + partQty + '. Please return a quantity below or equal to this.');
     });
@@ -358,6 +373,8 @@ include "navBar.php";
         var lotId = $('#lot_id').val();
         var returnReason = $('#returnReason').val();
         var returnQty = $('#returnQty').val();
+        var reqBy = $('#reqBy').val();
+        var partNameReturn = $('#part_namereturn').val();
 
         $.ajax({
             url: '../../controller/update_status.php',
@@ -365,7 +382,10 @@ include "navBar.php";
             data: {
                 lot_id: lotId,
                 return_reason: returnReason,
-                return_qty: returnQty
+                return_qty: returnQty,
+                req_by: reqBy,
+                part_name: partNameReturn
+
             },
             success: function (response) {
                 console.log(response);
