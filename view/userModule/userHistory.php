@@ -60,11 +60,11 @@ include "navBar.php";
                                             <label for="returnQty" class="form-label">Quantity</label>
                                             <input type="number" class="form-control" id="returnQty" name="return_qty">
                                         </div>
-                                        <div class="mb-3" style="display: noe;">
+                                        <div class="mb-3" style="display: none;">
                                             <label for="reqBy" class="form-label">Quantity</label>
                                             <input type="text" class="form-control" id="reqBy" name="req_by">
                                         </div>
-                                        <div class="mb-3" style="display: noe;">
+                                        <div class="mb-3" style="display: none;">
                                             <label for="part_namereturn" class="form-label">Quantity</label>
                                             <input type="text" class="form-control" id="part_namereturn"
                                                 name="part_name">

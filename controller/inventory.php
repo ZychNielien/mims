@@ -148,7 +148,6 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete_selected' && isset($
         }
     }
 
-    echo "Success";
 }
 
 

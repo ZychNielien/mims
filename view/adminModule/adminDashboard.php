@@ -93,8 +93,12 @@ include "../../model/dbconnection.php";
             <div class="containerTitle">
                 <h4 class="text-center" style="color: #900008;">Available Parts</h4>
             </div>
-            <form id="deleteAll" method="POST" action="../../controller/inventory.php">
-                <button type="button" class="btn btn-danger my-2" id="delete-selected-btn">Delete Selected</button>
+            <form id="deleteAll">
+                <div class="container px-3 d-flex justify-content-evenly">
+                    <button type="button" class="btn btn-danger my-2" id="delete-selected-btn">Delete Selected</button>
+                    <button id="export-btn" class="btn btn-success my-2">Export to Excel</button>
+                </div>
+
                 <table class="table table-striped w-100">
                     <thead>
                         <tr class="text-center"
@@ -108,14 +112,14 @@ include "../../model/dbconnection.php";
                             <th scope="col">Action</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="data-table">
                         <?php
                         $sql = "SELECT * FROM `tbl_inventory`";
                         $sql_query = mysqli_query($con, $sql);
                         if ($sql_query) {
                             while ($sql_row = mysqli_fetch_assoc($sql_query)) {
                                 ?>
-                                <tr>
+                                <tr class="table-row">
                                     <td><input type="checkbox" name="selected_items[]" value="<?php echo $sql_row['id']; ?>">
                                     </td>
                                     <td data-label="Part Name"><?php echo $sql_row['part_name']; ?></td>
@@ -167,6 +171,41 @@ include "../../model/dbconnection.php";
                 </div>
             </div>
         </div>
+        <script src="../../public/js/excel.js"></script>
+
+        <script>
+            document.getElementById('export-btn').addEventListener('click', function () {
+                var visibleRows = document.querySelectorAll('#data-table .table-row');
+                var filteredRows = [];
+
+                visibleRows.forEach(function (row) {
+                    if (row.style.display !== 'none') {
+                        filteredRows.push(row);
+                    }
+                });
+
+                var table = document.createElement('table');
+                var headerRow = document.querySelector('table thead').cloneNode(true);
+                var ths = headerRow.querySelectorAll('th');
+                ths[0].remove();
+                ths[ths.length - 1].remove();
+                table.appendChild(headerRow);
+
+                filteredRows.forEach(function (row) {
+                    var newRow = row.cloneNode(true);
+
+                    var tds = newRow.querySelectorAll('td');
+                    tds[0].remove();
+                    tds[tds.length - 1].remove();
+
+                    table.appendChild(newRow);
+                });
+
+                var wb = XLSX.utils.table_to_book(table, { sheet: "Filtered Data" });
+                XLSX.writeFile(wb, "filtered_table_data.xlsx");
+            });
+        </script>
+
 
 
         <script>

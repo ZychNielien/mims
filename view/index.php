@@ -8,7 +8,8 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>MIMS</title>
+    <link rel="icon" href="../public/img/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../public/style.css">
     <link rel="stylesheet" href="../../public/css/sweetalert.min.css">
@@ -30,12 +31,13 @@ session_start();
                 <form method="POST" action="../controller/login.php">
                     <div class="mb-3">
 
-                        <input type="text" class="form-control" name="username" id="exampleInputEmail1"
-                            aria-describedby="emailHelp">
+                        <input type="text" class="form-control" name="username" placeholder="Enter your username"
+                            id="exampleInputEmail1" aria-describedby="emailHelp">
 
                     </div>
                     <div class="mb-3">
-                        <input type="password" class="form-control" name="password" id="passInput">
+                        <input type="password" class="form-control" name="password" placeholder="Enter your password"
+                            id="passInput">
                     </div>
                     <div class="mb-3 form-check">
                         <input type="checkbox" class="form-check-input" id="showPassword">
