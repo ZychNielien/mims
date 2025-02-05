@@ -5,11 +5,14 @@ session_start();
 date_default_timezone_set('Asia/Manila');
 
 if (isset($_POST['submit_new_part'])) {
-    $new_part_name = $_POST['new_part_name'];
+    $new_part_number = $_POST['new_part_number'];
     $new_part_desc = $_POST['new_part_desc'];
-    $new_part_qty = $_POST['new_part_qty'];
+    $new_cost_center = $_POST['new_cost_center'];
+    $new_location = $_POST['new_location'];
+    $new_min_invent_req = $_POST['new_min_invent_req'];
+    $new_unit = $_POST['new_unit'];
 
-    $check_part_sql = "SELECT * FROM `tbl_inventory` WHERE part_name = '$new_part_name'";
+    $check_part_sql = "SELECT * FROM `tbl_inventory` WHERE part_name = '$new_part_number'";
     $check_part_query = mysqli_query($con, $check_part_sql);
 
     if (mysqli_num_rows($check_part_query) > 0) {
@@ -18,7 +21,7 @@ if (isset($_POST['submit_new_part'])) {
         header("location: ../view/adminModule/adminDashboard.php");
         exit();
     } else {
-        $new_part_SQL = "INSERT INTO `tbl_inventory` (part_name, part_desc, part_qty) VALUES ('$new_part_name','$new_part_desc','$new_part_qty')";
+        $new_part_SQL = "INSERT INTO `tbl_inventory` (part_name, part_desc, cost_center, location, min_invent_req , unit ) VALUES ('$new_part_number','$new_part_desc','$new_cost_center','$new_location','$new_min_invent_req','$new_unit')";
         $new_part_SQL_query = mysqli_query($con, $new_part_SQL);
 
         if ($new_part_SQL_query) {
@@ -33,23 +36,38 @@ if (isset($_POST['submit_new_part'])) {
 }
 
 if (isset($_POST['update_part_qty'])) {
-    $part_Id = $_POST['part_name'];
+    $dts = date('Y-m-d H:i:s');
+    $part_name = $_POST['part_name'];
     $part_qty = $_POST['part_qty'];
+    $exp_date = $_POST['exp_date'];
+    $kitting_id = $_POST['kitting_id'];
+    $username = $_SESSION['username'];
+    $part_id = $_POST['part_id'];
 
-    $sqlSelect = "SELECT part_qty FROM `tbl_inventory` WHERE id = '$part_Id'";
+    $sqlSelect = "SELECT part_qty FROM `tbl_inventory` WHERE part_name = '$part_name'";
     $sqlSelect_query = mysqli_query($con, $sqlSelect);
     $selectRow = mysqli_fetch_assoc($sqlSelect_query);
     $part_qty_old = $selectRow['part_qty'];
+    $part_desc = $_POST['part_desc'];
     $new_part_qty = $part_qty + $part_qty_old;
 
-    $sql = "UPDATE `tbl_inventory` SET part_qty = '$new_part_qty' WHERE id = '$part_Id'";
+    $sql = "UPDATE `tbl_inventory` SET part_qty = '$new_part_qty' , exp_date = '$exp_date' , kitting_id = '$kitting_id' WHERE part_name = '$part_name'";
     $sql_query = mysqli_query($con, $sql);
 
     if ($sql_query) {
-        $_SESSION['status'] = "Updated successfully!";
-        $_SESSION['status_code'] = "success";
-        header("location: ../view/adminModule/adminDashboard.php");
-        exit();
+
+        $sql_received = "INSERT INTO `tbl_history` (dts,part_desc,part_name,part_qty,exp_date,kitting_id,updated_by, status) VALUES ('$dts','$part_desc','$part_name','$part_qty','$exp_date','$kitting_id','$username','Received')";
+
+        $sql_received_query = mysqli_query($con, $sql_received);
+
+        if ($sql_received_query) {
+            $_SESSION['status'] = "Updated successfully!";
+            $_SESSION['status_code'] = "success";
+            header("location: ../view/adminModule/adminDashboard.php");
+            exit();
+        }
+
+
     } else {
         echo "Error: " . mysqli_error($con);
     }
@@ -181,8 +199,12 @@ if (isset($_POST['update_namedesc'])) {
     $part_id = $_POST['id'];
     $part_name = $_POST['part_name'];
     $part_desc = $_POST['part_desc'];
+    $part_cost_center = $_POST['cost_center'];
+    $part_location = $_POST['location'];
+    $part_min_invent_req = $_POST['min_invent_req'];
+    $part_unit = $_POST['unit'];
 
-    $sql = "UPDATE `tbl_inventory` SET part_name = '$part_name' , part_desc = '$part_desc' WHERE id = '$part_id'";
+    $sql = "UPDATE `tbl_inventory` SET part_name = '$part_name' , part_desc = '$part_desc' , cost_center = '$part_cost_center' , location = '$part_location' , min_invent_req = '$part_min_invent_req' , unit = '$part_unit' WHERE id = '$part_id'";
     $sql_query = mysqli_query($con, $sql);
     if ($sql_query) {
         $_SESSION['status'] = "Updated successfully!";

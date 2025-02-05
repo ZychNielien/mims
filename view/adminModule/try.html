@@ -1,0 +1,60 @@
+<select class="form-select" id="cost_center" name="cost_center" required>
+    <option selected value>Select Cost Center</option>
+    <option value="CC001" data-id="1">CC001</option>
+    <option value="CC002" data-id="2">CC002</option>
+    <!-- More options -->
+</select>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $(document).on('change', '#cost_center', function () {
+            // Get the selected option directly
+            var selectedOption = $('#cost_center option:selected');
+            
+            // Log the value and data-id of the selected option
+            var selectedValue = selectedOption.val();
+            var selectedDataId = selectedOption.attr('data-id');  // Use attr() for data-id
+
+            console.log('Selected Value: ', selectedValue);  // Should be the 'ccid' or value
+            console.log('Selected Data ID: ', selectedDataId);  // Should be the 'id' from the database
+
+            if (selectedValue === "" || selectedValue === null) {
+                console.log('No valid cost center selected.');
+                return;  // Exit if no valid selection
+            }
+
+            // Check if the 'data-id' attribute is set and valid
+            if (selectedDataId) {
+                console.log('Making AJAX request with cost_center_id: ', selectedDataId);
+
+                $.ajax({
+                    url: 'fetch_supervisors.php',
+                    method: 'GET',
+                    data: { cost_center_id: selectedDataId },
+                    dataType: 'json',
+                    success: function (response) {
+                        console.log('AJAX response:', response);
+
+                        if (response.supervisor_one) {
+                            $('#create_supervisor_one').val(response.supervisor_one);
+                        } else {
+                            $('#create_supervisor_one').val('');
+                        }
+
+                        if (response.supervisor_two) {
+                            $('#create_supervisor_two').val(response.supervisor_two);
+                        } else {
+                            $('#create_supervisor_two').val('');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log('AJAX Error: ' + status + ' - ' + error);
+                    }
+                });
+            } else {
+                console.log('Invalid data-id found');
+            }
+        });
+    });
+</script>

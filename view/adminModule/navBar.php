@@ -172,15 +172,22 @@ if (!isset($_SESSION['username'])) {
                         ?>
                     " aria-current="page" href="#">Approval</a>
                     </li>
-                    <li class="nav-item">
-                        <a href="adminHistory.php" class=" <?php
-                        if ($page == "adminHistory.php") {
-                            echo "nav-link active";
+                    <li class="nav-item dropdown">
+                        <a class=" <?php
+                        if ($page == "adminIssuance.php" || $page == "adminRejection.php" || $page == "adminReceiving.php") {
+                            echo "nav-link dropdown-toggle active";
                         } else {
-                            echo "nav-link text-white";
+                            echo "nav-link dropdown-toggle text-white";
                         }
                         ?>
-                    " href="#">History</a>
+                    " href="#" id="Submenu-Dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            History
+                        </a>
+                        <ul class="dropdown-menu rounded-3" aria-labelledby="Submenu-Dropdown">
+                            <li><a class="dropdown-item" href="adminIssuance.php">Issuance History</a></li>
+                            <li><a class="dropdown-item" href="adminReceiving.php">Receiving History</a></li>
+                            <li><a class="dropdown-item" href="adminRejection.php">Rejection History</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a href="adminScrap.php" class=" <?php

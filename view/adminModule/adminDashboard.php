@@ -11,326 +11,479 @@ include "../../model/dbconnection.php";
     <script src="../../public/js/sweetalert2@11.js"></script>
     <script src="../../public/js/jquery.js"></script>
 </head>
-<section style="max-height: 90%;">
+<section class="w-100" style="max-height: 90%;">
+
     <div class="welcomeDiv my-2">
         <h2 class="text-center" style="color: #900008; font-weight: bold;">Welcome, <?php echo $_SESSION['username'] ?>!
         </h2>
     </div>
-    <div class="container hatian d-flex justify-between align-center w-100">
-        <div class="divWithdrawal p-2 w-25">
+    <div class="containerTitle">
+        <h4 class="text-center" style="color: #900008;">Available Parts</h4>
+    </div>
+    <div class="container hatian d-flex justify-content-center align-center w-100">
 
-            <fieldset class="px-1 py-3">
-                <div class="d-flex justify-content-center">
-                    <h4 class="fw-bold" style="color: #900008;">
-                        Add New Part
-                    </h4>
-                </div>
-                <form method="POST" action="../../controller/inventory.php">
-                    <div class="mb-1">
-                        <label for="new_part_name" class="form-label">Part Name</label>
-                        <input type="text" class="form-control" id="new_part_name" name="new_part_name"
-                            aria-describedby="emailHelp">
-                    </div>
-                    <div class="mb-1">
-                        <label for="exampleInputPassword1" class="form-label">Item Description</label>
-                        <textarea class="form-control" id="new_part_desc" name="new_part_desc" rows="2"></textarea>
-                    </div>
-                    <div class="mb-1">
-                        <label for="exampleInputEmail1" class="form-label">Item Quantity</label>
-                        <input type="number" class="form-control" id="new_part_qty" name="new_part_qty"
-                            aria-describedby="emailHelp">
-                    </div>
-                    <button type="submit" class="btn btn-primary" name="submit_new_part">Submit</button>
-                </form>
-            </fieldset>
 
-            <fieldset class="px-1 py-3">
-                <div class="d-flex justify-content-center">
-                    <h4 class="fw-bold" style="color: #900008;">
-                        Update Inventory
-                    </h4>
-                </div>
-                <form method="POST" action="../../controller/inventory.php">
+        <form id="deleteAll">
+            <div class="container px-3 d-flex justify-content-evenly">
+                <button type="button" class="btn btn-danger my-1" id="delete-selected-btn">Delete Selected</button>
+                <button type="button" class="btn btn-success m-1" data-bs-toggle="modal"
+                    data-bs-target="#materialRegistrationModal">Material Registration</button>
+                <button type="button" class="btn btn-primary m-1" data-bs-toggle="modal"
+                    data-bs-target="#addToStockModal">Add to Stock</button>
+                <button id="export-btn" class="btn btn-success my-1">Export to Excel</button>
+            </div>
+
+            <table class="table table-striped w-100">
+                <thead>
+                    <tr class="text-center" style="background-color: #900008; color: white; vertical-align: middle;">
+                        <th scope="col">
+                            <input type="checkbox" id="select-all">
+                        </th>
+                        <th scope="col">Part Number</th>
+                        <th scope="col">Item Description</th>
+                        <th scope="col">Minimum Inventory Requirement</th>
+                        <th scope="col">Earliest Expiration Date</th>
+                        <th scope="col">Existing Inventory</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="data-table">
                     <?php
-                    $query = "SELECT id, part_name FROM tbl_inventory";
-                    $result = mysqli_query($con, $query);
-                    ?>
-
-                    <div class="mb-3">
-                        <label for="exampleInputEmail1" class="form-label">Part Name</label>
-                        <select class="form-select" id="partSelect" name="part_name">
-                            <option value="">Select a Part</option>
-                            <?php
-                            if (mysqli_num_rows($result) > 0) {
-                                while ($row = mysqli_fetch_assoc($result)) {
-                                    echo '<option value="' . $row['id'] . '">' . htmlspecialchars($row['part_name']) . '</option>';
-                                }
-                            } else {
-                                echo '<option value="">No parts available</option>';
-                            }
+                    $sql = "SELECT * FROM `tbl_inventory`";
+                    $sql_query = mysqli_query($con, $sql);
+                    if ($sql_query) {
+                        while ($sql_row = mysqli_fetch_assoc($sql_query)) {
                             ?>
-                        </select>
-                    </div>
+                            <tr class="table-row text-center">
+                                <td><input type="checkbox" name="selected_items[]" value="<?php echo $sql_row['id']; ?>">
+                                </td>
+                                <td data-label="Part Name"><?php echo $sql_row['part_name']; ?></td>
+                                <td data-label="Part Desc"><?php echo $sql_row['part_desc']; ?></td>
+                                <td data-label="Part Desc"><?php echo $sql_row['min_invent_req']; ?></td>
+                                <td data-label="Part Qty"><?php echo $sql_row['exp_date']; ?></td>
+                                <td data-label="Part Qty"><?php echo $sql_row['part_qty']; ?></td>
+                                <td data-label="Action"> <a class="btn btn-primary edit-btn"
+                                        data-id="<?php echo $sql_row['id']; ?>" data-name="<?php echo $sql_row['part_name']; ?>"
+                                        data-desc="<?php echo $sql_row['part_desc']; ?>"
+                                        data-cost_center="<?php echo $sql_row['cost_center']; ?>"
+                                        data-location="<?php echo $sql_row['location']; ?>"
+                                        data-min_invent_req="<?php echo $sql_row['min_invent_req']; ?>"
+                                        data-unit="<?php echo $sql_row['unit']; ?>">Edit</a></td>
+                            </tr>
+                            <?php
+                        }
+                    }
+                    ?>
+                </tbody>
+            </table>
 
-                    <div id="itemDetails" style="display: none;">
+        </form>
+
+    </div>
+
+
+    <div class="modal" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Part</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editForm" method="POST" action="../../controller/inventory.php">
+                        <input type="hidden" id="part_id" name="id">
+                        <div class="form-group my-1">
+                            <label for="part_name">Part Name</label>
+                            <input type="text" class="form-control" id="part_name" name="part_name" required>
+                        </div>
+                        <div class="form-group my-1">
+                            <label for="part_desc">Item Description</label>
+                            <textarea class="form-control" id="part_desc" name="part_desc" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-1">
+                            <label for="part_cost_center" class="form-label">Cost Center</label>
+                            <select class="form-select" id="part_cost_center" name="cost_center" required>
+                                <option selected value="">Select Cost Center</option>
+                                <?php
+                                $select_ccid = "SELECT * FROM tbl_ccs";
+                                $select_ccid_query = mysqli_query($con, $select_ccid);
+
+                                if (mysqli_num_rows($select_ccid_query) > 0) {
+                                    while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
+                                        ?>
+                                        <option value="<?php echo $ccid_row['ccid'] ?>" data-id="<?php echo $ccid_row['id'] ?>">
+                                            <?php echo $ccid_row['ccid'] ?>
+                                        </option>
+                                        <?php
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="mb-1">
+                            <label for="part_location" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="part_location" name="location"
+                                aria-describedby="emailHelp">
+                        </div>
+                        <div class="mb-1">
+                            <label for="part_min_invent_req" class="form-label">Minimum Inventory Requirement</label>
+                            <input type="text" class="form-control" id="part_min_invent_req" name="min_invent_req"
+                                aria-describedby="emailHelp">
+                        </div>
+                        <div class="mb-1">
+                            <label for="part_unit" class="form-label">Unit of Measure</label>
+                            <select class="form-select" id="part_unit" name="unit" required>
+                                <option selected value="">Select Unit</option>
+                                <option value="kea">KEA</option>
+                                <option value="srn">SRN</option>
+                                <option value="spl">SPL</option>
+                                <option value="kg">KG</option>
+                                <option value="ea">EA</option>
+                                <option value="rol">ROL</option>
+                                <option value="pc">PC</option>
+                                <option value="m">M</option>
+                                <option value="pkg">PKG</option>
+                                <option value="bx">BX</option>
+                                <option value="rm">RM</option>
+                                <option value="bag">BAG</option>
+                                <option value="pr">PR</option>
+                                <option value="set">SET</option>
+                                <option value="gal">GAL</option>
+                                <option value="bt">BT</option>
+                            </select>
+                        </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" name="update_namedesc" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="addToStockModal" tabindex="-1" aria-labelledby="addToStockModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addToStockModalLabel">Add to Stock</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="../../controller/inventory.php">
+                        <?php
+                        $query = "SELECT id, part_name FROM tbl_inventory";
+                        $result = mysqli_query($con, $query);
+                        ?>
+
+                        <div class="mb-3">
+                            <label for="partSelect" class="form-label">Part Number</label>
+                            <select class="form-select" id="partSelect" name="part_name">
+                                <option value="">Select a Part</option>
+                                <?php
+                                if (mysqli_num_rows($result) > 0) {
+                                    while ($row = mysqli_fetch_assoc($result)) {
+                                        echo '<option value="' . $row['part_name'] . '"  data-id="' . $row['id'] . '">' . htmlspecialchars($row['part_name']) . '</option>';
+                                    }
+                                } else {
+                                    echo '<option value="">No parts available</option>';
+                                }
+                                ?>
+                            </select>
+                        </div>
+
+                        <div id="itemDetails" style="display: none;">
+                            <div class="mb-1">
+                                <label for="exampleTextarea" class="form-label">Item Description</label>
+                                <textarea class="form-control" id="exampleTextarea" rows="2" name="part_desc"
+                                    readonly></textarea>
+                            </div>
+                            <div class="mb-1">
+                                <label for="part_qty" class="form-label">Quantity</label>
+                                <input type="number" class="form-control" id="part_qty" name="part_qty" min="0"
+                                    required>
+                            </div>
+                            <div class="mb-1">
+                                <label for="exp_date" class="form-label">Expiration Date</label>
+                                <input type="date" class="form-control" id="exp_date" name="exp_date" min="0" required>
+                            </div>
+                            <div class="mb-1">
+                                <label for="kitting_id" class="form-label">Kitting ID</label>
+                                <input type="text" class="form-control" id="kitting_id" name="kitting_id" min="0"
+                                    required>
+                            </div>
+                        </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                    <button type="submit" class="btn btn-primary" name="update_part_qty">Submit</button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="materialRegistrationModal" tabindex="-1"
+        aria-labelledby="materialRegistrationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="materialRegistrationModalLabel">Material Registration</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="../../controller/inventory.php">
+                        <div class="mb-1">
+                            <label for="new_part_number" class="form-label">Part Number</label>
+                            <input type="text" class="form-control" id="new_part_number" name="new_part_number"
+                                aria-describedby="emailHelp">
+                        </div>
                         <div class="mb-1">
                             <label for="exampleInputPassword1" class="form-label">Item Description</label>
-                            <textarea class="form-control" id="exampleTextarea" rows="2" name="new_part_desc"
-                                readonly></textarea>
+                            <textarea class="form-control" id="new_part_desc" name="new_part_desc" rows="2"></textarea>
                         </div>
                         <div class="mb-1">
-                            <label for="exampleInputEmail1" class="form-label">Item Quantity</label>
-                            <input type="number" class="form-control" id="part_qty" name="part_qty" min="0" required>
+                            <label for="new_cost_center" class="form-label">Cost Center</label>
+                            <select class="form-select" id="new_cost_center" name="new_cost_center" required>
+                                <option selected value="">Select Cost Center</option>
+                                <?php
+                                $select_ccid = "SELECT * FROM tbl_ccs";
+                                $select_ccid_query = mysqli_query($con, $select_ccid);
+
+                                if (mysqli_num_rows($select_ccid_query) > 0) {
+                                    while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
+                                        ?>
+                                        <option value="<?php echo $ccid_row['ccid'] ?>" data-id="<?php echo $ccid_row['id'] ?>">
+                                            <?php echo $ccid_row['ccid'] ?>
+                                        </option>
+                                        <?php
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="mb-1">
+                            <label for="new_location" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="new_location" name="new_location"
+                                aria-describedby="emailHelp">
+                        </div>
+                        <div class="mb-1">
+                            <label for="new_min_invent_req" class="form-label">Minimum Inventory Requirement</label>
+                            <input type="text" class="form-control" id="new_min_invent_req" name="new_min_invent_req"
+                                aria-describedby="emailHelp">
+                        </div>
+                        <div class="mb-1">
+                            <label for="new_unit" class="form-label">Unit of Measure</label>
+                            <select class="form-select" id="new_unit" name="new_unit" required>
+                                <option selected value="">Select Unit</option>
+                                <option value="kea">KEA</option>
+                                <option value="srn">SRN</option>
+                                <option value="spl">SPL</option>
+                                <option value="kg">KG</option>
+                                <option value="ea">EA</option>
+                                <option value="rol">ROL</option>
+                                <option value="pc">PC</option>
+                                <option value="m">M</option>
+                                <option value="pkg">PKG</option>
+                                <option value="bx">BX</option>
+                                <option value="rm">RM</option>
+                                <option value="bag">BAG</option>
+                                <option value="pr">PR</option>
+                                <option value="set">SET</option>
+                                <option value="gal">GAL</option>
+                                <option value="bt">BT</option>
+                            </select>
                         </div>
 
-                        <button type="submit" class="btn btn-primary" name="update_part_qty">Submit</button>
-                    </div>
-                </form>
-            </fieldset>
 
-        </div>
-        <div class="divReq p-3 w-75">
-            <div class="containerTitle">
-                <h4 class="text-center" style="color: #900008;">Available Parts</h4>
-            </div>
-            <form id="deleteAll">
-                <div class="container px-3 d-flex justify-content-evenly">
-                    <button type="button" class="btn btn-danger my-2" id="delete-selected-btn">Delete Selected</button>
-                    <button id="export-btn" class="btn btn-success my-2">Export to Excel</button>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" name="submit_new_part">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script src="../../public/js/excel.js"></script>
 
-                <table class="table table-striped w-100">
-                    <thead>
-                        <tr class="text-center"
-                            style="background-color: #900008; color: white; vertical-align: middle;">
-                            <th scope="col">
-                                <input type="checkbox" id="select-all"> Select All
-                            </th>
-                            <th scope="col">Part Name</th>
-                            <th scope="col">Item Description</th>
-                            <th scope="col">Qty.</th>
-                            <th scope="col">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="data-table">
-                        <?php
-                        $sql = "SELECT * FROM `tbl_inventory`";
-                        $sql_query = mysqli_query($con, $sql);
-                        if ($sql_query) {
-                            while ($sql_row = mysqli_fetch_assoc($sql_query)) {
-                                ?>
-                                <tr class="table-row">
-                                    <td><input type="checkbox" name="selected_items[]" value="<?php echo $sql_row['id']; ?>">
-                                    </td>
-                                    <td data-label="Part Name"><?php echo $sql_row['part_name']; ?></td>
-                                    <td data-label="Part Desc"><?php echo $sql_row['part_desc']; ?></td>
-                                    <td data-label="Part Qty"><?php echo $sql_row['part_qty']; ?></td>
-                                    <td data-label="Action"> <a class="btn btn-primary edit-btn"
-                                            data-id="<?php echo $sql_row['id']; ?>"
-                                            data-name="<?php echo $sql_row['part_name']; ?>"
-                                            data-desc="<?php echo $sql_row['part_desc']; ?>">Edit</a></td>
-                                </tr>
-                                <?php
+<script>
+    $(document).ready(function () {
+        $('.edit-btn').on('click', function () {
+            const partId = $(this).data('id');
+            const partName = $(this).data('name');
+            const partDesc = $(this).data('desc');
+            const partcost_center = $(this).data('cost_center');
+            const partlocation = $(this).data('location');
+            const partmin_invent_req = $(this).data('min_invent_req');
+            const partunit = $(this).data('unit');
+
+            $('#part_id').val(partId);
+            $('#part_name').val(partName);
+            $('#part_desc').val(partDesc);
+            $('#part_cost_center').val(partcost_center);
+            $('#part_location').val(partlocation);
+            $('#part_min_invent_req').val(partmin_invent_req);
+            $('#part_unit').val(partunit);
+
+            $('#editModal').modal('show');
+        });
+
+        $(document).on('change', '#partSelect', function () {
+            var partId = $(this).find('option:selected').data('id');
+
+
+            if (partId) {
+                $.ajax({
+                    url: 'fetch_part_desc.php',
+                    type: 'GET',
+                    data: { part_id: partId },
+                    success: function (response) {
+                        console.log(response);  // Log the response to check it in the console
+
+                        // Check if the response has an error
+                        if (response.error) {
+                            $('#exampleTextarea').val(response.error);  // Show error message
+                            $('#itemDetails').hide();  // Hide the details section
+                        } else {
+                            if (response.part_desc) {
+                                $('#itemDetails').show();
+                                $('#exampleTextarea').val(response.part_desc);  // Show the part description
+                            } else {
+                                $('#exampleTextarea').val('No description available');  // Default message if part_desc is null
                             }
                         }
-                        ?>
-                    </tbody>
-                </table>
-
-            </form>
-
-        </div>
-
-        <div class="modal" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editModalLabel">Edit Part</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="editForm" method="POST" action="../../controller/inventory.php">
-                            <input type="hidden" id="part_id" name="id">
-                            <div class="form-group my-1">
-                                <label for="part_name">Part Name</label>
-                                <input type="text" class="form-control" id="part_name" name="part_name" required>
-                            </div>
-                            <div class="form-group my-1">
-                                <label for="part_desc">Item Description</label>
-                                <textarea class="form-control" id="part_desc" name="part_desc" rows="3"
-                                    required></textarea>
-                            </div>
-
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" name="update_namedesc" class="btn btn-primary">Save Changes</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <script src="../../public/js/excel.js"></script>
-
-        <script>
-            document.getElementById('export-btn').addEventListener('click', function () {
-                var visibleRows = document.querySelectorAll('#data-table .table-row');
-                var filteredRows = [];
-
-                visibleRows.forEach(function (row) {
-                    if (row.style.display !== 'none') {
-                        filteredRows.push(row);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX Error: ' + status + ', ' + error);
+                        $('#exampleTextarea').val('Error fetching data');
                     }
                 });
-
-                var table = document.createElement('table');
-                var headerRow = document.querySelector('table thead').cloneNode(true);
-                var ths = headerRow.querySelectorAll('th');
-                ths[0].remove();
-                ths[ths.length - 1].remove();
-                table.appendChild(headerRow);
-
-                filteredRows.forEach(function (row) {
-                    var newRow = row.cloneNode(true);
-
-                    var tds = newRow.querySelectorAll('td');
-                    tds[0].remove();
-                    tds[tds.length - 1].remove();
-
-                    table.appendChild(newRow);
-                });
-
-                var wb = XLSX.utils.table_to_book(table, { sheet: "Filtered Data" });
-                XLSX.writeFile(wb, "filtered_table_data.xlsx");
-            });
-        </script>
+            } else {
+                $('#itemDetails').hide();
+                $('#exampleTextarea').val('');
+            }
+        });
 
 
+    })
+</script>
+<script>
 
-        <script>
-            document.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', function () {
-                    const partId = this.getAttribute('data-id');
-                    const partName = this.getAttribute('data-name');
-                    const partDesc = this.getAttribute('data-desc');
+    document.getElementById('export-btn').addEventListener('click', function () {
+        var visibleRows = document.querySelectorAll('#data-table .table-row');
+        var filteredRows = [];
 
-                    document.getElementById('part_id').value = partId;
-                    document.getElementById('part_name').value = partName;
-                    document.getElementById('part_desc').value = partDesc;
+        visibleRows.forEach(function (row) {
+            if (row.style.display !== 'none') {
+                filteredRows.push(row);
+            }
+        });
 
-                    $('#editModal').modal('show');
-                });
-            });
+        var table = document.createElement('table');
+        var headerRow = document.querySelector('table thead').cloneNode(true);
+        var ths = headerRow.querySelectorAll('th');
+        ths[0].remove();
+        ths[ths.length - 1].remove();
+        table.appendChild(headerRow);
 
-        </script>
+        filteredRows.forEach(function (row) {
+            var newRow = row.cloneNode(true);
+
+            var tds = newRow.querySelectorAll('td');
+            tds[0].remove();
+            tds[tds.length - 1].remove();
+
+            table.appendChild(newRow);
+        });
+
+        var wb = XLSX.utils.table_to_book(table, { sheet: "Filtered Data" });
+        XLSX.writeFile(wb, "filtered_table_data.xlsx");
+    });
+</script>
 
 
-        <script>
-            document.getElementById('select-all').addEventListener('change', function () {
-                var checkboxes = document.querySelectorAll('input[name="selected_items[]"]');
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = this.checked;
-                });
-            });
 
-            document.getElementById('delete-selected-btn').addEventListener('click', function () {
-                var selectedItems = document.querySelectorAll('input[name="selected_items[]"]:checked');
 
-                if (selectedItems.length > 0) {
-                    Swal.fire({
-                        title: 'Are you sure?',
-                        text: "You won't be able to revert this!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Yes, delete them!',
-                        cancelButtonText: 'Cancel'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            var selectedIds = [];
-                            selectedItems.forEach(item => {
-                                selectedIds.push(item.value);
-                            });
+<script>
+    document.getElementById('select-all').addEventListener('change', function () {
+        var checkboxes = document.querySelectorAll('input[name="selected_items[]"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+    });
 
-                            var formData = new FormData(document.getElementById('deleteAll'));
-                            formData.append('delete_multiple', true);
-                            formData.append('selected_items', JSON.stringify(selectedIds));
+    document.getElementById('delete-selected-btn').addEventListener('click', function () {
+        var selectedItems = document.querySelectorAll('input[name="selected_items[]"]:checked');
 
-                            $.ajax({
-                                url: '../../controller/inventory.php',
-                                method: 'POST',
-                                data: formData,
-                                processData: false,
-                                contentType: false,
-                                success: function (response) {
-                                    var data = JSON.parse(response);
-                                    if (data.success) {
-                                        Swal.fire({
-                                            title: 'Deleted!',
-                                            text: data.message,
-                                            icon: 'success'
-                                        }).then(() => {
-                                            location.reload();
-                                        });
-                                    } else {
-                                        Swal.fire({
-                                            title: 'Error!',
-                                            text: data.message,
-                                            icon: 'error'
-                                        });
-                                    }
-                                },
-                                error: function (xhr, status, error) {
-                                    Swal.fire({
-                                        title: 'Error!',
-                                        text: "There was an issue with the request. Please try again.",
-                                        icon: 'error'
-                                    });
-                                }
-                            });
-                        }
+        if (selectedItems.length > 0) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete them!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var selectedIds = [];
+                    selectedItems.forEach(item => {
+                        selectedIds.push(item.value);
                     });
-                } else {
-                    Swal.fire({
-                        title: 'No items selected!',
-                        text: "Please select at least one item to delete.",
-                        icon: 'error'
-                    });
-                }
-            });
-        </script>
 
+                    var formData = new FormData(document.getElementById('deleteAll'));
+                    formData.append('delete_multiple', true);
+                    formData.append('selected_items', JSON.stringify(selectedIds));
 
-        <script>
-            document.getElementById('partSelect').addEventListener('change', function () {
-                var partId = this.value;
-
-                if (partId) {
-                    var xhr = new XMLHttpRequest();
-                    xhr.open('GET', 'fetch_part_desc.php?part_id=' + partId, true);
-
-                    xhr.onload = function () {
-                        if (xhr.status === 200) {
-                            try {
-                                var data = JSON.parse(xhr.responseText);
-
-                                if (data.part_desc) {
-                                    document.getElementById('itemDetails').style.display = 'block';
-
-                                    document.getElementById('exampleTextarea').value = data.part_desc;
-                                } else {
-                                    document.getElementById('exampleTextarea').value = 'No description available';
-                                }
-                            } catch (e) {
-                                console.error('Error parsing JSON:', e);
+                    $.ajax({
+                        url: '../../controller/inventory.php',
+                        method: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            var data = JSON.parse(response);
+                            if (data.success) {
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: data.message,
+                                    icon: 'success'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: data.message,
+                                    icon: 'error'
+                                });
                             }
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: "There was an issue with the request. Please try again.",
+                                icon: 'error'
+                            });
                         }
-                    };
-
-                    xhr.send();
-                } else {
-                    document.getElementById('itemDetails').style.display = 'none';
-                    document.getElementById('exampleTextarea').value = '';
+                    });
                 }
             });
-        </script>
+        } else {
+            Swal.fire({
+                title: 'No items selected!',
+                text: "Please select at least one item to delete.",
+                icon: 'error'
+            });
+        }
+    });
+</script>
