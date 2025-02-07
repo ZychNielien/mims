@@ -206,6 +206,7 @@ if (!isset($_SESSION['username'])) {
                             <li><a class="dropdown-item" href="adminReceiving.php">Receiving History</a></li>
                             <li><a class="dropdown-item" href="adminRejection.php">Rejection History</a></li>
                             <li><a class="dropdown-item" href="adminExpired.php">Expired Part History</a></li>
+                            <li><a class="dropdown-item" href="adminLog.php">Log History</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
