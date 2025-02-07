@@ -92,13 +92,14 @@ include "navBar.php";
                                 style="background-color: #900008; color: white; vertical-align: middle;">
                                 <th scope="col">Date / Time / Shift</th>
                                 <th scope="col">Lot ID</th>
-                                <th scope="col">Part Name</th>
+                                <th scope="col">Part Number</th>
                                 <th scope="col">Item Description</th>
                                 <th scope="col">Qty.</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Requested By</th>
                                 <th scope="col">Status</th>
+                                <th scope="col">Approved By</th>
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>
@@ -137,6 +138,7 @@ include "navBar.php";
                                         <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                                         <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>
                                         <td data-label="Status"><?php echo $sqlRow['status']; ?></td>
+                                        <td data-label="Approved By"><?php echo $sqlRow['approved_by']; ?></td>
                                         <td data-label="Action">
                                             <button class="btn btn-primary return-btn" data-bs-toggle="modal"
                                                 data-bs-target="#returnModal" data-id="<?php echo $sqlRow['id']; ?>"
@@ -176,13 +178,14 @@ include "navBar.php";
                                 style="background-color: #900008; color: white; vertical-align: middle;">
                                 <th scope="col">Date / Time / Shift</th>
                                 <th scope="col">Lot ID</th>
-                                <th scope="col">Part Name</th>
+                                <th scope="col">Part Number</th>
                                 <th scope="col">Item Description</th>
                                 <th scope="col">Qty.</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Requested By</th>
                                 <th scope="col">Status</th>
+                                <th scope="col">Rejected By</th>
                             </tr>
                         </thead>
                         <tbody id="data-table">
@@ -220,6 +223,7 @@ include "navBar.php";
                                         <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                                         <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>
                                         <td data-label="Status"><?php echo $sqlRow['status']; ?></td>
+                                        <td data-label="Status"><?php echo $sqlRow['rejected_by']; ?></td>
                                     </tr>
                                     <?php
                                 }
@@ -252,7 +256,7 @@ include "navBar.php";
                                 style="background-color: #900008; color: white; vertical-align: middle;">
                                 <th scope="col">Date/Time of Return</th>
                                 <th scope="col">Lot ID</th>
-                                <th scope="col">Part Name</th>
+                                <th scope="col">Part Number</th>
                                 <th scope="col">Qty.</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
@@ -260,6 +264,7 @@ include "navBar.php";
                                 <th scope="col">Status</th>
                                 <th scope="col">Return Qty</th>
                                 <th scope="col">Return Reason</th>
+                                <th scope="col">Received By</th>
                             </tr>
                         </thead>
                         <tbody id="data-table">
@@ -298,6 +303,7 @@ include "navBar.php";
                                         <td data-label="Status"><?php echo $sqlRow['status']; ?></td>
                                         <td data-label="Return Qty"><?php echo $sqlRow['return_qty']; ?></td>
                                         <td data-label="Return Reason"><?php echo $sqlRow['return_reason']; ?></td>
+                                        <td data-label="Received By"><?php echo $sqlRow['received_by']; ?></td>
                                     </tr>
                                     <?php
                                 }

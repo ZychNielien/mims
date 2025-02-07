@@ -10,7 +10,7 @@ $endDate = isset($_GET['endDate']) ? $_GET['endDate'] : null;
 $query = "
     SELECT tc.ccid, COUNT(tr.cost_center) AS requested_count
     FROM tbl_ccs tc
-    LEFT JOIN tbl_requested tr ON tr.cost_center = tc.ccid
+    LEFT JOIN tbl_requested tr ON tr.cost_center = tc.ccid 
 ";
 
 if ($startDate && $endDate) {
