@@ -18,8 +18,8 @@ $page = $components[4];
 
 <section>
     <div class="container">
-        <div class="welcomeDiv my-3">
-            <h2 class="text-center" style="color: #900008; font-weight: bold;">List of Registered Users</h2>
+        <div class="welcomeDiv my-4">
+            <h2 class="text-center" style="color: #900008; font-weight: bold;">Account Registration</h2>
         </div>
 
         <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -63,7 +63,7 @@ $page = $components[4];
                         if (mysqli_num_rows($sql_query) > 0) {
                             while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
                                 ?>
-                                <tr class="table-row text-center">
+                                <tr class="table-row text-center" style="vertical-align:middle;">
                                     <td data-label="Employee Name"><?php echo $sqlRow['employee_name']; ?></td>
                                     <td data-label="Badge No."><?php echo $sqlRow['badge_number']; ?></td>
                                     <td data-label="Cost Center"><?php echo $sqlRow['cost_center']; ?></td>
@@ -135,7 +135,7 @@ $page = $components[4];
                         if (mysqli_num_rows($sql_ccs_query) > 0) {
                             while ($ccs_row = mysqli_fetch_assoc($sql_ccs_query)) {
                                 ?>
-                                <tr class="text-center">
+                                <tr class="text-center" style="vertical-align:middle;">
                                     <td data-label="New CCID"><?php echo $ccs_row['ccid'] ?></td>
                                     <td data-label="New CCID Name"><?php echo $ccs_row['ccid_name'] ?></td>
                                     <td data-label="Project Code"><?php echo $ccs_row['project_code'] ?></td>
@@ -199,35 +199,42 @@ $page = $components[4];
                     <form method="POST" action="../../controller/ccs.php">
                         <div class="mb-3">
                             <label for="new_ccid" class="form-label">New CCID</label>
-                            <input type="text" class="form-control" id="new_ccid" name="new_ccid" required>
+                            <input type="text" class="form-control" id="new_ccid" name="new_ccid"
+                                placeholder="Enter CCID" required>
                         </div>
 
                         <div class="mb-3 position-relative">
                             <label for="new_ccid_name" class="form-label">New CCID Name</label>
-                            <input type="text" class="form-control" id="new_ccid_name" name="new_ccid_name" required>
+                            <input type="text" class="form-control" id="new_ccid_name" name="new_ccid_name"
+                                placeholder="Enter CCID Name" required>
                         </div>
                         <div class="mb-3 position-relative">
                             <label for="project_code" class="form-label">Project Code</label>
-                            <input type="text" class="form-control" id="project_code" name="project_code" required>
+                            <input type="text" class="form-control" id="project_code" name="project_code"
+                                placeholder="Enter Project Code" required>
                         </div>
 
                         <div class="mb-3 position-relative">
                             <label for="project_name" class="form-label">Project Name</label>
-                            <input type="text" class="form-control" id="project_name" name="project_name" required>
+                            <input type="text" class="form-control" id="project_name" name="project_name"
+                                placeholder="Enter Project Name" required>
                         </div>
                         <div class="mb-3 position-relative ">
                             <label for="badge_one" class="form-label">Badge No.</label>
                             <div class="d-flex justify-content-between">
-                                <input type="text" class="form-control mx-1" id="badge_one" name="badge_one" required>
-                                <input type="text" class="form-control mx-1" id="badge_two" name="badge_two">
+                                <input type="text" class="form-control mx-1" id="badge_one" name="badge_one"
+                                    placeholder="Enter Badge Number" required>
+                                <input type="text" class="form-control mx-1" id="badge_two" name="badge_two"
+                                    placeholder="Enter Badge Number">
                             </div>
                         </div>
                         <div class="mb-3 position-relative ">
                             <label for="supervisor_one" class="form-label">Supervisor</label>
                             <div class="d-flex justify-content-between">
                                 <input type="text" class="form-control mx-1" id="supervisor_one" name="supervisor_one"
-                                    required>
-                                <input type="text" class="form-control mx-1" id="supervisor_two" name="supervisor_two">
+                                    placeholder="Enter Supervisor" required>
+                                <input type="text" class="form-control mx-1" id="supervisor_two" name="supervisor_two"
+                                    placeholder="Enter Supervisor">
                             </div>
                         </div>
 
@@ -257,38 +264,42 @@ $page = $components[4];
                         </div>
                         <div class="mb-3">
                             <label for="edit_new_ccid" class="form-label">New CCID</label>
-                            <input type="text" class="form-control" id="edit_new_ccid" name="new_ccid" required>
+                            <input type="text" class="form-control" id="edit_new_ccid" name="new_ccid" required
+                                placeholder="Enter CCID">
                         </div>
 
                         <div class="mb-3 position-relative">
                             <label for="edit_new_ccid_name" class="form-label">New CCID Name</label>
                             <input type="text" class="form-control" id="edit_new_ccid_name" name="new_ccid_name"
-                                required>
+                                placeholder="Enter CCID Name" required>
                         </div>
                         <div class="mb-3 position-relative">
                             <label for="edit_project_code" class="form-label">Project Code</label>
-                            <input type="text" class="form-control" id="edit_project_code" name="project_code" required>
+                            <input type="text" class="form-control" id="edit_project_code" name="project_code"
+                                placeholder="Enter Project Code" required>
                         </div>
 
                         <div class="mb-3 position-relative">
                             <label for="edit_project_name" class="form-label">Project Name</label>
-                            <input type="text" class="form-control" id="edit_project_name" name="project_name" required>
+                            <input type="text" class="form-control" id="edit_project_name" name="project_name"
+                                placeholder="Enter Project Name" required>
                         </div>
                         <div class="mb-3 position-relative ">
                             <label for="edit_badge_one" class="form-label">Badge No.</label>
                             <div class="d-flex justify-content-between">
                                 <input type="text" class="form-control mx-1" id="edit_badge_one" name="badge_one"
-                                    required>
-                                <input type="text" class="form-control mx-1" id="edit_badge_two" name="badge_two">
+                                    placeholder="Enter Badge Number" required>
+                                <input type="text" class="form-control mx-1" id="edit_badge_two" name="badge_two"
+                                    placeholder="Enter Badge Number">
                             </div>
                         </div>
                         <div class="mb-3 position-relative ">
                             <label for="edit_supervisor_one" class="form-label">Supervisor</label>
                             <div class="d-flex justify-content-between">
                                 <input type="text" class="form-control mx-1" id="edit_supervisor_one"
-                                    name="supervisor_one" required>
+                                    placeholder="Enter Supervisor" name="supervisor_one" required>
                                 <input type="text" class="form-control mx-1" id="edit_supervisor_two"
-                                    name="supervisor_two">
+                                    placeholder="Enter Supervisor" name="supervisor_two">
                             </div>
                         </div>
 
@@ -315,16 +326,19 @@ $page = $components[4];
 
                         <div class="mb-3 mx-1">
                             <label for="employee_name" class="form-label">Employee Name</label>
-                            <input type="text" class="form-control" id="employee_name" name="employee_name" required>
+                            <input type="text" class="form-control" id="employee_name" name="employee_name"
+                                placeholder="Enter Employee Name" required>
                         </div>
                         <div class="mb-3 position-relative d-flex justify-content-evenly">
                             <div class="w-50 mx-1">
                                 <label for="username" class="form-label">Username</label>
-                                <input type="text" class="form-control " id="username" name="username" required>
+                                <input type="text" class="form-control " id="username" name="username"
+                                    placeholder="Enter username" required>
                             </div>
                             <div class="w-50  mx-1">
                                 <label for="passwordred" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="passwordred" name="password" required>
+                                <input type="password" class="form-control" id="passwordred" name="password"
+                                    placeholder="Enter password" required>
                                 <i class="bi bi-eye-slash" id="toggle-password"
                                     style="position: absolute; right: 10px; top: 40px; cursor: pointer;"></i>
                             </div>
@@ -332,7 +346,8 @@ $page = $components[4];
                         <div class="mb-3 position-relative d-flex justify-content-evenly">
                             <div class="w-50 mx-1">
                                 <label for="badge_number" class="form-label">Badge Number</label>
-                                <input type="text" class="form-control " id="badge_number" name="badge_number" required>
+                                <input type="text" class="form-control " id="badge_number" name="badge_number"
+                                    placeholder="Enter Badge Number" required>
                             </div>
                             <div class="w-50  mx-1">
                                 <label for="designation" class="form-label">Designation</label>
@@ -380,9 +395,9 @@ $page = $components[4];
                             <label for="create_supervisor_one" class="form-label">Supervisor</label>
                             <div class="d-flex justify-content-between">
                                 <input type="text" class="form-control mx-1" id="create_supervisor_one"
-                                    name="supervisor_one" required readonly>
+                                    placeholder="Enter Supervisor" name="supervisor_one" required readonly>
                                 <input type="text" class="form-control mx-1" id="create_supervisor_two"
-                                    name="supervisor_two" readonly>
+                                    placeholder="Enter Supervisor" name="supervisor_two" readonly>
                             </div>
                         </div>
                 </div>
@@ -395,6 +410,7 @@ $page = $components[4];
         </div>
     </div>
 
+    <!-- MODAL FOR EDIT ACCOUNT -->
     <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -408,13 +424,13 @@ $page = $components[4];
                         <div class="mb-3 mx-1">
                             <label for="edit_employee_name" class="form-label">Employee Name</label>
                             <input type="text" class="form-control" id="edit_employee_name" name="employee_name"
-                                required>
+                                placeholder="Enter Employee Name" required>
                         </div>
                         <div class="mb-3 position-relative d-flex justify-content-evenly">
                             <div class="w-50 mx-1">
                                 <label for="edit_badge_number" class="form-label">Badge Number</label>
                                 <input type="text" class="form-control " id="edit_badge_number" name="badge_number"
-                                    required>
+                                    placeholder="Enter Badge Number" required>
                             </div>
                             <div class="w-50  mx-1">
                                 <label for="edit_designation" class="form-label">Designation</label>
@@ -462,9 +478,9 @@ $page = $components[4];
                             <label for="create_edit_supervisor_one" class="form-label">Supervisor</label>
                             <div class="d-flex justify-content-between">
                                 <input type="text" class="form-control mx-1" id="create_edit_supervisor_one"
-                                    name="supervisor_one" required readonly>
+                                    placeholder="Enter Supervisor" name="supervisor_one" required readonly>
                                 <input type="text" class="form-control mx-1" id="create_edit_supervisor_two"
-                                    name="supervisor_two" readonly>
+                                    placeholder="Enter Supervisor" name="supervisor_two" readonly>
                             </div>
                         </div>
                         <div class="modal-footer">

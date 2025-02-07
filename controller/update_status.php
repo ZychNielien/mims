@@ -17,7 +17,7 @@ if (isset($_POST['action']) && isset($_POST['ids']) && !empty($_POST['ids'])) {
         $part_name = $_POST['part_name'];
 
         $ids_str = implode(',', $ids);
-        $sql = "UPDATE tbl_requested SET status = 'approved' , approve_by = '$approved_by' WHERE id IN ($ids_str)";
+        $sql = "UPDATE tbl_requested SET status = 'approved' , approve_by = '$approved_by' , dts_approve = '$dts' WHERE id IN ($ids_str)";
         if (mysqli_query($con, $sql)) {
 
             for ($i = 0; $i < count($ids); $i++) {
@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $dts = date('Y-m-d H:i:s');
     $req_by = $_POST['req_by'];
     $part_name = $_POST['part_name'];
-    $mensahe = $req_by . ' has returned ' . $return_qty . ' of ' . $part_name . '. Click here for more details.';
+    $mensahe = $req_by . ' is returning ' . $return_qty . ' of ' . $part_name . '. Click here for more details.';
     $for = "admin";
 
     if ($return_qty <= 0) {
@@ -90,15 +90,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     $sql = "UPDATE tbl_requested 
-            SET status = 'returned', return_reason = '$return_reason', dts_return = '$dts', return_qty = '$return_qty'
-            WHERE lot_id = '$lot_id' AND status = 'approved'";
+            SET status = 'returning', return_reason = '$return_reason', dts_return = '$dts', return_qty = '$return_qty'
+            WHERE id = '$lot_id' AND status = 'approved'";
 
     if (mysqli_query($con, $sql)) {
 
 
 
 
-        $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at,for_who) VALUES ('$req_by', '$mensahe',0,'$dts','$for')";
+        $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at,for_who, destination) VALUES ('$req_by', '$mensahe',0,'$dts','$for', 'Scrap')";
         $sql_notif_query = mysqli_query($con, $sql_notif);
 
         if ($sql_notif_query) {
@@ -111,5 +111,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 } else {
     echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
 }
+
 
 ?>

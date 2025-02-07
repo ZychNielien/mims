@@ -87,18 +87,25 @@ include "../../model/dbconnection.php";
             </div>
             <form method="POST" action="../../controller/inventory.php">
                 <?php
+                $selected_username = $_SESSION['username'];
+                $select_user = "SELECT * FROM tbl_users WHERE username = '$selected_username'";
+                $select_user_query = mysqli_query($con, $select_user);
+                $select_user_row = mysqli_fetch_assoc($select_user_query);
+
+
                 $query = "SELECT id, part_name FROM tbl_inventory";
                 $result = mysqli_query($con, $query);
                 ?>
+                <input type="hidden" value="<?php echo $select_user_row['cost_center'] ?>" name="cost_center">
 
                 <div class="mb-3">
                     <label for="partSelect" class="form-label">Part Name</label>
-                    <select class="form-select" id="partSelect" name="part_name">
+                    <select class="form-select" id="partSelect">
                         <option value="">Select a Part</option>
                         <?php
                         if (mysqli_num_rows($result) > 0) {
                             while ($row = mysqli_fetch_assoc($result)) {
-                                echo '<option value="' . $row['id'] . '">' . htmlspecialchars($row['part_name']) . '</option>';
+                                echo '<option value="' . $row['id'] . '" data-part_name="' . htmlspecialchars($row['part_name']) . '">' . htmlspecialchars($row['part_name']) . '</option>';
                             }
                         } else {
                             echo '<option value="">No parts available</option>';
@@ -108,9 +115,14 @@ include "../../model/dbconnection.php";
                 </div>
 
                 <div id="itemDetails" style="display: none;">
+                    <input type="hidden" id="part_name" name="part_name" />
                     <div class="mb-1">
                         <label for="part_desc" class="form-label">Item Description</label>
                         <textarea class="form-control" id="part_desc" rows="2" name="part_desc" readonly></textarea>
+                    </div>
+                    <div class="mb-1">
+                        <label for="part_option" class="form-label">Option</label>
+                        <input type="text" class="form-control" id="part_option" name="part_option" readonly>
                     </div>
                     <div class="mb-1">
                         <label for="part_qty" class="form-label">ITEM QUANTITY</label>
@@ -202,37 +214,45 @@ include "../../model/dbconnection.php";
 </section>
 
 <script>
-    document.getElementById('partSelect').addEventListener('change', function () {
-        var partId = this.value;
+    $('#partSelect').on('change', function () {
+        var partId = $(this).val();
 
         if (partId) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'fetch_part_desc.php?part_id=' + partId, true);
+            var partName = $(this).find('option:selected').data('part_name');
 
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    try {
-                        var data = JSON.parse(xhr.responseText);
+            $('#part_name').val(partName);
 
-                        if (data.part_desc) {
-                            document.getElementById('itemDetails').style.display = 'block';
-
-                            document.getElementById('part_desc').value = data.part_desc;
-                        } else {
-                            document.getElementById('part_desc').value = 'No description available';
-                        }
-                    } catch (e) {
-                        console.error('Error parsing JSON:', e);
+            $.ajax({
+                url: 'fetch_part_desc.php',
+                type: 'GET',
+                data: { part_id: partId },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.part_desc) {
+                        $('#itemDetails').show();
+                        $('#part_desc').val(data.part_desc);
+                    } else {
+                        $('#part_desc').val('No description available');
                     }
-                }
-            };
 
-            xhr.send();
+                    if (data.part_option) {
+                        $('#part_option').val(data.part_option);
+                    } else {
+                        $('#part_option').val('No option available');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX error: ' + error);
+                }
+            });
         } else {
-            document.getElementById('itemDetails').style.display = 'none';
-            document.getElementById('part_desc').value = '';
+            $('#itemDetails').hide();
+            $('#part_desc').val('');
+            $('#part_option').val('');
+            $('#part_name').val('');
         }
     });
+
 </script>
 
 <script src="../../public/js/jquery.js"></script>

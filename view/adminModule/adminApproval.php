@@ -12,8 +12,8 @@ include "../../model/dbconnection.php";
     <script src="../../public/js/jquery.js"></script>
 </head>
 <section>
-    <div class="welcomeDiv my-2">
-        <h2 class="text-center" style="color: #900008; font-weight: bold;">Welcome, <?php echo $_SESSION['username'] ?>!
+    <div class="welcomeDiv my-4">
+        <h2 class="text-center" style="color: #900008; font-weight: bold;">Withdrawal Authorization
         </h2>
     </div>
     <div class="container">
@@ -43,7 +43,7 @@ include "../../model/dbconnection.php";
                 $sql = "SELECT * FROM tbl_requested WHERE status = 'Pending' ORDER BY dts DESC";
                 $sql_query = mysqli_query($con, $sql);
 
-                if ($sql_query) {
+                if (mysqli_num_rows($sql_query) > 0) {
                     while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
                         ?>
                         <tr class=" text-center">
@@ -65,6 +65,12 @@ include "../../model/dbconnection.php";
                         </tr>
                         <?php
                     }
+                } else {
+                    ?>
+                    <tr>
+                        <td colspan="11" class="text-center">No approval found</td>
+                    </tr>
+                    <?php
                 }
                 ?>
             </tbody>

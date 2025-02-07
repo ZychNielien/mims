@@ -19,14 +19,14 @@ if (isset($_POST['loginUser'])) {
             $_SESSION['status_code'] = "success";
             while ($whichUser = mysqli_fetch_assoc($loginSQL_query)) {
 
-                if ($whichUser['usertype'] == 1) {
+                if ($whichUser['account_type'] == 'Supervisor') {
 
-                    $_SESSION['user'] = $whichUser['usertype'];
+                    $_SESSION['user'] = $whichUser['account_type'];
                     $_SESSION['username'] = $whichUser['username'];
                     header("location: ../view/adminModule/adminDashboard.php");
 
-                } else if ($whichUser['usertype'] == 2) {
-                    $_SESSION['user'] = $whichUser['usertype'];
+                } else if ($whichUser['account_type'] == 'User') {
+                    $_SESSION['user'] = $whichUser['account_type'];
                     $_SESSION['username'] = $whichUser['username'];
                     header("location: ../view/userModule/userDashboard.php");
                 }

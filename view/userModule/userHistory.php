@@ -139,7 +139,7 @@ include "navBar.php";
                                         <td data-label="Status"><?php echo $sqlRow['status']; ?></td>
                                         <td data-label="Action">
                                             <button class="btn btn-primary return-btn" data-bs-toggle="modal"
-                                                data-bs-target="#returnModal" data-lot-id="<?php echo $sqlRow['lot_id']; ?>"
+                                                data-bs-target="#returnModal" data-id="<?php echo $sqlRow['id']; ?>"
                                                 data-part-qty="<?php echo $sqlRow['part_qty']; ?>"
                                                 data-req-by="<?php echo $sqlRow['req_by']; ?>"
                                                 data-part-name="<?php echo $sqlRow['part_name']; ?>">Return</button>
@@ -354,12 +354,12 @@ include "navBar.php";
 
 <script>
     $(document).on('click', '.return-btn', function () {
-        var lotId = $(this).data('lot-id');
+        var Id = $(this).data('id');
         var partQty = $(this).data('part-qty');
         var reqBy = $(this).data('req-by');
         var partName = $(this).data('part-name');
         $('#part_namereturn').val(partName);
-        $('#lot_id').val(lotId);
+        $('#lot_id').val(Id);
         $('#reqBy').val(reqBy);
         $('#returnQty').attr('max', partQty);
         $('#returnQty').val('');
@@ -370,7 +370,7 @@ include "navBar.php";
     $('#returnForm').submit(function (e) {
         e.preventDefault();
 
-        var lotId = $('#lot_id').val();
+        var Id = $('#lot_id').val();
         var returnReason = $('#returnReason').val();
         var returnQty = $('#returnQty').val();
         var reqBy = $('#reqBy').val();
@@ -380,7 +380,7 @@ include "navBar.php";
             url: '../../controller/update_status.php',
             type: 'POST',
             data: {
-                lot_id: lotId,
+                lot_id: Id,
                 return_reason: returnReason,
                 return_qty: returnQty,
                 req_by: reqBy,

@@ -1,6 +1,7 @@
 <?php
 include "../model/dbconnection.php";
 session_start();
+date_default_timezone_set('Asia/Manila');
 
 if (isset($_POST['register'])) {
 
@@ -27,16 +28,27 @@ if (isset($_POST['register'])) {
         header("Location: ../view/adminModule/accReg.php");
     } else {
 
-        $sql = "INSERT INTO tbl_users (employee_name, username, password, badge_number, designation, account_type,cost_center,supervisor_one,supervisor_two ,usertype) VALUES ('$employee_name', '$username','$password', '$badge_number','$designation', '$account_type','$cost_center', '$supervisor_one','$supervisor_two',  2)";
-        if (mysqli_query($con, $sql)) {
-            $_SESSION['status'] = "User registered successfully!";
-            $_SESSION['status_code'] = "success";
-            header("Location: ../view/adminModule/accReg.php");
-        } else {
-            $_SESSION['status'] = "Error registering user.";
-            $_SESSION['status_code'] = "error";
-            header("Location: ../view/adminModule/accReg.php");
+        $account_username = $_SESSION['username'];
+        $desciption = $account_username . " has created an account for " . $employee_name;
+        $dts = date('Y-m-d H:i:s');
+
+        $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', 'Account Creation','$desciption' , '$dts')";
+        $sql_log_query = mysqli_query($con, $sql_log);
+
+        if ($sql_log_query) {
+            $sql = "INSERT INTO tbl_users (employee_name, username, password, badge_number, designation, account_type,cost_center,supervisor_one,supervisor_two ,usertype) VALUES ('$employee_name', '$username','$password', '$badge_number','$designation', '$account_type','$cost_center', '$supervisor_one','$supervisor_two',  2)";
+            if (mysqli_query($con, $sql)) {
+                $_SESSION['status'] = "User registered successfully!";
+                $_SESSION['status_code'] = "success";
+                header("Location: ../view/adminModule/accReg.php");
+            } else {
+                $_SESSION['status'] = "Error registering user.";
+                $_SESSION['status_code'] = "error";
+                header("Location: ../view/adminModule/accReg.php");
+            }
         }
+
+
     }
 }
 
@@ -54,9 +66,19 @@ if (isset($_POST['editUser'])) {
     $sql = "UPDATE tbl_users SET employee_name = '$employee_name' , badge_number = '$badge_number' , designation = '$designation' , account_type = '$account_type' , cost_center = '$cost_center' , supervisor_one = '$supervisor_one' , supervisor_two = '$supervisor_two' WHERE id = '$user_id'";
 
     if (mysqli_query($con, $sql)) {
-        $_SESSION['status'] = "User details updated successfully!";
-        $_SESSION['status_code'] = "success";
-        header("Location: ../view/adminModule/accReg.php");
+
+        $account_username = $_SESSION['username'];
+        $desciption = $account_username . " has made changes to the account of " . $employee_name;
+        $dts = date('Y-m-d H:i:s');
+
+        $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', 'Account Edit','$desciption' , '$dts')";
+        $sql_log_query = mysqli_query($con, $sql_log);
+
+        if ($sql_log_query) {
+            $_SESSION['status'] = "User details updated successfully!";
+            $_SESSION['status_code'] = "success";
+            header("Location: ../view/adminModule/accReg.php");
+        }
     } else {
         $_SESSION['status'] = "Error updating user details.";
         $_SESSION['status_code'] = "error";
@@ -69,10 +91,24 @@ if (isset($_GET['id'])) {
 
     $sql = "DELETE FROM tbl_users WHERE id = '$user_id'";
 
+    $sql_user = "SELECT username FROM `tbl_users` WHERE id = '$user_id'";
+    $sql_user_query = mysqli_query($con, $sql_user);
+    $userRow = mysqli_fetch_assoc($sql_user_query);
+    $employee_name = $userRow['username'];
+
     if (mysqli_query($con, $sql)) {
-        $_SESSION['status'] = "User deleted successfully!";
-        $_SESSION['status_code'] = "success";
-        header("Location: ../view/adminModule/accReg.php");
+        $account_username = $_SESSION['username'];
+        $desciption = $account_username . " has deleted the account of " . $employee_name;
+        $dts = date('Y-m-d H:i:s');
+
+        $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', 'Account Deletion','$desciption' , '$dts')";
+        $sql_log_query = mysqli_query($con, $sql_log);
+
+        if ($sql_log_query) {
+            $_SESSION['status'] = "User deleted successfully!";
+            $_SESSION['status_code'] = "success";
+            header("Location: ../view/adminModule/accReg.php");
+        }
     } else {
         $_SESSION['status'] = "Error deleting user.";
         $_SESSION['status_code'] = "error";
@@ -171,30 +207,24 @@ if (isset($_POST['changePassUser'])) {
     }
 }
 
-// Check if the ccid (Cost Center ID) is passed and is not empty
 if (isset($_POST['ccid']) && !empty($_POST['ccid'])) {
-    $ccid = $_POST['ccid'];  // Get the selected CCID from the POST data
+    $ccid = $_POST['ccid'];
 
-    // Query to fetch supervisor information based on the selected CCID
     $query = "SELECT supervisor_one, supervisor_two FROM tbl_ccs WHERE id = '$ccid'";
     $result = mysqli_query($con, $query);
 
-    $response = array();  // Prepare the response array
+    $response = array();
 
-    // Check if query was successful and if any result is found
     if ($result && mysqli_num_rows($result) > 0) {
         $row = mysqli_fetch_assoc($result);
 
-        // Store the supervisor data in the response array
         $response['supervisor_one'] = $row['supervisor_one'];
         $response['supervisor_two'] = $row['supervisor_two'];
     } else {
-        // If no supervisor data found, set the fields to null
         $response['supervisor_one'] = null;
         $response['supervisor_two'] = null;
     }
 
-    // Return the response as JSON
     echo json_encode($response);
 }
 ?>

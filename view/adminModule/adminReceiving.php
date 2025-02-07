@@ -39,7 +39,7 @@ include "../../model/dbconnection.php";
                 $sql = "SELECT * FROM tbl_history WHERE status = 'Received'  ORDER BY dts DESC";
                 $sql_query = mysqli_query($con, $sql);
 
-                if ($sql_query) {
+                if (mysqli_num_rows($sql_query) > 0) {
                     while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
                         ?>
                         <tr class="table-row  text-center">
@@ -55,6 +55,12 @@ include "../../model/dbconnection.php";
                         </tr>
                         <?php
                     }
+                } else {
+                    ?>
+                    <tr>
+                        <td colspan="11" class="text-center">No items found</td>
+                    </tr>
+                    <?php
                 }
                 ?>
             </tbody>

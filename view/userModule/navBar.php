@@ -5,7 +5,7 @@ $path = parse_url($directoryURI, PHP_URL_PATH);
 $components = explode("/", $path);
 $page = $components[4];
 
-if ($_SESSION['user'] == 1) {
+if ($_SESSION['user'] == 'Supervisor') {
     $_SESSION['status'] = "The link is for user only.";
     $_SESSION['status_code'] = "error";
     header("Location: ../adminModule/adminDashboard.php");
@@ -46,6 +46,12 @@ if (!isset($_SESSION['username'])) {
 
         .nav-item a {
             text-align: center;
+        }
+
+        .amessage {
+            text-decoration: none;
+            list-style: none;
+            color: #000;
         }
 
         .amessage {

@@ -11,7 +11,7 @@ if ($con->connect_error) {
 }
 $username = $_SESSION['username'];
 
-if ($_SESSION['user'] == 1) {
+if ($_SESSION['user'] == 'Supervisor') {
     $sql = "SELECT * FROM tbl_notif WHERE for_who = 'admin' ORDER BY created_at DESC";
     $result = $con->query($sql);
 
@@ -31,7 +31,7 @@ if ($_SESSION['user'] == 1) {
     } else {
         echo json_encode($notifications);
     }
-} else if ($_SESSION['user'] == 2) {
+} else if ($_SESSION['user'] == 'User') {
 
     $sql = "SELECT * FROM tbl_notif WHERE for_who = 'user' AND username = '$username' ORDER BY created_at DESC";
     $result = $con->query($sql);

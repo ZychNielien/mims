@@ -7,7 +7,8 @@ $components = explode("/", $path);
 $page = $components[4];
 
 
-if ($_SESSION['user'] == 2) {
+
+if ($_SESSION['user'] == 'User') {
     $_SESSION['status'] = "The link is for admin only.";
     $_SESSION['status_code'] = "error";
     header("Location: ../userModule/userDashboard.php");
@@ -52,6 +53,13 @@ if (!isset($_SESSION['username'])) {
             text-decoration: none;
             list-style: none;
             color: #000;
+        }
+
+        .amessage:focus,
+        .amessage:active {
+            outline: none;
+            text-decoration: none;
+            color: inherit;
         }
 
         .nav-item a {
@@ -160,6 +168,16 @@ if (!isset($_SESSION['username'])) {
                             echo "nav-link text-white";
                         }
                         ?>
+                    " aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="adminInventory.php" class=" <?php
+                        if ($page == "adminInventory.php") {
+                            echo "nav-link active";
+                        } else {
+                            echo "nav-link text-white";
+                        }
+                        ?>
                     " aria-current="page" href="#">Inventory</a>
                     </li>
                     <li class="nav-item">
@@ -187,6 +205,7 @@ if (!isset($_SESSION['username'])) {
                             <li><a class="dropdown-item" href="adminIssuance.php">Issuance History</a></li>
                             <li><a class="dropdown-item" href="adminReceiving.php">Receiving History</a></li>
                             <li><a class="dropdown-item" href="adminRejection.php">Rejection History</a></li>
+                            <li><a class="dropdown-item" href="adminExpired.php">Expired Part History</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
@@ -197,7 +216,7 @@ if (!isset($_SESSION['username'])) {
                             echo "nav-link text-white";
                         }
                         ?>
-                    " href="#">Scrap Material</a>
+                    " href="#">Scrap</a>
                     </li>
                     <li class="nav-item">
                         <a href="accReg.php" class=" <?php
@@ -407,13 +426,23 @@ if (!isset($_SESSION['username'])) {
 
                         const formattedTimeAgo = timeAgo(notification.created_at);
 
+                        let notificationLink = "adminApproval.php";
+                        if (notification.destination === "Scrap") {
+                            notificationLink = "adminScrap.php";
+                        } else if (notification.destination === "Inventory") {
+                            notificationLink = "adminInventory.php";
+                        } else if (notification.destination === "Expired") {
+                            notificationLink = "adminExpired.php";
+                        }
+
                         notificationElement.append(`
-                    <div><a class="amessage" href="adminApproval.php">
-                        <div class="d-flex justify-content-between">
-                            <strong>${notification.username}</strong>  
-                            <small>${formattedTimeAgo}</small>
-                        </div>
-                        <p class="notification-message">${notification.message}</p>
+                    <div>
+                        <a class="amessage" href="${notificationLink}">
+                            <div class="d-flex justify-content-between">
+                                <strong>${notification.username}</strong>  
+                                <small>${formattedTimeAgo}</small>
+                            </div>
+                            <p class="notification-message">${notification.message}</p>
                         </a>
                     </div>
                 `);
@@ -423,7 +452,6 @@ if (!isset($_SESSION['username'])) {
                         }
 
                         notificationMenu.append(notificationElement);
-
                         notificationMenu.append('<hr class="notification-separator">');
 
                         if (notification.is_read == 0) {
