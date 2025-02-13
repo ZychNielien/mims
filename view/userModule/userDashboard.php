@@ -126,12 +126,23 @@ include "../../model/dbconnection.php";
                     </div>
                     <div class="mb-1">
                         <label for="part_qty" class="form-label">ITEM QUANTITY</label>
-                        <input type="number" class="form-control" id="part_qty" name="part_qty"
-                            aria-describedby="emailHelp">
+                        <input type="number" class="form-control" id="part_qty" name="part_qty" required>
                     </div>
                     <div class="mb-1">
                         <label for="station_code" class="form-label">STATION CODE</label>
-                        <input type="text" class="form-control" id="station_code" name="station_code">
+                        <select class="form-select" id="station_code" name="station_code" required>
+                            <option value="CDP 1">CDP 1</option>
+                            <option value="CDP 2">CDP 2</option>
+                            <option value="CDP 3">CDP 3</option>
+                            <option value="DA">DA</option>
+                            <option value="WB">WB</option>
+                            <option value="Mold">Mold</option>
+                            <option value="EDL">EDL</option>
+                            <option value="Engg">Engg</option>
+                            <option value="MEE">MEE</option>
+                            <option value="MFG">MFG</option>
+                        </select>
+
                     </div>
                     <div class="mb-1" style="display: none;">
                         <label for="req_by" class="form-label">Req By</label>
@@ -141,16 +152,24 @@ include "../../model/dbconnection.php";
 
                     <div class="mb-1">
                         <label for="machine_no" class="form-label">MACHINE NUMBER</label>
-                        <input type="text" class="form-control" id="machine_no" name="machine_no"
-                            aria-describedby="emailHelp">
+                        <input type="text" class="form-control" id="machine_no" name="machine_no" required>
                     </div>
                     <div class="mb-1">
                         <label for="lot_id" class="form-label">LOT ID</label>
-                        <input type="text" class="form-control" id="lot_id" name="lot_id">
+                        <input type="text" class="form-control" id="lot_id" name="lot_id" required>
                     </div>
                     <div class="mb-1">
                         <label for="with_reason" class="form-label">WITHDRAWAL REASON</label>
-                        <textarea class="form-control" id="with_reason" name="with_reason" rows="4"></textarea>
+                        <select class="form-select" id="with_reason" name="with_reason" required>
+                            <option value="MC Setup">MC Setup</option>
+                            <option value="Replacement">Replacement</option>
+                            <option value="General Use">General Use</option>
+                            <option value="Change Cap">Change Cap</option>
+                            <option value="Dummy Use">Dummy Use</option>
+                            <option value="Engineering Eval">Engineering Eval</option>
+                            <option value="Use for Packaging">Use for Packaging</option>
+                            <option value="Use for Cleaning">Use for Cleaning</option>
+                        </select>
                     </div>
                     <button type="submit" class="btn btn-primary" name="req_part">Submit</button>
                 </div>

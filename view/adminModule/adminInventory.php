@@ -306,102 +306,121 @@ include "../../model/dbconnection.php";
 </section>
 <script src="../../public/js/excel.js"></script>
 
-
-
 <script>
-    $(document).ready(function () {
-
-        // EDIT BUTTON FOR PART NUMBER
-        $('.edit-btn').on('click', function () {
-            const partId = $(this).data('id');
-            const partName = $(this).data('name');
-            const partDesc = $(this).data('desc');
-            const partcost_center = $(this).data('cost_center');
-            const partlocation = $(this).data('location');
-            const partmin_invent_req = $(this).data('min_invent_req');
-            const partunit = $(this).data('unit');
-            const partOption = $(this).data('part_option');
-
-            $('#part_id').val(partId);
-            $('#part_name').val(partName);
-            $('#part_desc').val(partDesc);
-            $('#part_cost_center').val(partcost_center);
-            $('#part_location').val(partlocation);
-            $('#part_min_invent_req').val(partmin_invent_req);
-            $('#part_unit').val(partunit);
-            $('#part_option').val(partOption);
-
-            $('#editModal').modal('show');
+    // Function to check account type from server and hide the button if needed
+    function checkAccountTypeAndHideButton() {
+        $.ajax({
+            url: '../../controller/getAccountType.php', // PHP file location
+            type: 'GET',
+            data: { user_id: USER_ID }, // Replace USER_ID with the actual user ID
+            success: function (response) {
+                var accountType = response.trim();
+                if (accountType === "kitting") {
+                    $('#delete-selected-btn').hide();
+                }
+            }
         });
+    }
+
+    // Call the function on page load or whenever necessary
+    $(document).ready(function () {
+        checkAccountTypeAndHideButton();
+    });
+
+    <script>
+        $(document).ready(function () {
+
+            // EDIT BUTTON FOR PART NUMBER
+            $('.edit-btn').on('click', function () {
+                const partId = $(this).data('id');
+                const partName = $(this).data('name');
+                const partDesc = $(this).data('desc');
+                const partcost_center = $(this).data('cost_center');
+                const partlocation = $(this).data('location');
+                const partmin_invent_req = $(this).data('min_invent_req');
+                const partunit = $(this).data('unit');
+                const partOption = $(this).data('part_option');
+
+                $('#part_id').val(partId);
+                $('#part_name').val(partName);
+                $('#part_desc').val(partDesc);
+                $('#part_cost_center').val(partcost_center);
+                $('#part_location').val(partlocation);
+                $('#part_min_invent_req').val(partmin_invent_req);
+                $('#part_unit').val(partunit);
+                $('#part_option').val(partOption);
+
+                $('#editModal').modal('show');
+            });
 
         // SHOW HIDDEN INPUTS IN ADD TO STOCK MODAL
         $(document).on('change', '#partSelect', function () {
             var partId = $(this).find('option:selected').data('id');
 
-            if (partId) {
-                $.ajax({
-                    url: 'fetch_part_desc.php',
-                    type: 'GET',
-                    data: { part_id: partId },
-                    success: function (response) {
+        if (partId) {
+            $.ajax({
+                url: 'fetch_part_desc.php',
+                type: 'GET',
+                data: { part_id: partId },
+                success: function (response) {
 
-                        if (response.error) {
-                            $('#exampleTextarea').val(response.error);
-                            $('#itemDetails').hide();
+                    if (response.error) {
+                        $('#exampleTextarea').val(response.error);
+                        $('#itemDetails').hide();
+                    } else {
+                        if (response.part_desc) {
+                            $('#itemDetails').show();
+                            $('#exampleTextarea').val(response.part_desc);
                         } else {
-                            if (response.part_desc) {
-                                $('#itemDetails').show();
-                                $('#exampleTextarea').val(response.part_desc);
-                            } else {
-                                $('#exampleTextarea').val('No description available');
-                            }
+                            $('#exampleTextarea').val('No description available');
                         }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('AJAX Error: ' + status + ', ' + error);
-                        $('#exampleTextarea').val('Error fetching data');
                     }
-                });
+                },
+                error: function (xhr, status, error) {
+                    console.error('AJAX Error: ' + status + ', ' + error);
+                    $('#exampleTextarea').val('Error fetching data');
+                }
+            });
             } else {
-                $('#itemDetails').hide();
-                $('#exampleTextarea').val('');
+            $('#itemDetails').hide();
+        $('#exampleTextarea').val('');
             }
         });
 
         // EXPORT BUTTON
         $('#export-btn').click(function () {
             var visibleRows = $('#data-table .table-row');
-            var filteredRows = [];
+        var filteredRows = [];
 
-            visibleRows.each(function () {
+        visibleRows.each(function () {
                 if ($(this).css('display') !== 'none') {
-                    filteredRows.push(this);
+            filteredRows.push(this);
                 }
             });
 
-            var table = $('<table></table>');
-            var headerRow = $('table thead').clone(true);
-            var ths = headerRow.find('th');
-            ths.first().remove();
-            ths.last().remove();
-            table.append(headerRow);
+        var table = $('<table></table>');
+        var headerRow = $('table thead').clone(true);
+        var ths = headerRow.find('th');
+        ths.first().remove();
+        ths.last().remove();
+        table.append(headerRow);
 
-            $(filteredRows).each(function () {
+        $(filteredRows).each(function () {
                 var newRow = $(this).clone(true);
-                var tds = newRow.find('td');
-                tds.first().remove();
-                tds.last().remove();
-                table.append(newRow);
+        var tds = newRow.find('td');
+        tds.first().remove();
+        tds.last().remove();
+        table.append(newRow);
             });
 
-            var wb = XLSX.utils.table_to_book(table[0], { sheet: "Filtered Data" });
-            XLSX.writeFile(wb, "Inventory.xlsx");
+        var wb = XLSX.utils.table_to_book(table[0], {sheet: "Filtered Data" });
+        XLSX.writeFile(wb, "Inventory.xlsx");
         });
 
         // SELECT ALL CHECKBOX FUNCTION
         $('#select-all').change(function () {
             var checkboxes = $('input[name="selected_items[]"]');
-            checkboxes.prop('checked', this.checked);
+        checkboxes.prop('checked', this.checked);
         });
 
         // DELETE ALL SELECTED CHECKBOX FUNCTION
@@ -409,103 +428,103 @@ include "../../model/dbconnection.php";
             var selectedItems = $('input[name="selected_items[]"]:checked');
 
             if (selectedItems.length > 0) {
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, delete them!',
-                    cancelButtonText: 'Cancel'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        var selectedIds = [];
-                        selectedItems.each(function () {
-                            selectedIds.push($(this).val());
-                        });
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete them!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var selectedIds = [];
+                    selectedItems.each(function () {
+                        selectedIds.push($(this).val());
+                    });
 
-                        var formData = new FormData($('#deleteAll')[0]);
-                        formData.append('delete_multiple', true);
-                        formData.append('selected_items', JSON.stringify(selectedIds));
+                    var formData = new FormData($('#deleteAll')[0]);
+                    formData.append('delete_multiple', true);
+                    formData.append('selected_items', JSON.stringify(selectedIds));
 
-                        $.ajax({
-                            url: '../../controller/inventory.php',
-                            method: 'POST',
-                            data: formData,
-                            processData: false,
-                            contentType: false,
-                            success: function (response) {
-                                var data = JSON.parse(response);
-                                if (data.success) {
-                                    Swal.fire({
-                                        title: 'Deleted!',
-                                        text: data.message,
-                                        icon: 'success'
-                                    }).then(() => {
-                                        location.reload();
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        title: 'Error!',
-                                        text: data.message,
-                                        icon: 'error'
-                                    });
-                                }
-                            },
-                            error: function () {
+                    $.ajax({
+                        url: '../../controller/inventory.php',
+                        method: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            var data = JSON.parse(response);
+                            if (data.success) {
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: data.message,
+                                    icon: 'success'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
                                 Swal.fire({
                                     title: 'Error!',
-                                    text: "There was an issue with the request. Please try again.",
+                                    text: data.message,
                                     icon: 'error'
                                 });
                             }
-                        });
-                    }
-                });
+                        },
+                        error: function () {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: "There was an issue with the request. Please try again.",
+                                icon: 'error'
+                            });
+                        }
+                    });
+                }
+            });
             } else {
-                Swal.fire({
-                    title: 'No items selected!',
-                    text: "Please select at least one item to delete.",
-                    icon: 'error'
-                });
+            Swal.fire({
+                title: 'No items selected!',
+                text: "Please select at least one item to delete.",
+                icon: 'error'
+            });
             }
         });
 
         $('tbody').on('click', '.edit-btn', function () {
             const partId = $(this).data('id');
-            const partName = $(this).data('name');
-            const partDesc = $(this).data('desc');
-            const partcost_center = $(this).data('cost_center');
-            const partlocation = $(this).data('location');
-            const partmin_invent_req = $(this).data('min_invent_req');
-            const partunit = $(this).data('unit');
-            const partOption = $(this).data('part_option');
+        const partName = $(this).data('name');
+        const partDesc = $(this).data('desc');
+        const partcost_center = $(this).data('cost_center');
+        const partlocation = $(this).data('location');
+        const partmin_invent_req = $(this).data('min_invent_req');
+        const partunit = $(this).data('unit');
+        const partOption = $(this).data('part_option');
 
-            $('#part_id').val(partId);
-            $('#part_name').val(partName);
-            $('#part_desc').val(partDesc);
-            $('#part_cost_center').val(partcost_center);
-            $('#part_location').val(partlocation);
-            $('#part_min_invent_req').val(partmin_invent_req);
-            $('#part_unit').val(partunit);
-            $('#part_option').val(partOption);
-            $('#editModal').modal('show');
+        $('#part_id').val(partId);
+        $('#part_name').val(partName);
+        $('#part_desc').val(partDesc);
+        $('#part_cost_center').val(partcost_center);
+        $('#part_location').val(partlocation);
+        $('#part_min_invent_req').val(partmin_invent_req);
+        $('#part_unit').val(partunit);
+        $('#part_option').val(partOption);
+        $('#editModal').modal('show');
         });
 
         function updateTable(data) {
             $('tbody').empty();
 
-            if (data.length === 0) {
+        if (data.length === 0) {
                 var noDataRow = `
-            <tr>
-                <td colspan="7" class="text-center">No parts found</td>
-            </tr>
+        <tr>
+            <td colspan="7" class="text-center">No parts found</td>
+        </tr>
         `;
-                $('tbody').append(noDataRow);
+        $('tbody').append(noDataRow);
             } else {
-                $.each(data, function (index, item) {
-                    var rowClass = parseFloat(item.total_part_qty) < parseFloat(item.min_invent_req) ? 'text-danger fw-bold' : '';
+            $.each(data, function (index, item) {
+                var rowClass = parseFloat(item.total_part_qty) < parseFloat(item.min_invent_req) ? 'text-danger fw-bold' : '';
 
-                    var row = `
+                var row = `
                 <tr class="table-row text-center" style="vertical-align: middle;" data-part-qty="${item.part_qty}" data-min-invent-req="${item.min_invent_req}">
                     <td><input type="checkbox" name="selected_items[]" value="${item.id}"></td>
                     <td data-label="Part Name" class="${rowClass}">${item.part_name}</td>
@@ -527,8 +546,8 @@ include "../../model/dbconnection.php";
                 </tr>
             `;
 
-                    $('tbody').append(row);
-                });
+                $('tbody').append(row);
+            });
             }
         }
 

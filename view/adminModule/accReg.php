@@ -353,6 +353,7 @@ $page = $components[4];
                                 <label for="designation" class="form-label">Designation</label>
                                 <select class="form-select" id="designation" name="designation" required>
                                     <option selected value="">Select Designation</option>
+                                    <option value="Supervisor">Supervisor</option>
                                     <option value="Kitting">Kitting</option>
                                     <option value="Inspector">Inspector</option>
                                     <option value="Operator">Operator</option>
@@ -365,6 +366,7 @@ $page = $components[4];
                                 <select class="form-select" id="account_type" name="account_type" required>
                                     <option selected value="">Select Account Type</option>
                                     <option value="User">User</option>
+                                    <option value="Kitting">Kitting</option>
                                     <option value="Supervisor">Supervisor</option>
                                 </select>
                             </div>
