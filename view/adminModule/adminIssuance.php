@@ -53,7 +53,7 @@ include "../../model/dbconnection.php";
                             <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
                             <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                             <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>
-                            <td data-label="Approved By"><?php echo $sqlRow['approve_by']; ?></td>
+                            <td data-label="Approved By"><?php echo $sqlRow['approved_by']; ?></td>
                             <td data-label="Status"><?php echo $sqlRow['status']; ?></td>
                         </tr>
                         <?php
