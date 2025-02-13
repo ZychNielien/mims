@@ -25,6 +25,10 @@ if (isset($_POST['loginUser'])) {
                     $_SESSION['username'] = $whichUser['username'];
                     header("location: ../view/adminModule/adminDashboard.php");
 
+                } else if ($whichUser['account_type'] == 'Kitting') {
+                    $_SESSION['user'] = $whichUser['account_type'];
+                    $_SESSION['username'] = $whichUser['username'];
+                    header("location: ../view/adminModule/adminDashboard.php");
                 } else if ($whichUser['account_type'] == 'User') {
                     $_SESSION['user'] = $whichUser['account_type'];
                     $_SESSION['username'] = $whichUser['username'];

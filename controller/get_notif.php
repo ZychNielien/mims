@@ -11,7 +11,7 @@ if ($con->connect_error) {
 }
 $username = $_SESSION['username'];
 
-if ($_SESSION['user'] == 'Supervisor') {
+if ($_SESSION['user'] == 'Supervisor' || $_SESSION['user'] == 'Kitting') {
     $sql = "SELECT * FROM tbl_notif WHERE for_who = 'admin' ORDER BY created_at DESC";
     $result = $con->query($sql);
 

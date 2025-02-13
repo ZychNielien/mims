@@ -312,12 +312,18 @@ include "../../model/dbconnection.php";
         $.ajax({
             url: '../../controller/getAccountType.php', // PHP file location
             type: 'GET',
-            data: { user_id: USER_ID }, // Replace USER_ID with the actual user ID
             success: function (response) {
-                var accountType = response.trim();
-                if (accountType === "kitting") {
-                    $('#delete-selected-btn').hide();
+                try {
+                    var accountType = JSON.parse(response);
+                    if (accountType === "Kitting") {
+                        $('#delete-selected-btn').hide();
+                    }
+                } catch (error) {
+                    console.error("Error parsing JSON:", error);
                 }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error("Error fetching notifications:", textStatus, errorThrown);
             }
         });
     }
@@ -326,6 +332,8 @@ include "../../model/dbconnection.php";
     $(document).ready(function () {
         checkAccountTypeAndHideButton();
     });
+</script>
+
 
     <script>
         $(document).ready(function () {
