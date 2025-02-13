@@ -84,7 +84,6 @@ if (isset($_POST['update_part_qty'])) {
     }
 }
 if (isset($_POST['req_part'])) {
-
     $part_id = $_POST['part_name'];
     $dts = date('Y-m-d H:i:s');
     $lot_id = $_POST['lot_id'];
@@ -151,12 +150,16 @@ if (isset($_POST['req_part'])) {
                 $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
                               VALUES ('$req_by', '$mensahe', 0, '$dts', '$for', 'Approval')";
                 if (mysqli_query($con, $sql_notif)) {
+                    // Check if the total available stock is below the minimum inventory requirement after the request
                     $check_min_inventory_sql = "SELECT ti.min_invent_req FROM tbl_inventory ti WHERE ti.part_name = '$part_name'";
                     $min_invent_req_query = mysqli_query($con, $check_min_inventory_sql);
                     $min_invent_req_row = mysqli_fetch_assoc($min_invent_req_query);
                     $min_invent_req = $min_invent_req_row['min_invent_req'];
 
-                    if ($min_invent_req > $part_qty_remaining) {
+                    // Recalculate total available stock after the request
+                    $total_available_stock -= $updated_part_qty;
+
+                    if ($total_available_stock < $min_invent_req) {
                         $mensahe_system = htmlspecialchars($part_name, ENT_QUOTES, 'UTF-8') . ' has reached the minimum inventory level and needs restocking.';
                         $update_admin_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
                                                VALUES ('System', '$mensahe_system', 0, '$dts', '$for', 'Inventory')";
@@ -191,7 +194,6 @@ if (isset($_POST['req_part'])) {
 }
 
 if (isset($_POST['mat_req_part'])) {
-
     $part_id = $_POST['part_name'];
     $dts = date('Y-m-d H:i:s');
     $lot_id = $_POST['lot_id'];
@@ -263,7 +265,9 @@ if (isset($_POST['mat_req_part'])) {
                     $min_invent_req_row = mysqli_fetch_assoc($min_invent_req_query);
                     $min_invent_req = $min_invent_req_row['min_invent_req'];
 
-                    if ($min_invent_req > $part_qty_remaining) {
+                    $total_available_stock -= $updated_part_qty;
+
+                    if ($total_available_stock < $min_invent_req) {
                         $mensahe_system = htmlspecialchars($part_name, ENT_QUOTES, 'UTF-8') . ' has reached the minimum inventory level and needs restocking.';
                         $update_admin_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
                                                VALUES ('System', '$mensahe_system', 0, '$dts', '$for', 'Inventory')";
@@ -296,6 +300,7 @@ if (isset($_POST['mat_req_part'])) {
         exit();
     }
 }
+
 
 
 if (isset($_POST['action']) && $_POST['action'] === 'delete_selected' && isset($_POST['ids'])) {
