@@ -46,7 +46,8 @@ include "../../model/dbconnection.php";
         <h2 class="text-center">Top Material Consumption / Withdrawal</h2>
     </div>
     <div class="container combineContainer my-4 w-50">
-        <div class="d-flex flex-wrap justify-content-evenly align-center w-100">
+
+        <div class="d-flex justify-content-evenly align-center w-100 ">
             <div class="text-center">
                 <label for="start_date">Start Date</label>
                 <input type="date" id="start_date" class="form-control"
@@ -57,57 +58,19 @@ include "../../model/dbconnection.php";
                 <input type="date" id="end_date" class="form-control"
                     value="<?php echo isset($_GET['end_date']) ? $_GET['end_date'] : ''; ?>">
             </div>
-            <div class="text-center">
-                <label for="cost_center">Cost Center</label>
-                <select class="form-select" id="cost_center">
-                    <option selected value="">Select Cost Center</option>
-                    <?php
-                    $select_ccid = "SELECT * FROM tbl_ccs";
-                    $select_ccid_query = mysqli_query($con, $select_ccid);
-
-                    if (mysqli_num_rows($select_ccid_query) > 0) {
-                        while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
-                            ?>
-                            <option value="<?php echo $ccid_row['ccid'] ?>" data-id="<?php echo $ccid_row['id'] ?>">
-                                <?php echo $ccid_row['ccid'] ?>
-                            </option>
-                            <?php
-                        }
-                    }
-                    ?>
-                </select>
-            </div>
-            <div class="text-center">
-                <label for="station_code">Station Code</label>
-                <select class="form-select" id="station_code" name="station_code">
-                    <option selected value="">Select Station Code</option>
-                    <option value="CDP 1">CDP 1</option>
-                    <option value="CDP 2">CDP 2</option>
-                    <option value="CDP 3">CDP 3</option>
-                    <option value="DA">DA</option>
-                    <option value="WB">WB</option>
-                    <option value="Mold">Mold</option>
-                    <option value="EDL">EDL</option>
-                    <option value="Engg">Engg</option>
-                    <option value="MEE">MEE</option>
-                    <option value="MFG">MFG</option>
-                </select>
-            </div>
-
         </div>
-        <div class="d-flex justify-content-center">
-            <button id="with_export_btn" class="btn btn-success mt-2">Export to Excel</button>
-        </div>
+
         <div id="chart-container" class="my-4">
             <canvas id="combinedChart"></canvas>
         </div>
+
     </div>
 
     <div class="px-5 py-2">
         <h2 class="text-center">Cost Center With Highest Withdrawal</h2>
     </div>
 
-    <div class="d-flex flex-wrap justify-content-evenly align-center w-100 ">
+    <div class="d-flex justify-content-evenly align-center w-100 ">
         <div class="text-center">
             <label for="startDate" class="m-0">Start Date:</label>
             <input type="date" id="startDate" class="form-control">
@@ -116,29 +79,6 @@ include "../../model/dbconnection.php";
             <label for="endDate" class="m-0">End Date:</label>
             <input type="date" id="endDate" class="form-control">
         </div>
-        <div class="text-center">
-            <label for="endDate" class="m-0">Part Number:</label>
-            <?php
-            $query = "SELECT id, part_name FROM tbl_inventory";
-            $result = mysqli_query($con, $query);
-            ?>
-            <select class="form-select" id="mat_partSelect">
-                <option value="">Select a Part</option>
-                <?php
-                if (mysqli_num_rows($result) > 0) {
-                    while ($row = mysqli_fetch_assoc($result)) {
-                        echo '<option value="' . $row['part_name'] . '">' . htmlspecialchars($row['part_name']) . '</option>';
-                    }
-                } else {
-                    echo '<option value="">No parts available</option>';
-                }
-                ?>
-            </select>
-        </div>
-        <div class="text-center">
-            <button id="export-btn" class="btn btn-success mt-2">Export to Excel</button>
-        </div>
-
     </div>
 
 
@@ -166,8 +106,6 @@ include "../../model/dbconnection.php";
     </div>
 </section>
 
-<script src="../../public/js/excel.js"></script>
-
 <script>
     $(document).ready(function () {
         var partNames = [];
@@ -175,24 +113,14 @@ include "../../model/dbconnection.php";
         var returnQtys = [];
         var combinedChart = null;
 
-        function updateChartData(start_date, end_date, cost_center, station_code) {
-            var requestData = {
-                start_date: start_date,
-                end_date: end_date
-            };
-
-            if (cost_center !== '') {
-                requestData.cost_center = cost_center;
-            }
-
-            if (station_code !== '') {
-                requestData.station_code = station_code;
-            }
-
+        function updateChartData(start_date, end_date) {
             $.ajax({
                 url: '../../controller/fetch_graph.php',
                 type: 'GET',
-                data: requestData,
+                data: {
+                    start_date: start_date,
+                    end_date: end_date
+                },
                 success: function (response) {
                     var data = JSON.parse(response);
                     partNames = data.part_names;
@@ -204,16 +132,18 @@ include "../../model/dbconnection.php";
             });
         }
 
-        $('#start_date, #end_date, #cost_center, #station_code').on('change', function () {
+        $('#start_date, #end_date').on('change', function () {
             var start_date = $('#start_date').val();
             var end_date = $('#end_date').val();
-            var cost_center = $('#cost_center').val();
-            var station_code = $('#station_code').val();
 
-            updateChartData(start_date, end_date, cost_center, station_code);
+            if (start_date && end_date) {
+                updateChartData(start_date, end_date);
+            } else {
+                updateChartData('', '');
+            }
         });
 
-        updateChartData('', '', '', '');
+        updateChartData('', '');
 
         function createChart(partNames, partQtys, returnQtys) {
             var ctx = document.getElementById('combinedChart').getContext('2d');
@@ -281,15 +211,14 @@ include "../../model/dbconnection.php";
 
         var barChart;
 
-        function fetchData(startDate = null, endDate = null, partName = null) {
+        function fetchData(startDate = null, endDate = null) {
             $.ajax({
                 url: '../../controller/fetch_graph_ccs.php',
                 method: 'GET',
                 dataType: 'json',
                 data: {
                     startDate: startDate,
-                    endDate: endDate,
-                    partName: partName
+                    endDate: endDate
                 },
                 success: function (data) {
                     var ccidValues = [];
@@ -331,7 +260,7 @@ include "../../model/dbconnection.php";
                         data: {
                             labels: ccidValues,
                             datasets: [{
-                                label: 'Withdrawn Count',
+                                label: 'Requested Count',
                                 data: requestCountValues,
                                 backgroundColor: '#900008',
                                 borderColor: '#900008',
@@ -352,7 +281,7 @@ include "../../model/dbconnection.php";
                                     beginAtZero: true,
                                     title: {
                                         display: true,
-                                        text: 'Withdrawn Count'
+                                        text: 'Requested Count'
                                     }
                                 }
                             }
@@ -367,58 +296,12 @@ include "../../model/dbconnection.php";
 
         fetchData();
 
-        $('#startDate, #endDate, #mat_partSelect').on('change', function () {
+        $('#startDate, #endDate').on('change', function () {
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
-            var partName = $('#mat_partSelect').val();
 
-            fetchData(startDate, endDate, partName);
+            fetchData(startDate, endDate);
         });
-
-        $('#with_export_btn').click(function () {
-            var table = $('<table></table>');
-            var headerRow = $('<tr></tr>');
-            headerRow.append('<th>Part Name</th>');
-            headerRow.append('<th>Withdrawn Quantity</th>');
-            headerRow.append('<th>Return Quantity</th>');
-            table.append(headerRow);
-
-            for (var i = 0; i < partNames.length; i++) {
-                var row = $('<tr></tr>');
-                row.append('<td>' + partNames[i] + '</td>');
-                row.append('<td>' + partQtys[i] + '</td>');
-                row.append('<td>' + returnQtys[i] + '</td>');
-                table.append(row);
-            }
-
-            var wb = XLSX.utils.table_to_book(table[0], { sheet: "ChartData" });
-            XLSX.writeFile(wb, "ChartData.xlsx");
-        });
-
-        // Cost Center Export to Excel
-        $('#export-btn').click(function () {
-            var visibleRows = $('#rankingTable .table-row');
-            var filteredRows = [];
-
-            visibleRows.each(function () {
-                if ($(this).css('display') !== 'none') {
-                    filteredRows.push(this);
-                }
-            });
-
-            var table = $('<table></table>');
-            var headerRow = $('#rankingTable thead').clone(true);
-            table.append(headerRow);
-
-            $(filteredRows).each(function () {
-                var newRow = $(this).clone(true);
-                table.append(newRow);
-            });
-
-            var wb = XLSX.utils.table_to_book(table[0], { sheet: "Filtered Data" });
-            XLSX.writeFile(wb, "Cost_Center_Ranking.xlsx");
-        });
-
     });
 
 </script>

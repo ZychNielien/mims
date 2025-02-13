@@ -7,26 +7,33 @@ include "../model/dbconnection.php";
 if (isset($_GET['start_date']) && isset($_GET['end_date'])) {
     $start_date = $_GET['start_date'];
     $end_date = $_GET['end_date'];
+    $cost_center = isset($_GET['cost_center']) ? $_GET['cost_center'] : '';
+    $station_code = isset($_GET['station_code']) ? $_GET['station_code'] : '';
 
     $start_date = mysqli_real_escape_string($con, $start_date);
     $end_date = mysqli_real_escape_string($con, $end_date);
+    $cost_center = mysqli_real_escape_string($con, $cost_center);
+    $station_code = mysqli_real_escape_string($con, $station_code);
+
+    $select_material = "
+        SELECT part_name, part_qty, part_option, return_qty 
+        FROM tbl_requested 
+        WHERE NOT status = 'Pending'
+    ";
 
     if ($start_date && $end_date) {
-        $select_material = "
-            SELECT part_name, part_qty, part_option, return_qty 
-            FROM tbl_requested 
-            WHERE NOT status = 'Pending' 
-            AND dts_approve BETWEEN '$start_date 00:00:00' AND '$end_date 23:59:59'
-            ORDER BY id ASC
-        ";
-    } else {
-        $select_material = "
-            SELECT part_name, part_qty, part_option, return_qty 
-            FROM tbl_requested 
-            WHERE NOT status = 'Pending' 
-            ORDER BY id ASC
-        ";
+        $select_material .= " AND dts_approve BETWEEN '$start_date 00:00:00' AND '$end_date 23:59:59'";
     }
+
+    if (!empty($cost_center)) {
+        $select_material .= " AND cost_center = '$cost_center'";
+    }
+
+    if (!empty($station_code)) {
+        $select_material .= " AND station_code = '$station_code'";
+    }
+
+    $select_material .= " ORDER BY id ASC";
 
     $select_material_query = mysqli_query($con, $select_material);
 

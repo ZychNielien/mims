@@ -1,4 +1,6 @@
 <?php
+ob_start(); // Start output buffering
+
 include "../../model/dbconnection.php";
 include "navBar.php";
 
@@ -6,7 +8,17 @@ $directoryURI = $_SERVER['REQUEST_URI'];
 $path = parse_url($directoryURI, PHP_URL_PATH);
 $components = explode("/", $path);
 $page = $components[4];
+
+if ($_SESSION['user'] == 'Kitting') {
+    $_SESSION['status'] = "The link is for admin only.";
+    $_SESSION['status_code'] = "error";
+    header("Location: adminDashboard.php");
+    exit();
+}
+
+ob_end_flush(); // Flush the output buffer
 ?>
+
 
 <head>
     <title>Acoount Registration</title>
@@ -438,6 +450,7 @@ $page = $components[4];
                                 <label for="edit_designation" class="form-label">Designation</label>
                                 <select class="form-select" id="edit_designation" name="designation" required>
                                     <option selected value="">Select Designation</option>
+                                    <option value="Supervisor">Supervisor</option>
                                     <option value="Kitting">Kitting</option>
                                     <option value="Inspector">Inspector</option>
                                     <option value="Operator">Operator</option>
@@ -450,6 +463,7 @@ $page = $components[4];
                                 <select class="form-select" id="edit_account_type" name="account_type" required>
                                     <option selected value="">Select Account Type</option>
                                     <option value="User">User</option>
+                                    <option value="Kitting">Kitting</option>
                                     <option value="Supervisor">Supervisor</option>
                                 </select>
                             </div>

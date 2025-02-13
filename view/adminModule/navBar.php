@@ -219,7 +219,7 @@ if (!isset($_SESSION['username'])) {
                         ?>
                     " href="#">Scrap</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item" id="accountRegistrationKitting">
                         <a href="accReg.php" class=" <?php
                         if ($page == "accReg.php") {
                             echo "nav-link active";
@@ -304,6 +304,32 @@ if (!isset($_SESSION['username'])) {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        function checkAccountTypeAndHideButton() {
+            $.ajax({
+                url: '../../controller/getAccountType.php',
+                type: 'GET',
+                success: function (response) {
+                    try {
+                        var accountType = JSON.parse(response);
+                        if (accountType === "Kitting") {
+                            $('#accountRegistrationKitting').hide();
+                            $('#delete-selected-btn').hide();
+                        }
+                    } catch (error) {
+                        console.error("Error parsing JSON:", error);
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error("Error fetching notifications:", textStatus, errorThrown);
+                }
+            });
+        }
+        $(document).ready(function () {
+            checkAccountTypeAndHideButton();
+        });
+    </script>
 
     <script>
         <?php if (isset($_SESSION['status'])): ?>

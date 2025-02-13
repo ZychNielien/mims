@@ -51,6 +51,7 @@ if (isset($_POST['update_part_qty'])) {
     $part_qty = $_POST['part_qty'];
     $exp_date = $_POST['exp_date'];
     $kitting_id = $_POST['kitting_id'];
+    $lot_id = $_POST['lot_id'];
     $username = $_SESSION['username'];
     $part_id = $_POST['part_id'];
 
@@ -60,13 +61,13 @@ if (isset($_POST['update_part_qty'])) {
     $part_qty_old = $selectRow['part_qty'];
     $part_desc = $_POST['part_desc'];
     $new_part_qty = $part_qty + $part_qty_old;
-    $sql = "INSERT `tbl_stock` (part_name,part_qty,exp_date,kitting_id,dts,updated_by,status) VALUES ('$part_name','$part_qty','$exp_date','$kitting_id','$dts','$username','Active')";
+    $sql = "INSERT `tbl_stock` (part_name,part_qty,exp_date,kitting_id,lot_id,dts,updated_by,status) VALUES ('$part_name','$part_qty','$exp_date','$kitting_id','$lot_id','$dts','$username','Active')";
 
     $sql_query = mysqli_query($con, $sql);
 
     if ($sql_query) {
 
-        $sql_received = "INSERT INTO `tbl_history` (dts,part_desc,part_name,part_qty,exp_date,kitting_id,updated_by, status) VALUES ('$dts','$part_desc','$part_name','$part_qty','$exp_date','$kitting_id','$username','Received')";
+        $sql_received = "INSERT INTO `tbl_history` (dts,part_desc,part_name,part_qty,exp_date,kitting_id,lot_id,updated_by, status) VALUES ('$dts','$part_desc','$part_name','$part_qty','$exp_date','$kitting_id','$lot_id','$username','Received')";
 
         $sql_received_query = mysqli_query($con, $sql_received);
 
@@ -189,7 +190,112 @@ if (isset($_POST['req_part'])) {
     }
 }
 
+if (isset($_POST['mat_req_part'])) {
 
+    $part_id = $_POST['part_name'];
+    $dts = date('Y-m-d H:i:s');
+    $lot_id = $_POST['lot_id'];
+    $part_desc = $_POST['part_desc'];
+    $station_code = $_POST['station_code'];
+    $part_qty = $_POST['part_qty'];
+    $machine_no = $_POST['machine_no'];
+    $with_reason = $_POST['with_reason'];
+    $req_by = $_POST['req_by'];
+    $status = 'Pending';
+    $cost_center = $_POST['cost_center'];
+    $part_option = $_POST['part_option'];
+
+    $check_sql = "SELECT ts.part_name, ts.part_qty, ts.exp_date, ti.min_invent_req
+                    FROM tbl_stock ts
+                    LEFT JOIN tbl_inventory ti ON ts.part_name = ti.part_name
+                    WHERE ts.part_name = '$part_id' AND status = 'Active'
+                    ORDER BY ts.exp_date ASC";
+
+    $check_sql_query = mysqli_query($con, $check_sql);
+    $part_qty_remaining = $part_qty;
+    $total_available_stock = 0;
+    $updated_part_qty = 0;
+
+    while ($checkedRow = mysqli_fetch_assoc($check_sql_query)) {
+        $part_qty_in_stock = $checkedRow['part_qty'];
+        $total_available_stock += $part_qty_in_stock;
+    }
+
+    if ($total_available_stock >= $part_qty) {
+        mysqli_data_seek($check_sql_query, 0);
+
+        while ($checkedRow = mysqli_fetch_assoc($check_sql_query)) {
+            $part_name = $checkedRow['part_name'];
+            $part_qty_in_stock = $checkedRow['part_qty'];
+            $expiration_date = $checkedRow['exp_date'];
+            $min_invent_req = $checkedRow['min_invent_req'];
+
+            if ($part_qty_remaining > 0) {
+                $quantity_to_deduct = min($part_qty_remaining, $part_qty_in_stock);
+                $part_qty_remaining -= $quantity_to_deduct;
+                $updated_part_qty += $quantity_to_deduct;
+
+                echo "Deducting: $quantity_to_deduct from stock with expiration: $expiration_date<br>";
+
+                $update_stock_sql = "UPDATE tbl_stock 
+                                     SET part_qty = part_qty - $quantity_to_deduct
+                                     WHERE part_name = '$part_name' AND exp_date = '$expiration_date'";
+
+                if (!mysqli_query($con, $update_stock_sql)) {
+                    echo "Error updating stock: " . mysqli_error($con) . "<br>";
+                }
+            }
+        }
+
+        if ($part_qty_remaining <= 0) {
+            $sql = "INSERT INTO `tbl_requested` (dts, part_name, lot_id, part_desc, station_code, part_qty, machine_no, with_reason, req_by, status, cost_center, part_option) 
+                    VALUES ('$dts', '$part_name', '$lot_id', '$part_desc', '$station_code', '$part_qty', '$machine_no', '$with_reason', '$req_by', '$status', '$cost_center', '$part_option')";
+
+            if (mysqli_query($con, $sql)) {
+                $mensahe = $req_by . ' has requested ' . $part_qty . ' of ' . $part_name . '. Click here for more details.';
+                $for = "admin";
+
+                $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
+                              VALUES ('$req_by', '$mensahe', 0, '$dts', '$for', 'Approval')";
+                if (mysqli_query($con, $sql_notif)) {
+                    $check_min_inventory_sql = "SELECT ti.min_invent_req FROM tbl_inventory ti WHERE ti.part_name = '$part_name'";
+                    $min_invent_req_query = mysqli_query($con, $check_min_inventory_sql);
+                    $min_invent_req_row = mysqli_fetch_assoc($min_invent_req_query);
+                    $min_invent_req = $min_invent_req_row['min_invent_req'];
+
+                    if ($min_invent_req > $part_qty_remaining) {
+                        $mensahe_system = htmlspecialchars($part_name, ENT_QUOTES, 'UTF-8') . ' has reached the minimum inventory level and needs restocking.';
+                        $update_admin_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
+                                               VALUES ('System', '$mensahe_system', 0, '$dts', '$for', 'Inventory')";
+                        if (mysqli_query($con, $update_admin_notif)) {
+                            $_SESSION['status'] = "Request sent successfully!";
+                            $_SESSION['status_code'] = "success";
+                            header("location: ../view/adminModule/adminInventory.php");
+                            exit();
+                        }
+                    } else {
+                        $_SESSION['status'] = "Request sent successfully!";
+                        $_SESSION['status_code'] = "success";
+                        header("location: ../view/adminModule/adminInventory.php");
+                        exit();
+                    }
+                }
+            } else {
+                echo "Error inserting request: " . mysqli_error($con) . "<br>";
+            }
+        } else {
+            $_SESSION['status'] = "The quantity for this part is insufficient.";
+            $_SESSION['status_code'] = "error";
+            header("location: ../view/adminModule/adminInventory.php");
+            exit();
+        }
+    } else {
+        $_SESSION['status'] = "The quantity for this part is insufficient.";
+        $_SESSION['status_code'] = "error";
+        header("location: ../view/adminModule/adminInventory.php");
+        exit();
+    }
+}
 
 
 if (isset($_POST['action']) && $_POST['action'] === 'delete_selected' && isset($_POST['ids'])) {
