@@ -37,109 +37,11 @@ if (!isset($_SESSION['username'])) {
     <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../bootstrap/js/bootstrap.min.js">
     <link rel="stylesheet" href="../../public/css/sweetalert.min.css">
-
+    <link rel="stylesheet" href="../../public/css/navigation.css">
+    <script src="../../public/js/bootstrap.bundle.js"></script>
     <script src="../../public/js/sweetalert2@11.js"></script>
     <script src="../../public/js/jquery.js"></script>
 
-    <style>
-        a.active {
-            background-color: white;
-            color: #900008;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        .amessage {
-            text-decoration: none;
-            list-style: none;
-            color: #000;
-        }
-
-        .amessage:focus,
-        .amessage:active {
-            outline: none;
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .nav-item a {
-            text-align: center;
-        }
-
-        .notification-bell {
-            position: relative;
-            z-index: 9999;
-            display: inline-block;
-            cursor: pointer;
-        }
-
-        .notification-bell .badge {
-            position: absolute;
-            top: -10px;
-            right: -15px;
-            background-color: red;
-            color: white;
-            border-radius: 50%;
-            padding: 5px 10px;
-        }
-
-        #notification-menu {
-            width: 300px;
-            max-height: 400px;
-            overflow-y: scroll;
-        }
-
-        #notification-menu {
-            width: 300px;
-            max-height: 400px;
-            overflow-y: scroll;
-            padding: 10px;
-        }
-
-        #notification-menu::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        #notification-menu::-webkit-scrollbar-track {
-            background: #f1f1f1;
-
-        }
-
-        #notification-menu::-webkit-scrollbar-thumb {
-            background: #888;
-            border-radius: 10px;
-        }
-
-        #notification-menu::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-
-
-        #notification-menu::-webkit-scrollbar-corner {
-            background: #ccc;
-        }
-
-
-        .notification-separator {
-            border: 0;
-            height: 2px;
-            background-color: #000;
-            margin: 10px 0;
-        }
-
-        .notification-message {
-            max-width: 300px;
-            margin: 0;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            white-space: normal;
-        }
-
-        #notification-menu .dropdown-item.no-notifications {
-            color: #888;
-            text-align: center;
-        }
-    </style>
 </head>
 
 <body class="bg-light">
@@ -219,16 +121,18 @@ if (!isset($_SESSION['username'])) {
                         ?>
                     " href="#">Scrap</a>
                     </li>
-                    <li class="nav-item" id="accountRegistrationKitting">
-                        <a href="accReg.php" class=" <?php
-                        if ($page == "accReg.php") {
-                            echo "nav-link active";
-                        } else {
-                            echo "nav-link text-white";
-                        }
-                        ?>
+                    <?php if ($_SESSION['user'] !== 'Kitting'): ?>
+                        <li class="nav-item" id="accountRegistrationKitting">
+                            <a href="accReg.php" class=" <?php
+                            if ($page == "accReg.php") {
+                                echo "nav-link active";
+                            } else {
+                                echo "nav-link text-white";
+                            }
+                            ?>
                     " href="#">Registration</a>
-                    </li>
+                        </li>
+                    <?php endif; ?>
                 </ul>
                 <div class="btn-group float-end mx-3">
                     <div class="notification-bell" id="notification-bell" data-bs-toggle="dropdown"
@@ -303,9 +207,10 @@ if (!isset($_SESSION['username'])) {
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+
 
     <script>
+
         function checkAccountTypeAndHideButton() {
             $.ajax({
                 url: '../../controller/getAccountType.php',
@@ -316,6 +221,7 @@ if (!isset($_SESSION['username'])) {
                         if (accountType === "Kitting") {
                             $('#accountRegistrationKitting').hide();
                             $('#delete-selected-btn').hide();
+                            $('#select-all').hide();
                         }
                     } catch (error) {
                         console.error("Error parsing JSON:", error);
@@ -326,27 +232,32 @@ if (!isset($_SESSION['username'])) {
                 }
             });
         }
+
         $(document).ready(function () {
+
             checkAccountTypeAndHideButton();
-        });
-    </script>
 
-    <script>
-        <?php if (isset($_SESSION['status'])): ?>
-            Swal.fire({
-                text: "<?php echo $_SESSION['status']; ?>",
-                icon: "<?php echo $_SESSION['status_code']; ?>",
-                showConfirmButton: true
+            fetchNotifications();
+
+            setInterval(fetchNotifications, 2000);
+
+            $('#notification-bell').on('click', function () {
+                console.log('Marking all unread notifications as read');
+                markAllAsRead();
             });
-            <?php
-            unset($_SESSION['status']);
-            unset($_SESSION['status_code']);
-            ?>
-        <?php endif; ?>
-    </script>
 
-    <script>
-        $(document).ready(function () {
+            <?php if (isset($_SESSION['status'])): ?>
+                Swal.fire({
+                    text: "<?php echo $_SESSION['status']; ?>",
+                    icon: "<?php echo $_SESSION['status_code']; ?>",
+                    showConfirmButton: true
+                });
+                <?php
+                unset($_SESSION['status']);
+                unset($_SESSION['status_code']);
+                ?>
+            <?php endif; ?>
+
             $('#toggle_old_password').click(function () {
                 var passwordField = $('#old_password');
                 var icon = $(this);
@@ -384,21 +295,6 @@ if (!isset($_SESSION['username'])) {
                     passwordField.attr('type', 'password');
                     icon.removeClass('bi-eye').addClass('bi-eye-slash');
                 }
-            });
-        });
-
-    </script>
-
-
-    <script>
-        $(document).ready(function () {
-            fetchNotifications();
-
-            setInterval(fetchNotifications, 2000);
-
-            $('#notification-bell').on('click', function () {
-                console.log('Marking all unread notifications as read');
-                markAllAsRead();
             });
         });
 

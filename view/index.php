@@ -12,7 +12,8 @@ session_start();
     <link rel="icon" href="../public/img/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../public/style.css">
-    <link rel="stylesheet" href="../../public/css/sweetalert.min.css">
+    <link rel="stylesheet" href="../public/css/sweetalert.min.css">
+    <script src="../public/js/sweetalert2@11.js"></script>
 
 
 

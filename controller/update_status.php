@@ -17,7 +17,7 @@ if (isset($_POST['action']) && isset($_POST['ids']) && !empty($_POST['ids'])) {
         $part_name = $_POST['part_name'];
 
         $ids_str = implode(',', $ids);
-        $sql = "UPDATE tbl_requested SET status = 'approved' , approve_by = '$approved_by' , dts_approve = '$dts' WHERE id IN ($ids_str)";
+        $sql = "UPDATE tbl_requested SET status = 'approved' , approved_by = '$approved_by' , dts_approve = '$dts' WHERE id IN ($ids_str)";
         if (mysqli_query($con, $sql)) {
 
             for ($i = 0; $i < count($ids); $i++) {

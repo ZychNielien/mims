@@ -8,6 +8,7 @@ include "../../model/dbconnection.php";
     <script src="../../public/js/jquery.js"></script>
 
     <link rel="stylesheet" href="../../public/css/table.css">
+    <script src="../../public/js/excel.js"></script>
 </head>
 
 <section style="max-height: 90%;">
@@ -67,7 +68,7 @@ include "../../model/dbconnection.php";
     </div>
 </section>
 
-<script src="../../public/js/excel.js"></script>
+
 
 <script>
     document.getElementById('export-btn').addEventListener('click', function () {

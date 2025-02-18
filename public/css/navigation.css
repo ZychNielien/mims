@@ -1,0 +1,93 @@
+a.active {
+  background-color: white;
+  color: #900008;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.nav-item a {
+  text-align: center;
+}
+
+.amessage {
+  text-decoration: none;
+  list-style: none;
+  color: #000;
+}
+
+.amessage {
+  text-decoration: none;
+  list-style: none;
+  color: #000;
+}
+
+.notification-bell {
+  position: relative;
+  z-index: 9999;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.notification-bell .badge {
+  position: absolute;
+  top: -10px;
+  right: -15px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 5px 10px;
+}
+
+#notification-menu {
+  width: 300px;
+  max-height: 400px;
+  overflow-y: scroll;
+}
+
+#notification-menu {
+  width: 300px;
+  max-height: 400px;
+  overflow-y: scroll;
+  padding: 10px;
+}
+
+#notification-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+#notification-menu::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+#notification-menu::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+#notification-menu::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+#notification-menu::-webkit-scrollbar-corner {
+  background: #ccc;
+}
+
+.notification-separator {
+  border: 0;
+  height: 2px;
+  background-color: #000;
+  margin: 10px 0;
+}
+
+.notification-message {
+  max-width: 300px;
+  margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+#notification-menu .dropdown-item.no-notifications {
+  color: #888;
+  text-align: center;
+}

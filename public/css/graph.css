@@ -1,0 +1,22 @@
+@media (max-width: 1250px) {
+  .combineContainer {
+    width: 100% !important;
+    margin-bottom: 100px;
+  }
+}
+
+@media (max-width: 800px) {
+  .full-container {
+    flex-direction: column !important;
+  }
+
+  .barContainer,
+  .tableContainer {
+    height: 300px;
+    width: 100%;
+  }
+
+  .barContainer {
+    margin-bottom: 100px;
+  }
+}

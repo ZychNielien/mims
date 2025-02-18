@@ -6,35 +6,10 @@ include "../../model/dbconnection.php";
 <head>
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="../../public/css/sweetalert.min.css">
+    <link rel="stylesheet" href="../../public/css/graph.css">
     <script src="../../public/js/sweetalert2@11.js"></script>
     <script src="../../public/js/jquery.js"></script>
     <script src="../../public/js/chart.js"></script>
-
-    <style>
-        @media (max-width: 1250px) {
-            .combineContainer {
-                width: 100% !important;
-                margin-bottom: 100px
-            }
-        }
-
-        @media (max-width: 800px) {
-            .full-container {
-                flex-direction: column !important;
-            }
-
-            .barContainer,
-            .tableContainer {
-                height: 300px;
-                width: 100%;
-            }
-
-            .barContainer {
-                margin-bottom: 100px;
-            }
-
-        }
-    </style>
 </head>
 <section class="w-100 d-flex flex-column" style="max-height: 90%;">
     <div class="welcomeDiv my-2">

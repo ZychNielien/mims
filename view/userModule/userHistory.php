@@ -9,6 +9,7 @@ include "navBar.php";
     <title>Withdrawal History</title>
 
     <link rel="stylesheet" href="../../public/css/table.css">
+    <script src="../../public/js/jquery.js"></script>
 </head>
 <section>
     <div class="welcomeDiv my-2">
@@ -318,7 +319,7 @@ include "navBar.php";
 
 
 </section>
-<script src="../../public/js/jquery.js"></script>
+
 <script>
     $(document).ready(function () {
         $('#start_dateApprove').on('change', function () {
@@ -356,9 +357,7 @@ include "navBar.php";
             $('#date-filter-form-return').submit();
         });
     });
-</script>
 
-<script>
     $(document).on('click', '.return-btn', function () {
         var Id = $(this).data('id');
         var partQty = $(this).data('part-qty');

@@ -150,13 +150,11 @@ if (isset($_POST['req_part'])) {
                 $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
                               VALUES ('$req_by', '$mensahe', 0, '$dts', '$for', 'Approval')";
                 if (mysqli_query($con, $sql_notif)) {
-                    // Check if the total available stock is below the minimum inventory requirement after the request
                     $check_min_inventory_sql = "SELECT ti.min_invent_req FROM tbl_inventory ti WHERE ti.part_name = '$part_name'";
                     $min_invent_req_query = mysqli_query($con, $check_min_inventory_sql);
                     $min_invent_req_row = mysqli_fetch_assoc($min_invent_req_query);
                     $min_invent_req = $min_invent_req_row['min_invent_req'];
 
-                    // Recalculate total available stock after the request
                     $total_available_stock -= $updated_part_qty;
 
                     if ($total_available_stock < $min_invent_req) {
@@ -329,53 +327,67 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete_selected' && isset($
 }
 
 if (isset($_POST['delete_multiple']) && isset($_POST['selected_items'])) {
-    $selected_items = json_decode($_POST['selected_items']);
 
-    $ids = implode(",", array_map('intval', $selected_items));
+    $username = $_SESSION['username'];
+    $check_type = "SELECT account_type FROM `tbl_users` WHERE username = '$username'";
+    $check_type_query = mysqli_query($con, $check_type);
+    $checked_row = mysqli_fetch_assoc($check_type_query);
 
-    foreach ($selected_items as $item_id) {
-        $sql_user = "SELECT part_name FROM `tbl_inventory` WHERE id = $item_id";
-        $sql_user_query = mysqli_query($con, $sql_user);
-
-        if ($sql_user_query) {
-            $userRow = mysqli_fetch_assoc($sql_user_query);
-
-            if ($userRow && isset($userRow['part_name'])) {
-                $part_name = $userRow['part_name'];
-
-                $account_username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Unknown User';
-
-                $description = $account_username . " has deleted " . $part_name;
-                $dts = date('Y-m-d H:i:s');
-
-                $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) 
-                            VALUES ('$account_username', 'Material Deletion', '$description', '$dts')";
-
-                if (!mysqli_query($con, $sql_log)) {
-                    error_log("Failed to insert log: " . mysqli_error($con) . " SQL: $sql_log");
-                    echo "Error: " . mysqli_error($con);
-                }
-            } else {
-                error_log("No part_name found for ID: $item_id");
-            }
-        } else {
-            error_log("Query failed for item ID $item_id: " . mysqli_error($con));
-            echo "Query error: " . mysqli_error($con);
-        }
-    }
-
-    $sql_delete = "DELETE FROM `tbl_inventory` WHERE `id` IN ($ids)";
-
-    if (mysqli_query($con, $sql_delete)) {
-        echo json_encode([
-            'success' => true,
-            'message' => 'Selected items deleted successfully.'
-        ]);
-    } else {
+    if ($checked_row['account_type'] == 'Kitting') {
         echo json_encode([
             'success' => false,
-            'message' => 'Error deleting items: ' . mysqli_error($con)
+            'message' => 'I apologize, but this function is exclusively available to supervisors.'
         ]);
+
+    } else {
+        $selected_items = json_decode($_POST['selected_items']);
+
+        $ids = implode(",", array_map('intval', $selected_items));
+
+        foreach ($selected_items as $item_id) {
+            $sql_user = "SELECT part_name FROM `tbl_inventory` WHERE id = $item_id";
+            $sql_user_query = mysqli_query($con, $sql_user);
+
+            if ($sql_user_query) {
+                $userRow = mysqli_fetch_assoc($sql_user_query);
+
+                if ($userRow && isset($userRow['part_name'])) {
+                    $part_name = $userRow['part_name'];
+
+                    $account_username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Unknown User';
+
+                    $description = $account_username . " has deleted " . $part_name;
+                    $dts = date('Y-m-d H:i:s');
+
+                    $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) 
+                                VALUES ('$account_username', 'Material Deletion', '$description', '$dts')";
+
+                    if (!mysqli_query($con, $sql_log)) {
+                        error_log("Failed to insert log: " . mysqli_error($con) . " SQL: $sql_log");
+                        echo "Error: " . mysqli_error($con);
+                    }
+                } else {
+                    error_log("No part_name found for ID: $item_id");
+                }
+            } else {
+                error_log("Query failed for item ID $item_id: " . mysqli_error($con));
+                echo "Query error: " . mysqli_error($con);
+            }
+        }
+
+        $sql_delete = "DELETE FROM `tbl_inventory` WHERE `id` IN ($ids)";
+
+        if (mysqli_query($con, $sql_delete)) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Selected items deleted successfully.'
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Error deleting items: ' . mysqli_error($con)
+            ]);
+        }
     }
 } else {
     echo json_encode([
@@ -383,6 +395,7 @@ if (isset($_POST['delete_multiple']) && isset($_POST['selected_items'])) {
         'message' => 'No items selected for deletion.'
     ]);
 }
+
 
 
 

@@ -17,8 +17,9 @@ include "../../model/dbconnection.php";
     </div>
 
     <div class="container">
-        <div class="d-flex justify-content-end m-2">
-            <button id="export-btn" class="btn btn-success my-1">Export to Excel</button>
+        <div class="d-flex flex-wrap justify-content-evenly">
+            <input type="text" id="search-box" placeholder="Search..." />
+            <button id="export-btn" class="btn btn-success my-2">Export to Excel</button>
         </div>
         <table class="table table-striped w-100">
             <thead>
@@ -71,27 +72,28 @@ include "../../model/dbconnection.php";
 <script src="../../public/js/excel.js"></script>
 
 <script>
-    $('#export-btn').on('click', function () {
-        var visibleRows = $('#data-table .table-row');
-        var filteredRows = [];
-
-        visibleRows.each(function () {
-            if ($(this).css('display') !== 'none') {
-                filteredRows.push(this);
-            }
+    $(document).ready(function () {
+        $('#search-box').on('keyup', function () {
+            var value = $(this).val().toLowerCase();
+            $('#data-table .table-row').filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+            });
         });
 
-        var table = $('<table></table>');
-        var headerRow = $('table thead').clone();
-        table.append(headerRow);
+        $('#export-btn').on('click', function () {
+            var visibleRows = $('#data-table .table-row:visible');
+            var table = $('<table></table>');
+            var headerRow = $('table thead').clone(true);
+            table.append(headerRow);
 
-        $(filteredRows).each(function () {
-            var newRow = $(this).clone();
-            table.append(newRow);
+            visibleRows.each(function () {
+                var newRow = $(this).clone(true);
+                table.append(newRow);
+            });
+
+            var wb = XLSX.utils.table_to_book(table[0], { sheet: "Filtered Data" });
+            XLSX.writeFile(wb, "ReceivingHistory.xlsx");
         });
 
-        var wb = XLSX.utils.table_to_book(table[0], { sheet: "Filtered Data" });
-        XLSX.writeFile(wb, "ReceivingHistory.xlsx");
     });
-
 </script>

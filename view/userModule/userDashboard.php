@@ -75,6 +75,7 @@ include "../../model/dbconnection.php";
 
         }
     </style>
+    <script src="../../public/js/jquery.js"></script>
 </head>
 <section>
     <div class="welcomeDiv my-2">
@@ -137,7 +138,7 @@ include "../../model/dbconnection.php";
                             <option value="DA">DA</option>
                             <option value="WB">WB</option>
                             <option value="Mold">Mold</option>
-                            <option value="EDL">EDL</option>
+                            <option value="EOL">EOL</option>
                             <option value="Engg">Engg</option>
                             <option value="MEE">MEE</option>
                             <option value="MFG">MFG</option>
@@ -233,50 +234,47 @@ include "../../model/dbconnection.php";
 </section>
 
 <script>
-    $('#partSelect').on('change', function () {
-        var partId = $(this).val();
-
-        if (partId) {
-            var partName = $(this).find('option:selected').data('part_name');
-
-            $('#part_name').val(partName);
-
-            $.ajax({
-                url: 'fetch_part_desc.php',
-                type: 'GET',
-                data: { part_id: partId },
-                dataType: 'json',
-                success: function (data) {
-                    if (data.part_desc) {
-                        $('#itemDetails').show();
-                        $('#part_desc').val(data.part_desc);
-                    } else {
-                        $('#part_desc').val('No description available');
-                    }
-
-                    if (data.part_option) {
-                        $('#part_option').val(data.part_option);
-                    } else {
-                        $('#part_option').val('No option available');
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error('AJAX error: ' + error);
-                }
-            });
-        } else {
-            $('#itemDetails').hide();
-            $('#part_desc').val('');
-            $('#part_option').val('');
-            $('#part_name').val('');
-        }
-    });
-
-</script>
-
-<script src="../../public/js/jquery.js"></script>
-<script>
     $(document).ready(function () {
+
+        $('#partSelect').on('change', function () {
+            var partId = $(this).val();
+
+            if (partId) {
+                var partName = $(this).find('option:selected').data('part_name');
+
+                $('#part_name').val(partName);
+
+                $.ajax({
+                    url: 'fetch_part_desc.php',
+                    type: 'GET',
+                    data: { part_id: partId },
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.part_desc) {
+                            $('#itemDetails').show();
+                            $('#part_desc').val(data.part_desc);
+                        } else {
+                            $('#part_desc').val('No description available');
+                        }
+
+                        if (data.part_option) {
+                            $('#part_option').val(data.part_option);
+                        } else {
+                            $('#part_option').val('No option available');
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX error: ' + error);
+                    }
+                });
+            } else {
+                $('#itemDetails').hide();
+                $('#part_desc').val('');
+                $('#part_option').val('');
+                $('#part_name').val('');
+            }
+        });
+
         $('#select-all').on('change', function () {
             $('.select-row').prop('checked', $(this).prop('checked'));
         });

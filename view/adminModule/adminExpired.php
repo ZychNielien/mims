@@ -5,20 +5,18 @@ include "../../model/dbconnection.php";
 
 <head>
     <title>Expired Part History</title>
-    <script src="../../public/js/jquery.js"></script>
-
     <link rel="stylesheet" href="../../public/css/table.css">
+    <script src="../../public/js/jquery.js"></script>
+    <script src="../../public/js/excel.js"></script>
 </head>
 
 <section style="max-height: 90%;">
-    <div class="welcomeDiv my-2">
-        <h2 class="text-center" style="color: #900008; font-weight: bold;">Welcome, <?php echo $_SESSION['username'] ?>!
-        </h2>
-    </div>
-
     <div class="container">
-
-        <div class="d-flex justify-content-evenly">
+        <div class="welcomeDiv my-2">
+            <h2 class="text-center" style="color: #900008; font-weight: bold;">Expired Part History
+            </h2>
+        </div>
+        <div class="d-flex flex-wrap justify-content-evenly">
             <input type="text" id="search-box" placeholder="Search..." />
             <button id="export-btn" class="btn btn-success my-2">Export to Excel</button>
         </div>
@@ -69,33 +67,6 @@ include "../../model/dbconnection.php";
     </div>
 </section>
 
-<script src="../../public/js/excel.js"></script>
-
-<script>
-    document.getElementById('export-btn').addEventListener('click', function () {
-        var visibleRows = document.querySelectorAll('#data-table .table-row');
-        var filteredRows = [];
-
-        visibleRows.forEach(function (row) {
-            if (row.style.display !== 'none') {
-                filteredRows.push(row);
-            }
-        });
-
-        var table = document.createElement('table');
-        var headerRow = document.querySelector('table thead').cloneNode(true);
-        table.appendChild(headerRow);
-
-        filteredRows.forEach(function (row) {
-            var newRow = row.cloneNode(true);
-            table.appendChild(newRow);
-        });
-
-        var wb = XLSX.utils.table_to_book(table, { sheet: "Filtered Data" });
-        XLSX.writeFile(wb, "expired.xlsx");
-    });
-</script>
-
 <script>
     $(document).ready(function () {
         $('#search-box').on('keyup', function () {
@@ -104,5 +75,21 @@ include "../../model/dbconnection.php";
                 $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
             });
         });
+
+        $('#export-btn').on('click', function () {
+            var visibleRows = $('#data-table .table-row:visible');
+            var table = $('<table></table>');
+            var headerRow = $('table thead').clone(true);
+            table.append(headerRow);
+
+            visibleRows.each(function () {
+                var newRow = $(this).clone(true);
+                table.append(newRow);
+            });
+
+            var wb = XLSX.utils.table_to_book(table[0], { sheet: "Filtered Data" });
+            XLSX.writeFile(wb, "expired_part.xlsx");
+        });
+
     });
 </script>
