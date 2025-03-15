@@ -1,26 +1,55 @@
 <?php
-include "navBar.php";
+
+// Database Connection
 include "../../model/dbconnection.php";
+
+// Navigation Bar
+include "navBar.php";
 
 ?>
 
 <head>
+
+    <!-- Title -->
     <title>Material Approval</title>
+
+    <!-- Table Style -->
     <link rel="stylesheet" href="../../public/css/table.css">
+
+    <!-- Sweetalert Style -->
     <link rel="stylesheet" href="../../public/css/sweetalert.min.css">
+
+    <!-- Sweetalert Script -->
     <script src="../../public/js/sweetalert2@11.js"></script>
+
+    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
+
 </head>
 <section>
+
+    <!-- Title Div -->
     <div class="welcomeDiv my-4">
         <h2 class="text-center" style="color: #900008; font-weight: bold;">Withdrawal Authorization
         </h2>
     </div>
-    <div class="container">
-        <button class="btn btn-success" id="approve-btn">Approve</button>
-        <button class="btn btn-danger" id="reject-btn">Reject</button>
 
+    <!-- Main Container -->
+    <div class="container">
+
+        <!-- Approval Buttons -->
+        <div class="d-flex justify-content-start gap-3 w-100">
+            <div>
+                <button class="btn btn-success" id="approve-btn">Approve</button>
+            </div>
+            <div>
+                <button class="btn btn-danger" id="reject-btn">Reject</button>
+            </div>
+        </div>
+
+        <!-- Approval Request Table -->
         <table class="table table-striped my-2">
+
             <thead>
                 <tr class="text-center" style="background-color: #900008; color: white; vertical-align: middle;">
                     <th scope="col">
@@ -37,6 +66,7 @@ include "../../model/dbconnection.php";
                     <th scope="col">Status</th>
                 </tr>
             </thead>
+
             <tbody>
                 <?php
                 $userName = $_SESSION['username'];
@@ -51,7 +81,8 @@ include "../../model/dbconnection.php";
                                 <input type="checkbox" class="select-row" data-id="<?php echo $sqlRow['id']; ?>"
                                     data-qty="<?php echo $sqlRow['part_qty']; ?>"
                                     data-part_name="<?php echo $sqlRow['part_name']; ?>"
-                                    data-req_by="<?php echo $sqlRow['req_by']; ?>">
+                                    data-req_by="<?php echo $sqlRow['req_by']; ?>"
+                                    data-exp_date="<?php echo $sqlRow['exp_date']; ?>">
                             </td>
                             <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts']; ?></td>
                             <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
@@ -74,15 +105,23 @@ include "../../model/dbconnection.php";
                 }
                 ?>
             </tbody>
+
         </table>
+
     </div>
+
 </section>
+
 <script>
+
     $(document).ready(function () {
+
+        // Select All Approval Request SCript
         $('#select-all').on('change', function () {
             $('.select-row').prop('checked', $(this).prop('checked'));
         });
 
+        // Approve Button Script
         $('#approve-btn').on('click', function () {
             var selectedIds = [];
             var selectedQty = [];
@@ -137,17 +176,20 @@ include "../../model/dbconnection.php";
             }
         });
 
+        // Reject Button Script
         $('#reject-btn').on('click', function () {
             var selectedIds = [];
             var selectedQty = [];
             var selectedReq = [];
             var selectedPartNames = [];
+            var selectedExpDates = [];
 
             $('.select-row:checked').each(function () {
                 selectedIds.push($(this).data('id'));
                 selectedQty.push($(this).data('qty'));
                 selectedReq.push($(this).data('req_by'));
                 selectedPartNames.push($(this).data('part_name'));
+                selectedExpDates.push($(this).data('exp_date'));
             });
 
             if (selectedIds.length > 0) {
@@ -159,7 +201,8 @@ include "../../model/dbconnection.php";
                         ids: selectedIds,
                         qty: selectedQty,
                         req_by: selectedReq,
-                        part_name: selectedPartNames
+                        part_name: selectedPartNames,
+                        exp_date: selectedExpDates
                     },
                     success: function (response) {
                         Swal.fire({
@@ -191,5 +234,6 @@ include "../../model/dbconnection.php";
                 });
             }
         });
+
     });
 </script>

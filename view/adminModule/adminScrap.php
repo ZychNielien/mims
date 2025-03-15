@@ -1,22 +1,44 @@
 <?php
-include "navBar.php";
+
+// Database Connection
 include "../../model/dbconnection.php";
+
+// Navigation Bar
+include "navBar.php";
 
 ?>
 
 <head>
+
+    <!-- Title -->
     <title>Scrap Material</title>
+
+    <!-- Table Style -->
     <link rel="stylesheet" href="../../public/css/table.css">
+
+    <!-- Sweetalert Style -->
     <link rel="stylesheet" href="../../public/css/sweetalert.min.css">
+
+    <!-- Sweetalert Script -->
     <script src="../../public/js/sweetalert2@11.js"></script>
+
+    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
+
 </head>
+
 <section>
+
+    <!-- Title Div -->
     <div class="welcomeDiv my-4">
         <h2 class="text-center" style="color: #900008; font-weight: bold;">Scrap Materials
         </h2>
     </div>
+
+    <!-- Main Container -->
     <div class="container">
+
+        <!-- Navigation Tab -->
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home"
@@ -27,10 +49,18 @@ include "../../model/dbconnection.php";
                     Items</button>
             </div>
         </nav>
+
+        <!-- Navigation Tab Content -->
         <div class="tab-content" id="nav-tabContent">
+
+            <!-- Items Awaiting Receipt Tab -->
             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+
                 <div class="container my-4">
+
+                    <!-- Items Awaiting Receipt Table -->
                     <table class="table table-striped w-100">
+
                         <thead>
                             <tr class="text-center"
                                 style="background-color: #900008; color: white; vertical-align: middle;">
@@ -47,6 +77,7 @@ include "../../model/dbconnection.php";
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>
+
                         <tbody id="data-table">
                             <?php
 
@@ -89,12 +120,21 @@ include "../../model/dbconnection.php";
                             }
                             ?>
                         </tbody>
+
                     </table>
+
                 </div>
+
             </div>
+
+            <!-- Processed Returned Items -->
             <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+
                 <div class="container my-4">
+
+                    <!-- Processed Returned Items Table -->
                     <table class="table table-striped w-100">
+
                         <thead>
                             <tr class="text-center"
                                 style="background-color: #900008; color: white; vertical-align: middle;">
@@ -111,6 +151,7 @@ include "../../model/dbconnection.php";
                                 <th scope="col">Received By</th>
                             </tr>
                         </thead>
+
                         <tbody id="data-table">
                             <?php
 
@@ -147,13 +188,22 @@ include "../../model/dbconnection.php";
                             }
                             ?>
                         </tbody>
+
                     </table>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
+
 </section>
+
 <script>
+
+    // Received Items Button
     $(document).on('click', '.receive-btn', function () {
         var itemId = $(this).data('id');
         var item_part_name = $(this).data('part_name');
@@ -199,4 +249,5 @@ include "../../model/dbconnection.php";
             }
         });
     });
+
 </script>

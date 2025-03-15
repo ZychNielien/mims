@@ -1,13 +1,18 @@
 <?php
+
+// SESSION 
 session_start();
+
+// Database Connection
 include "../../model/dbconnection.php";
+
+// Navigation Page Active
 $directoryURI = $_SERVER['REQUEST_URI'];
 $path = parse_url($directoryURI, PHP_URL_PATH);
 $components = explode("/", $path);
 $page = $components[4];
 
-
-
+// Prevent User
 if ($_SESSION['user'] == 'User') {
     $_SESSION['status'] = "The link is for admin only.";
     $_SESSION['status_code'] = "error";
@@ -15,7 +20,7 @@ if ($_SESSION['user'] == 'User') {
     exit();
 }
 
-
+// Prevent users from logging in without proper authentication.
 if (!isset($_SESSION['username'])) {
     $_SESSION['status'] = "Access Denied. Please log in as an admin.";
     $_SESSION['status_code'] = "error";
@@ -24,42 +29,65 @@ if (!isset($_SESSION['username'])) {
 }
 
 ?>
+
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
+
     <meta charset="utf-8">
-    <link rel="icon" href="../../public/img/favicon.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- Favicon -->
+    <link rel="icon" href="../../public/img/favicon.ico" type="image/x-icon">
+
+    <!-- Bootstrap Font -->
     <link rel="stylesheet" href="../../node_modules/bootstrap-icons/font/bootstrap-icons.min.css">
 
+    <!-- Bootstrap Style -->
     <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
+    <!-- Bootstrap Style -->
     <link rel="stylesheet" href="../../bootstrap/js/bootstrap.min.js">
+
+    <!-- Sweetalert Style -->
     <link rel="stylesheet" href="../../public/css/sweetalert.min.css">
+
+    <!-- Navigation Style -->
     <link rel="stylesheet" href="../../public/css/navigation.css">
+
+    <!-- Bootstrap Script -->
     <script src="../../public/js/bootstrap.bundle.js"></script>
+
+    <!-- Sweetalert Script -->
     <script src="../../public/js/sweetalert2@11.js"></script>
+
+    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
 
 </head>
 
 <body class="bg-light">
+
+    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg" style="background-color: #900008;">
+
+        <!-- Navigation Container -->
         <div class="container d-flex justify-evenly  w-100">
+
+            <!-- Navigation Logo -->
             <div class="w-50">
-                <img src="../../public/img/logo.png" class="w-75" alt="">
+                <img src="../../public/img/AIMSLogo.png" class="w-75" alt="">
             </div>
 
-
-
+            <!-- Navigation Toggle Menu -->
             <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarMobileToggle" aria-controls="navbarMobileToggle" aria-expanded="false"
                 aria-label="Toggle navigation">
                 <i class="bi bi-list font-bold"></i>
             </button>
 
-
+            <!-- Navigation List -->
             <div class="collapse navbar-collapse" id="navbarMobileToggle">
                 <ul class="navbar-nav me-auto mt-2 mb-2 mb-lg-0 text-white d-flex justify-content-between">
                     <li class="nav-item">
@@ -81,6 +109,16 @@ if (!isset($_SESSION['username'])) {
                         }
                         ?>
                     " aria-current="page" href="#">Inventory</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="adminWithdrawal.php" class=" <?php
+                        if ($page == "adminWithdrawal.php") {
+                            echo "nav-link active";
+                        } else {
+                            echo "nav-link text-white";
+                        }
+                        ?>
+                    " aria-current="page" href="#">Withdrawal</a>
                     </li>
                     <li class="nav-item">
                         <a href="adminApproval.php" class=" <?php
@@ -160,9 +198,12 @@ if (!isset($_SESSION['username'])) {
                     </ul>
                 </div>
             </div>
+
         </div>
+
     </nav>
 
+    <!-- Change Password Modal -->
     <div class="modal fade" id="changePassword" tabindex="-1" aria-labelledby="changePasswordLabel" aria-hidden="true">
         <div class="modal-dialog  modal-dialog-centered">
             <div class="modal-content">
@@ -207,45 +248,21 @@ if (!isset($_SESSION['username'])) {
         </div>
     </div>
 
-
-
     <script>
-
-        function checkAccountTypeAndHideButton() {
-            $.ajax({
-                url: '../../controller/getAccountType.php',
-                type: 'GET',
-                success: function (response) {
-                    try {
-                        var accountType = JSON.parse(response);
-                        if (accountType === "Kitting") {
-                            $('#accountRegistrationKitting').hide();
-                            $('#delete-selected-btn').hide();
-                            $('#select-all').hide();
-                        }
-                    } catch (error) {
-                        console.error("Error parsing JSON:", error);
-                    }
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    console.error("Error fetching notifications:", textStatus, errorThrown);
-                }
-            });
-        }
 
         $(document).ready(function () {
 
-            checkAccountTypeAndHideButton();
-
+            // Fetch Notification Function
             fetchNotifications();
-
             setInterval(fetchNotifications, 2000);
 
+            // Notification Mark as Read 
             $('#notification-bell').on('click', function () {
                 console.log('Marking all unread notifications as read');
                 markAllAsRead();
             });
 
+            // Sweetaler Script
             <?php if (isset($_SESSION['status'])): ?>
                 Swal.fire({
                     text: "<?php echo $_SESSION['status']; ?>",
@@ -258,6 +275,7 @@ if (!isset($_SESSION['username'])) {
                 ?>
             <?php endif; ?>
 
+            // Show Old Password Script
             $('#toggle_old_password').click(function () {
                 var passwordField = $('#old_password');
                 var icon = $(this);
@@ -271,6 +289,7 @@ if (!isset($_SESSION['username'])) {
                 }
             });
 
+            // Show New Password Script
             $('#toggle_password').click(function () {
                 var passwordField = $('#password');
                 var icon = $(this);
@@ -284,6 +303,7 @@ if (!isset($_SESSION['username'])) {
                 }
             });
 
+            // Show Confirm Password Script
             $('#toggle_confirm_password').click(function () {
                 var passwordField = $('#confirm_password');
                 var icon = $(this);
@@ -296,8 +316,10 @@ if (!isset($_SESSION['username'])) {
                     icon.removeClass('bi-eye').addClass('bi-eye-slash');
                 }
             });
+
         });
 
+        // Notification Time Ago
         function timeAgo(timestamp) {
             const now = new Date();
             const past = new Date(timestamp);
@@ -325,6 +347,7 @@ if (!isset($_SESSION['username'])) {
             }
         }
 
+        // Fetch Notification Function
         function fetchNotifications() {
             $.ajax({
                 url: '../../controller/get_notif.php',
@@ -356,19 +379,21 @@ if (!isset($_SESSION['username'])) {
                             notificationLink = "adminInventory.php";
                         } else if (notification.destination === "Expired") {
                             notificationLink = "adminExpired.php";
+                        } else if (notification.destination === "Withdrawal") {
+                            notificationLink = "adminWithdrawal.php";
                         }
 
                         notificationElement.append(`
-                    <div>
-                        <a class="amessage" href="${notificationLink}">
-                            <div class="d-flex justify-content-between">
-                                <strong>${notification.username}</strong>  
-                                <small>${formattedTimeAgo}</small>
+                            <div>
+                                <a class="amessage" href="${notificationLink}">
+                                    <div class="d-flex justify-content-between">
+                                        <strong>${notification.username}</strong>  
+                                        <small>${formattedTimeAgo}</small>
+                                    </div>
+                                    <p class="notification-message">${notification.message}</p>
+                                </a>
                             </div>
-                            <p class="notification-message">${notification.message}</p>
-                        </a>
-                    </div>
-                `);
+                        `);
 
                         if (notification.is_read === 0) {
                             notificationElement.addClass('unread');
@@ -394,6 +419,7 @@ if (!isset($_SESSION['username'])) {
             });
         }
 
+        // Notification Mark as Read Function
         function markAllAsRead() {
             $.ajax({
                 url: '../../controller/mark_read.php',

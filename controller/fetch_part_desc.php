@@ -1,5 +1,6 @@
 <?php
-include "../../model/dbconnection.php";
+// Database Connection
+include "../model/dbconnection.php";
 header('Content-Type: application/json');
 
 $response = array();
@@ -7,13 +8,15 @@ $response = array();
 if (isset($_GET['part_id']) && !empty($_GET['part_id'])) {
     $part_id = mysqli_real_escape_string($con, $_GET['part_id']);
 
-    $query = "SELECT part_desc FROM tbl_inventory WHERE id = '$part_id'";
+    // Selecting Part Description and Part Option when selecting Part Name
+    $query = "SELECT part_desc, part_option FROM tbl_inventory WHERE id = '$part_id'";
     $result = mysqli_query($con, $query);
 
     if ($result) {
         if (mysqli_num_rows($result) > 0) {
             $row = mysqli_fetch_assoc($result);
             $response['part_desc'] = $row['part_desc'];
+            $response['part_option'] = $row['part_option'];
         } else {
             $response['part_desc'] = null;
         }

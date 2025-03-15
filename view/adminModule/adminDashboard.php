@@ -1,37 +1,70 @@
 <?php
-include "navBar.php";
+
+// Database Connection
 include "../../model/dbconnection.php";
+
+// Navigation Bar
+include "navBar.php";
+
 ?>
 
 <head>
+
+    <!-- Title -->
     <title>Admin Dashboard</title>
+
+    <!-- Sweetalert Style -->
     <link rel="stylesheet" href="../../public/css/sweetalert.min.css">
+
+    <!-- Graph Style -->
     <link rel="stylesheet" href="../../public/css/graph.css">
+
+    <!-- Sweetalert Script -->
     <script src="../../public/js/sweetalert2@11.js"></script>
+
+    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
+
+    <!-- Chart Script -->
     <script src="../../public/js/chart.js"></script>
+
 </head>
+
 <section class="w-100 d-flex flex-column" style="max-height: 90%;">
+
+    <!-- Title Div -->
     <div class="welcomeDiv my-2">
         <h2 class="text-center" style="color: #900008; font-weight: bold;">Welcome,
             <?php echo $_SESSION['username']; ?>!
         </h2>
     </div>
+
+    <!-- Top Material Consumption / Withdrawal -->
     <div class="px-5 py-2">
         <h2 class="text-center">Top Material Consumption / Withdrawal</h2>
     </div>
+
+    <!-- Top Material Consumption / Withdrawal Container -->
     <div class="container combineContainer my-4 w-50">
+
+        <!-- Top Material Consumption / Withdrawal Selections -->
         <div class="d-flex flex-wrap justify-content-evenly align-center w-100">
+
+            <!-- Start Date -->
             <div class="text-center">
                 <label for="start_date">Start Date</label>
                 <input type="date" id="start_date" class="form-control"
                     value="<?php echo isset($_GET['start_date']) ? $_GET['start_date'] : ''; ?>">
             </div>
+
+            <!-- End Date -->
             <div class="text-center">
                 <label for="end_date">End Date</label>
                 <input type="date" id="end_date" class="form-control"
                     value="<?php echo isset($_GET['end_date']) ? $_GET['end_date'] : ''; ?>">
             </div>
+
+            <!-- Cost Center -->
             <div class="text-center">
                 <label for="cost_center">Cost Center</label>
                 <select class="form-select" id="cost_center">
@@ -52,6 +85,8 @@ include "../../model/dbconnection.php";
                     ?>
                 </select>
             </div>
+
+            <!-- Station Code -->
             <div class="text-center">
                 <label for="station_code">Station Code</label>
                 <select class="form-select" id="station_code" name="station_code">
@@ -70,27 +105,40 @@ include "../../model/dbconnection.php";
             </div>
 
         </div>
+
+        <!-- Excel Export -->
         <div class="d-flex justify-content-center">
             <button id="with_export_btn" class="btn btn-success mt-2">Export to Excel</button>
         </div>
+
+        <!-- Top Material Consumption / Withdrawal Graph -->
         <div id="chart-container" class="my-4">
             <canvas id="combinedChart"></canvas>
         </div>
+
     </div>
 
+    <!-- Cost Center With Highest Withdrawal -->
     <div class="px-5 py-2">
         <h2 class="text-center">Cost Center With Highest Withdrawal</h2>
     </div>
 
+    <!-- Cost Center With Highest Withdrawal Selections -->
     <div class="d-flex flex-wrap justify-content-evenly align-center w-100 ">
+
+        <!-- Start Date -->
         <div class="text-center">
             <label for="startDate" class="m-0">Start Date:</label>
             <input type="date" id="startDate" class="form-control">
         </div>
+
+        <!-- End Date -->
         <div class="text-center">
             <label for="endDate" class="m-0">End Date:</label>
             <input type="date" id="endDate" class="form-control">
         </div>
+
+        <!-- Part Number -->
         <div class="text-center">
             <label for="endDate" class="m-0">Part Number:</label>
             <?php
@@ -110,18 +158,23 @@ include "../../model/dbconnection.php";
                 ?>
             </select>
         </div>
+
+        <!-- Export Excel -->
         <div class="text-center">
             <button id="export-btn" class="btn btn-success mt-2">Export to Excel</button>
         </div>
 
     </div>
 
-
+    <!-- Cost Center With Highest Withdrawal Graph Container -->
     <div class="container full-container my-4 d-flex justify-content-between">
+
+        <!-- Cost Center With Highest Withdrawal Graph -->
         <div class="col-md-8 barContainer mx-2">
             <canvas id="barChart" style="min-height: 400px;"></canvas>
         </div>
 
+        <!-- Cost Center With Highest Withdrawal Table -->
         <div class="col-md-4 mx-2 tableContainer">
             <div class="table-container">
                 <table id="rankingTable" class="table table-bordered">
@@ -138,18 +191,23 @@ include "../../model/dbconnection.php";
                 </table>
             </div>
         </div>
+
     </div>
+
 </section>
 
+<!-- Excel Script -->
 <script src="../../public/js/excel.js"></script>
 
 <script>
     $(document).ready(function () {
+
         var partNames = [];
         var partQtys = [];
         var returnQtys = [];
         var combinedChart = null;
 
+        // Update Top Material Consumption / Withdrawal Function
         function updateChartData(start_date, end_date, cost_center, station_code) {
             var requestData = {
                 start_date: start_date,
@@ -179,6 +237,7 @@ include "../../model/dbconnection.php";
             });
         }
 
+        // Top Material Consumption / Withdrawal Selections Script
         $('#start_date, #end_date, #cost_center, #station_code').on('change', function () {
             var start_date = $('#start_date').val();
             var end_date = $('#end_date').val();
@@ -188,8 +247,10 @@ include "../../model/dbconnection.php";
             updateChartData(start_date, end_date, cost_center, station_code);
         });
 
+        // Update Top Material Consumption / Withdrawal Function
         updateChartData('', '', '', '');
 
+        // Top Material Consumption / Withdrawal Graph Creation
         function createChart(partNames, partQtys, returnQtys) {
             var ctx = document.getElementById('combinedChart').getContext('2d');
 
@@ -248,14 +309,17 @@ include "../../model/dbconnection.php";
             });
         }
 
+        // Graph Resize
         $(window).on('resize', function () {
             if (combinedChart) {
                 combinedChart.resize();
             }
         });
 
+        // Bar Graph
         var barChart;
 
+        // Cost Center Graph Fetching
         function fetchData(startDate = null, endDate = null, partName = null) {
             $.ajax({
                 url: '../../controller/fetch_graph_ccs.php',
@@ -340,8 +404,10 @@ include "../../model/dbconnection.php";
             });
         }
 
+        // Cost Center Graph Function
         fetchData();
 
+        // Cost Center Selections
         $('#startDate, #endDate, #mat_partSelect').on('change', function () {
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
@@ -350,6 +416,7 @@ include "../../model/dbconnection.php";
             fetchData(startDate, endDate, partName);
         });
 
+        // Top Material Consumption / Withdrawal Export to Excel
         $('#with_export_btn').click(function () {
             var table = $('<table></table>');
             var headerRow = $('<tr></tr>');

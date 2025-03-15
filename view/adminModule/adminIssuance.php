@@ -1,26 +1,46 @@
 <?php
-include "navBar.php";
+
+// Database Connection
 include "../../model/dbconnection.php";
+
+// Navigation Bar
+include "navBar.php";
+
 ?>
 
 <head>
+
+    <!-- Title -->
     <title>Issuance History</title>
+
+    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
 
+    <!-- Table Style -->
     <link rel="stylesheet" href="../../public/css/table.css">
+
 </head>
 
 <section style="max-height: 90%;">
+
+    <!-- Title Div -->
     <div class="welcomeDiv my-2">
         <h2 class="text-center" style="color: #900008; font-weight: bold;">Issuance History
         </h2>
     </div>
+
+    <!-- Main Container -->
     <div class="container">
+
+        <!-- Search and Export to Excel -->
         <div class="d-flex flex-wrap justify-content-evenly">
             <input type="text" id="search-box" placeholder="Search..." />
             <button id="export-btn" class="btn btn-success my-2">Export to Excel</button>
         </div>
+
+        <!-- Issuance History Table -->
         <table class="table table-striped w-100">
+
             <thead>
                 <tr class="text-center" style="background-color: #900008; color: white; vertical-align: middle;">
                     <th scope="col">Date / Time / Shift</th>
@@ -35,6 +55,7 @@ include "../../model/dbconnection.php";
                     <th scope="col">Status</th>
                 </tr>
             </thead>
+
             <tbody id="data-table">
                 <?php
                 $userName = $_SESSION['username'];
@@ -68,14 +89,20 @@ include "../../model/dbconnection.php";
                 }
                 ?>
             </tbody>
+
         </table>
+
     </div>
+
 </section>
 
+<!-- Excel Script -->
 <script src="../../public/js/excel.js"></script>
 
 <script>
     $(document).ready(function () {
+
+        // Search Input Script
         $('#search-box').on('keyup', function () {
             var value = $(this).val().toLowerCase();
             $('#data-table .table-row').filter(function () {
@@ -83,6 +110,7 @@ include "../../model/dbconnection.php";
             });
         });
 
+        // Export to Excel Script
         $('#export-btn').on('click', function () {
             var visibleRows = $('#data-table .table-row:visible');
             var table = $('<table></table>');
@@ -99,4 +127,5 @@ include "../../model/dbconnection.php";
         });
 
     });
+
 </script>

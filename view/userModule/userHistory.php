@@ -1,22 +1,38 @@
 <?php
+// PH Time
 date_default_timezone_set('Asia/Manila');
 
+// Database Connection
 include "../../model/dbconnection.php";
+
+// Navigation Bar
 include "navBar.php";
+
 ?>
 
 <head>
+
+    <!-- Title -->
     <title>Withdrawal History</title>
 
+    <!-- Table Style -->
     <link rel="stylesheet" href="../../public/css/table.css">
+
+    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
+
 </head>
+
 <section>
+
+    <!-- Welcome Div -->
     <div class="welcomeDiv my-2">
         <h2 class="text-center">Welcome, <?php echo $_SESSION['username'] ?>!</h2>
     </div>
 
     <div class="container">
+
+        <!-- Navigation Tab for all Request Tab -->
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home"
@@ -27,24 +43,31 @@ include "navBar.php";
                     type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Returned</button>
             </div>
         </nav>
-        <div class="tab-content mt-3" id="nav-tabContent">
-            <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-                <div class="container  ">
-                    <form method="GET" action="" class="mb-4 text-center" id="date-filter-form-approve">
-                        <div class="row d-flex justify-content-evenly w-100">
-                            <div class="col-md-4">
-                                <label for="start_dateapprove" class="form-label">Start Date</label>
-                                <input type="date" id="start_dateapprove" name="start_date" class="form-control"
-                                    value="<?php echo isset($_GET['start_date']) ? $_GET['start_date'] : ''; ?>">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="end_dateapprove" class="form-label">End Date</label>
-                                <input type="date" id="end_dateapprove" name="end_date" class="form-control"
-                                    value="<?php echo isset($_GET['end_date']) ? $_GET['end_date'] : ''; ?>">
-                            </div>
-                        </div>
-                    </form>
 
+        <!-- Requests Tab -->
+        <div class="tab-content mt-3" id="nav-tabContent">
+
+            <!-- Approve Request Tab -->
+            <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+
+                <div class="container  ">
+
+                    <!-- Approve Request Title -->
+                    <h3 class="text-center fw-bold" style="color: #900008;">History of Approved Requests</h3>
+
+                    <!-- Approve Request Date Selection -->
+                    <div class="d-flex justify-content-evenly mb-3 text-center">
+                        <div>
+                            <label for="start_date_approve" class="me-2 fw-bold">Start Date:</label>
+                            <input type="date" id="start_date_approve" class="form-control" />
+                        </div>
+                        <div>
+                            <label for="end_date_approve" class="ms-2 me-2 fw-bold">End Date:</label>
+                            <input type="date" id="end_date_approve" class="form-control" />
+                        </div>
+                    </div>
+
+                    <!-- Return Item Withdrew Modal -->
                     <div class="modal fade" id="returnModal" tabindex="-1" aria-labelledby="returnModalLabel"
                         aria-hidden="true">
                         <div class="modal-dialog">
@@ -86,7 +109,7 @@ include "navBar.php";
                         </div>
                     </div>
 
-                    <!-- Table -->
+                    <!-- Approve Request Table -->
                     <table class="table table-striped w-100">
                         <thead>
                             <tr class="text-center"
@@ -104,75 +127,34 @@ include "navBar.php";
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="data-table">
-                            <?php
-                            $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
-                            $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
+                        <tbody id="data-table-approve">
 
-                            $userName = $_SESSION['username'];
-                            $sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'approved'";
-
-                            if ($start_date && $end_date) {
-                                $start_date = $start_date . ' 00:00:00';
-                                $end_date = $end_date . ' 23:59:59';
-                                $sql .= " AND dts BETWEEN '$start_date' AND '$end_date'";
-                            } elseif ($start_date) {
-                                $start_date = $start_date . ' 00:00:00';
-                                $sql .= " AND dts >= '$start_date'";
-                            } elseif ($end_date) {
-                                $end_date = $end_date . ' 23:59:59';
-                                $sql .= " AND dts <= '$end_date'";
-                            }
-
-                            $sql_query = mysqli_query($con, $sql);
-
-                            if ($sql_query) {
-                                while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
-                                    ?>
-                                    <tr class="table-row text-center">
-                                        <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts']; ?></td>
-                                        <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
-                                        <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
-                                        <td data-label="Part Desc"><?php echo $sqlRow['part_desc']; ?></td>
-                                        <td data-label="Quantity"><?php echo $sqlRow['part_qty']; ?></td>
-                                        <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
-                                        <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
-                                        <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>
-                                        <td data-label="Status"><?php echo $sqlRow['status']; ?></td>
-                                        <td data-label="Approved By"><?php echo $sqlRow['approved_by']; ?></td>
-                                        <td data-label="Action">
-                                            <button class="btn btn-primary return-btn" data-bs-toggle="modal"
-                                                data-bs-target="#returnModal" data-id="<?php echo $sqlRow['id']; ?>"
-                                                data-part-qty="<?php echo $sqlRow['part_qty']; ?>"
-                                                data-req-by="<?php echo $sqlRow['req_by']; ?>"
-                                                data-part-name="<?php echo $sqlRow['part_name']; ?>">Return</button>
-                                        </td>
-                                    </tr>
-                                    <?php
-                                }
-                            }
-                            ?>
                         </tbody>
                     </table>
                 </div>
             </div>
-            <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-                <div class="container  ">
-                    <form method="GET" action="" class="mb-4 text-center" id="date-filter-form-reject">
-                        <div class="row d-flex justify-content-evenly w-100">
-                            <div class="col-md-4">
-                                <label for="start_datereject" class="form-label">Start Date</label>
-                                <input type="date" id="start_datereject" name="start_date" class="form-control"
-                                    value="<?php echo isset($_GET['start_date']) ? $_GET['start_date'] : ''; ?>">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="end_datereject" class="form-label">End Date</label>
-                                <input type="date" id="end_datereject" name="end_date" class="form-control"
-                                    value="<?php echo isset($_GET['end_date']) ? $_GET['end_date'] : ''; ?>">
-                            </div>
-                        </div>
-                    </form>
 
+            <!-- Rejected Request Tab -->
+            <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+
+                <div class="container  ">
+
+                    <!-- Rejected Request Title -->
+                    <h3 class="text-center fw-bold" style="color: #900008;">History of Rejected Requests</h3>
+
+                    <!-- Rejected Request Date Selection -->
+                    <div class="d-flex justify-content-evenly mb-3 text-center">
+                        <div>
+                            <label for="start_date_reject" class="me-2 fw-bold">Start Date:</label>
+                            <input type="date" id="start_date_reject" class="form-control" />
+                        </div>
+                        <div>
+                            <label for="end_date_reject" class="ms-2 me-2 fw-bold">End Date:</label>
+                            <input type="date" id="end_date_reject" class="form-control" />
+                        </div>
+                    </div>
+
+                    <!-- Rejected Request Table -->
                     <table class="table table-striped w-100">
                         <thead>
                             <tr class="text-center"
@@ -189,69 +171,36 @@ include "navBar.php";
                                 <th scope="col">Rejected By</th>
                             </tr>
                         </thead>
-                        <tbody id="data-table">
-                            <?php
-                            $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
-                            $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
+                        <tbody id="data-table-reject">
 
-                            $userName = $_SESSION['username'];
-                            $sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'rejected'";
-
-                            if ($start_date && $end_date) {
-                                $start_date = $start_date . ' 00:00:00';
-                                $end_date = $end_date . ' 23:59:59';
-                                $sql .= " AND dts BETWEEN '$start_date' AND '$end_date'";
-                            } elseif ($start_date) {
-                                $start_date = $start_date . ' 00:00:00';
-                                $sql .= " AND dts >= '$start_date'";
-                            } elseif ($end_date) {
-                                $end_date = $end_date . ' 23:59:59';
-                                $sql .= " AND dts <= '$end_date'";
-                            }
-
-                            $sql_query = mysqli_query($con, $sql);
-
-                            if ($sql_query) {
-                                while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
-                                    ?>
-                                    <tr class="table-row text-center">
-                                        <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts']; ?></td>
-                                        <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
-                                        <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
-                                        <td data-label="Part Desc"><?php echo $sqlRow['part_desc']; ?></td>
-                                        <td data-label="Quantity"><?php echo $sqlRow['part_qty']; ?></td>
-                                        <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
-                                        <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
-                                        <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>
-                                        <td data-label="Status"><?php echo $sqlRow['status']; ?></td>
-                                        <td data-label="Status"><?php echo $sqlRow['rejected_by']; ?></td>
-                                    </tr>
-                                    <?php
-                                }
-                            }
-                            ?>
                         </tbody>
                     </table>
                 </div>
             </div>
-            <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
-                <div class="container  ">
-                    <form method="GET" action="" class="mb-4 text-center" id="date-filter-form-return">
-                        <div class="row d-flex justify-content-evenly w-100">
-                            <div class="col-md-4">
-                                <label for="start_datereturn" class="form-label">Start Date</label>
-                                <input type="date" id="start_datereturn" name="start_date" class="form-control"
-                                    value="<?php echo isset($_GET['start_date']) ? $_GET['start_date'] : ''; ?>">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="end_datereturn" class="form-label">End Date</label>
-                                <input type="date" id="end_datereturn" name="end_date" class="form-control"
-                                    value="<?php echo isset($_GET['end_date']) ? $_GET['end_date'] : ''; ?>">
-                            </div>
-                        </div>
-                    </form>
 
+            <!-- Returned Request Tab -->
+            <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+
+                <div class="container">
+
+                    <!-- Returned Request Title -->
+                    <h3 class="text-center fw-bold" style="color: #900008;">History of Returned Requests</h3>
+
+                    <!-- Returned Request Date Selection -->
+                    <div class="d-flex justify-content-evenly mb-3 text-center items-center">
+                        <div>
+                            <label for="start_date_return" class="me-2 fw-bold">Start Date:</label>
+                            <input type="date" id="start_date_return" class="form-control" />
+                        </div>
+                        <div>
+                            <label for="end_date_return" class="ms-2 me-2 fw-bold">End Date:</label>
+                            <input type="date" id="end_date_return" class="form-control" />
+                        </div>
+                    </div>
+
+                    <!-- Returned Request Table -->
                     <table class="table table-striped w-100">
+
                         <thead>
                             <tr class="text-center"
                                 style="background-color: #900008; color: white; vertical-align: middle;">
@@ -268,52 +217,16 @@ include "navBar.php";
                                 <th scope="col">Received By</th>
                             </tr>
                         </thead>
-                        <tbody id="data-table">
-                            <?php
-                            $start_date = isset($_GET['start_date']) ? $_GET['start_date'] : '';
-                            $end_date = isset($_GET['end_date']) ? $_GET['end_date'] : '';
+                        <tbody id="data-table-return">
 
-                            $userName = $_SESSION['username'];
-                            $sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'returned'";
-
-                            if ($start_date && $end_date) {
-                                $start_date = $start_date . ' 00:00:00';
-                                $end_date = $end_date . ' 23:59:59';
-                                $sql .= " AND dts_return BETWEEN '$start_date' AND '$end_date'";
-                            } elseif ($start_date) {
-                                $start_date = $start_date . ' 00:00:00';
-                                $sql .= " AND dts_return >= '$start_date'";
-                            } elseif ($end_date) {
-                                $end_date = $end_date . ' 23:59:59';
-                                $sql .= " AND dts_return <= '$end_date'";
-                            }
-
-                            $sql_query = mysqli_query($con, $sql);
-
-                            if ($sql_query) {
-                                while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
-                                    ?>
-                                    <tr class="table-row text-center">
-                                        <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts_return']; ?></td>
-                                        <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
-                                        <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
-                                        <td data-label="Quantity"><?php echo $sqlRow['part_qty']; ?></td>
-                                        <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
-                                        <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
-                                        <td data-label="Return By"><?php echo $sqlRow['req_by']; ?></td>
-                                        <td data-label="Status"><?php echo $sqlRow['status']; ?></td>
-                                        <td data-label="Return Qty"><?php echo $sqlRow['return_qty']; ?></td>
-                                        <td data-label="Return Reason"><?php echo $sqlRow['return_reason']; ?></td>
-                                        <td data-label="Received By"><?php echo $sqlRow['received_by']; ?></td>
-                                    </tr>
-                                    <?php
-                                }
-                            }
-                            ?>
                         </tbody>
+
                     </table>
+
                 </div>
+
             </div>
+
         </div>
     </div>
 
@@ -321,120 +234,182 @@ include "navBar.php";
 </section>
 
 <script>
+
     $(document).ready(function () {
-        $('#start_dateApprove').on('change', function () {
-            var startDate = $(this).val();
-            if (startDate) {
-                $('#end_dateApprove').attr('min', startDate);
+
+        filterDataApprove();
+        filterDataReject();
+        filterDataReturn();
+
+        // Approve Request Date Selection
+        $('#start_date_approve, #end_date_approve').on('change', function () {
+            let startDate = $('#start_date_approve').val();
+            let endDate = $('#end_date_approve').val();
+
+            if (startDate && endDate) {
+                filterDataApprove(startDate, endDate);
             }
         });
 
-        $('#start_dateApprove, #end_dateApprove').on('change', function () {
-            $('#date-filter-form-approve').submit();
-        });
+        // Approve Request AJAX
+        function filterDataApprove(startDate, endDate) {
+            $.ajax({
+                url: '../../controller/withdrawal_approved.php',
+                method: 'GET',
+                data: {
+                    start_date: startDate,
+                    end_date: endDate
+                },
+                success: function (response) {
+                    $('#data-table-approve').html(response);
+                },
+                error: function (xhr, status, error) {
+                    console.log("Error: ", error);
+                    alert('Error fetching data.');
+                }
+            });
+        }
 
+        // Rejected Request Date Selection
+        $('#start_date_reject, #end_date_reject').on('change', function () {
+            let startDate = $('#start_date_reject').val();
+            let endDate = $('#end_date_reject').val();
 
-        $('#start_datereject').on('change', function () {
-            var startDate = $(this).val();
-            if (startDate) {
-                $('#end_datereject').attr('min', startDate);
+            if (startDate && endDate) {
+                filterDataReject(startDate, endDate);
             }
         });
 
-        $('#start_datereject, #end_datereject').on('change', function () {
-            $('#date-filter-form-reject').submit();
-        });
+        // Reject Request AJAX
+        function filterDataReject(startDate, endDate) {
+            $.ajax({
+                url: '../../controller/withdrawal_rejected.php',
+                method: 'GET',
+                data: {
+                    start_date: startDate,
+                    end_date: endDate
+                },
+                success: function (response) {
+                    $('#data-table-reject').html(response);
+                },
+                error: function (xhr, status, error) {
+                    console.log("Error: ", error);
+                    alert('Error fetching data.');
+                }
+            });
+        }
 
+        // Return Request Date Selection
+        $('#start_date_return, #end_date_return').on('change', function () {
+            let startDate = $('#start_date_return').val();
+            let endDate = $('#end_date_return').val();
 
-        $('#start_datereturn').on('change', function () {
-            var startDate = $(this).val();
-            if (startDate) {
-                $('#end_datereturn').attr('min', startDate);
+            if (startDate && endDate) {
+                filterDataReturn(startDate, endDate);
             }
         });
 
-        $('#start_datereturn, #end_datereturn').on('change', function () {
-            $('#date-filter-form-return').submit();
+        // Return Request AJAX
+        function filterDataReturn(startDate, endDate) {
+            $.ajax({
+                url: '../../controller/withdrawal_returned.php',
+                method: 'GET',
+                data: {
+                    start_date: startDate,
+                    end_date: endDate
+                },
+                success: function (response) {
+                    $('#data-table-return').html(response);
+                },
+                error: function (xhr, status, error) {
+                    console.log("Error: ", error);
+                    alert('Error fetching data.');
+                }
+            });
+        }
+
+        // Return Item Withdrew Data
+        $(document).on('click', '.return-btn', function () {
+            var Id = $(this).data('id');
+            var partQty = $(this).data('part-qty');
+            var reqBy = $(this).data('req-by');
+            var partName = $(this).data('part-name');
+            $('#part_namereturn').val(partName);
+            $('#lot_id').val(Id);
+            $('#reqBy').val(reqBy);
+            $('#returnQty').attr('max', partQty);
+            $('#returnQty').val('');
+
+            $('#quantityMessage').text('Your requested quantity for this part is ' + partQty + '. Please return a quantity below or equal to this.');
         });
-    });
 
-    $(document).on('click', '.return-btn', function () {
-        var Id = $(this).data('id');
-        var partQty = $(this).data('part-qty');
-        var reqBy = $(this).data('req-by');
-        var partName = $(this).data('part-name');
-        $('#part_namereturn').val(partName);
-        $('#lot_id').val(Id);
-        $('#reqBy').val(reqBy);
-        $('#returnQty').attr('max', partQty);
-        $('#returnQty').val('');
+        // Return Item Submit Form
+        $('#returnForm').submit(function (e) {
+            e.preventDefault();
 
-        $('#quantityMessage').text('Your requested quantity for this part is ' + partQty + '. Please return a quantity below or equal to this.');
-    });
+            var Id = $('#lot_id').val();
+            var returnReason = $('#returnReason').val();
+            var returnQty = $('#returnQty').val();
+            var reqBy = $('#reqBy').val();
+            var partNameReturn = $('#part_namereturn').val();
 
-    $('#returnForm').submit(function (e) {
-        e.preventDefault();
+            $.ajax({
+                url: '../../controller/user_query.php',
+                type: 'POST',
+                data: {
+                    lot_id: Id,
+                    return_reason: returnReason,
+                    return_qty: returnQty,
+                    req_by: reqBy,
+                    part_name: partNameReturn
 
-        var Id = $('#lot_id').val();
-        var returnReason = $('#returnReason').val();
-        var returnQty = $('#returnQty').val();
-        var reqBy = $('#reqBy').val();
-        var partNameReturn = $('#part_namereturn').val();
+                },
+                success: function (response) {
+                    console.log(response);
+                    try {
+                        var data = JSON.parse(response);
 
-        $.ajax({
-            url: '../../controller/update_status.php',
-            type: 'POST',
-            data: {
-                lot_id: Id,
-                return_reason: returnReason,
-                return_qty: returnQty,
-                req_by: reqBy,
-                part_name: partNameReturn
-
-            },
-            success: function (response) {
-                console.log(response);
-                try {
-                    var data = JSON.parse(response);
-
-                    if (data.status === 'success') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: data.message,
-                            confirmButtonText: 'OK'
-                        }).then(() => {
-                            $('#returnModal').modal('hide');
-                            location.reload();
-                        });
-                    } else {
+                        if (data.status === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: data.message,
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                $('#returnModal').modal('hide');
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message,
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    } catch (e) {
+                        console.error("Error parsing JSON:", e);
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error',
-                            text: data.message,
+                            title: 'Server Error',
+                            text: 'There was an issue with the request. Please try again.',
                             confirmButtonText: 'OK'
                         });
                     }
-                } catch (e) {
-                    console.error("Error parsing JSON:", e);
+                },
+                error: function (xhr, status, error) {
+                    console.error("AJAX error:", status, error);
                     Swal.fire({
                         icon: 'error',
-                        title: 'Server Error',
+                        title: 'AJAX Error',
                         text: 'There was an issue with the request. Please try again.',
                         confirmButtonText: 'OK'
                     });
                 }
-            },
-            error: function (xhr, status, error) {
-                console.error("AJAX error:", status, error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'AJAX Error',
-                    text: 'There was an issue with the request. Please try again.',
-                    confirmButtonText: 'OK'
-                });
-            }
+            });
+
         });
 
     });
+
 </script>

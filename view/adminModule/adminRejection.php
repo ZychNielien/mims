@@ -1,23 +1,40 @@
 <?php
-include "navBar.php";
+
+// Database Connection
 include "../../model/dbconnection.php";
+
+// Navigation Bar
+include "navBar.php";
+
 ?>
 
 <head>
+
+    <!-- Title -->
     <title>Issuance History</title>
+
+    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
 
+    <!-- Table Style -->
     <link rel="stylesheet" href="../../public/css/table.css">
+
 </head>
 
 <section style="max-height: 90%;">
+
+    <!-- Title Div -->
     <div class="welcomeDiv my-2">
         <h2 class="text-center" style="color: #900008; font-weight: bold;">Rejection History
         </h2>
     </div>
 
+    <!-- Main Container -->
     <div class="container">
+
+        <!-- Rejection History Table -->
         <table class="table table-striped w-100">
+
             <thead>
                 <tr class="text-center" style="background-color: #900008; color: white; vertical-align: middle;">
                     <th scope="col">Date / Time / Shift</th>
@@ -33,6 +50,7 @@ include "../../model/dbconnection.php";
                 </tr>
             </thead>
             <tbody id="data-table">
+
                 <?php
                 $userName = $_SESSION['username'];
                 $sql = "SELECT * FROM tbl_requested WHERE status = 'rejected'  ORDER BY dts DESC";
@@ -64,7 +82,11 @@ include "../../model/dbconnection.php";
                     <?php
                 }
                 ?>
+
             </tbody>
+
         </table>
+
     </div>
+
 </section>

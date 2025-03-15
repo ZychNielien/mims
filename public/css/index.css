@@ -1,0 +1,38 @@
+:root {
+  --primary-color: #900008;
+  --primary-color-hover: #e6010c;
+  --secondary-color: #2ecc71;
+}
+
+body {
+  background-color: var(--primary-color);
+}
+.nav-link:not(.active) {
+  color: var(--primary-color) !important;
+}
+.nav-link.active {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+}
+
+.btn-color {
+  background-color: var(--primary-color);
+  color: white !important;
+}
+.box-shadow-container {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 30px;
+  background-color: white;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.form-content {
+  flex-grow: 1;
+}

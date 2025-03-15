@@ -1,7 +1,11 @@
 <?php
+// Session Start
 session_start();
+
+// Manila Time Zone
 date_default_timezone_set('Asia/Manila');
 
+// Database Connection
 include "../model/dbconnection.php";
 
 if (isset($_GET['start_date']) && isset($_GET['end_date'])) {
@@ -15,6 +19,7 @@ if (isset($_GET['start_date']) && isset($_GET['end_date'])) {
     $cost_center = mysqli_real_escape_string($con, $cost_center);
     $station_code = mysqli_real_escape_string($con, $station_code);
 
+    // Selecting All Requests Where not Pending
     $select_material = "
         SELECT part_name, part_qty, part_option, return_qty 
         FROM tbl_requested 

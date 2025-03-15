@@ -1,13 +1,18 @@
 <?php
+// Session Start
 session_start();
+
+// Manila Time Zone
 date_default_timezone_set('Asia/Manila');
 
+// Database Connection
 include "../model/dbconnection.php";
 
 $startDate = isset($_GET['startDate']) ? $_GET['startDate'] : null;
 $endDate = isset($_GET['endDate']) ? $_GET['endDate'] : null;
 $partName = isset($_GET['partName']) ? $_GET['partName'] : null;
 
+// Selecting Cost Center Data Approved
 $query = "
 SELECT tc.ccid, COUNT(tr.cost_center) AS requested_count
 FROM tbl_ccs tc

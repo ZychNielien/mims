@@ -3,6 +3,7 @@ include "../model/dbconnection.php";
 session_start();
 date_default_timezone_set('Asia/Manila');
 
+// ADMIN ACCOUNT CREATION
 if (isset($_POST['register'])) {
 
     $employee_name = mysqli_real_escape_string($con, $_POST['employee_name']);
@@ -14,9 +15,6 @@ if (isset($_POST['register'])) {
     $cost_center = mysqli_real_escape_string($con, $_POST['cost_center']);
     $supervisor_one = mysqli_real_escape_string($con, $_POST['supervisor_one']);
     $supervisor_two = mysqli_real_escape_string($con, $_POST['supervisor_two']);
-
-
-
 
     $checkUsernameSQL = "SELECT * FROM tbl_users WHERE username = '$username'";
     $checkUsernameQuery = mysqli_query($con, $checkUsernameSQL);
@@ -52,7 +50,79 @@ if (isset($_POST['register'])) {
     }
 }
 
+// USER ACCOUNT CREATION
+if (isset($_POST['account_submit'])) {
+    $employee_name = mysqli_real_escape_string($con, $_POST['employee_name']);
+    $employee_username = mysqli_real_escape_string($con, $_POST['employee_username']);
+    $employee_password = mysqli_real_escape_string($con, $_POST['employee_password']);
+    $badge_number = mysqli_real_escape_string($con, $_POST['badge_number']);
+    $designation = mysqli_real_escape_string($con, $_POST['designation']);
+    $account_type = mysqli_real_escape_string($con, $_POST['account_type']);
+    $cost_center = mysqli_real_escape_string($con, $_POST['cost_center']);
+    $supervisor_one = mysqli_real_escape_string($con, $_POST['supervisor_one']);
+    $supervisor_two = mysqli_real_escape_string($con, $_POST['supervisor_two']);
 
+    $checkUsernameSQL = "SELECT * FROM tbl_users WHERE username = '$employee_username'";
+    $checkUsernameQuery = mysqli_query($con, $checkUsernameSQL);
+
+    if (mysqli_num_rows($checkUsernameQuery) > 0) {
+
+        $_SESSION['status'] = "Username is already taken, please choose another one.";
+        $_SESSION['status_code'] = "error";
+        header("Location: ../view/index.php");
+    } else {
+
+        $sql = "INSERT INTO tbl_users (employee_name, username, password, badge_number, designation, account_type,cost_center,supervisor_one,supervisor_two ,usertype) VALUES ('$employee_name', '$employee_username','$employee_password', '$badge_number','$designation', '$account_type','$cost_center', '$supervisor_one','$supervisor_two',  1)";
+        if (mysqli_query($con, $sql)) {
+            $_SESSION['status'] = "Your account has been successfully created. Please await approval from the administrator before you can log in.";
+            $_SESSION['status_code'] = "success";
+            header("Location: ../view/index.php");
+        } else {
+            $_SESSION['status'] = "Error registering user.";
+            $_SESSION['status_code'] = "error";
+            header("Location: ../view/index.php");
+        }
+
+    }
+}
+
+// APPROVAL
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['selected_ids']) && !empty($_POST['selected_ids'])) {
+        $selected_ids = $_POST['selected_ids'];
+        $action = $_POST['action'];
+
+        // Create a comma-separated string of selected user IDs
+        $ids = implode(',', $selected_ids);
+
+        if ($action == 'approve') {
+            // Update the status of selected users to 'approved'
+            $sql = "UPDATE tbl_users SET usertype = '2' WHERE id IN ($ids)";
+            $sql_query = mysqli_query($con, $sql);
+            if ($sql_query) {
+                $_SESSION['status'] = "Selected users have been approved.";
+                $_SESSION['status_code'] = "success";
+                header("Location: ../view/adminModule/accReg.php");
+            }
+        } elseif ($action == 'reject') {
+            // Update the status of selected users to 'rejected'
+            $sql = "UPDATE tbl_users SET usertype = '3' WHERE id IN ($ids)";
+            $sql_query = mysqli_query($con, $sql);
+            if ($sql_query) {
+                $_SESSION['status'] = "Selected users have been rejected.";
+                $_SESSION['status_code'] = "success";
+                header("Location: ../view/adminModule/accReg.php");
+            }
+        }
+    } else {
+        echo "No users selected.";
+    }
+}
+
+
+
+
+// EDIT USERS
 if (isset($_POST['editUser'])) {
     $user_id = $_POST['user_id'];
     $employee_name = mysqli_real_escape_string($con, $_POST['employee_name']);
@@ -86,6 +156,7 @@ if (isset($_POST['editUser'])) {
     }
 }
 
+// DELETE USER
 if (isset($_GET['id'])) {
     $user_id = $_GET['id'];
 
@@ -116,7 +187,7 @@ if (isset($_GET['id'])) {
     }
 }
 
-
+// CHANGE PASS NG SUPERVISOR/KITTING
 if (isset($_POST['changePass'])) {
     $userId = mysqli_real_escape_string($con, $_POST['userID']);
     $oldPassword = mysqli_real_escape_string($con, $_POST['old_password']);
@@ -161,8 +232,7 @@ if (isset($_POST['changePass'])) {
     }
 }
 
-
-
+// CHANGE PASS NG USER
 if (isset($_POST['changePassUser'])) {
     $userId = mysqli_real_escape_string($con, $_POST['userID']);
     $oldPassword = mysqli_real_escape_string($con, $_POST['old_password']);
@@ -207,6 +277,7 @@ if (isset($_POST['changePassUser'])) {
     }
 }
 
+
 if (isset($_POST['ccid']) && !empty($_POST['ccid'])) {
     $ccid = $_POST['ccid'];
 
@@ -227,4 +298,7 @@ if (isset($_POST['ccid']) && !empty($_POST['ccid'])) {
 
     echo json_encode($response);
 }
+
+
+
 ?>
