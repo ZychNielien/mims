@@ -46,7 +46,6 @@ include "navBar.php";
 
             <thead>
                 <tr class="text-center" style="background-color: #900008; color: white; vertical-align: middle;">
-                    <th scope="col">Date / Time / Shift of Expiration</th>
                     <th scope="col">Part Number</th>
                     <th scope="col">Part Quantity</th>
                     <th scope="col">Expiration Date</th>
@@ -67,7 +66,6 @@ include "navBar.php";
                         ?>
                         <tr class="table-row  text-center">
 
-                            <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts']; ?></td>
                             <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
                             <td data-label="Quantity"><?php echo $sqlRow['part_qty']; ?></td>
                             <td data-label="Machine No"><?php echo $sqlRow['exp_date']; ?></td>

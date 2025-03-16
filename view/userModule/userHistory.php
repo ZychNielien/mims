@@ -70,7 +70,7 @@ include "navBar.php";
                     <!-- Return Item Withdrew Modal -->
                     <div class="modal fade" id="returnModal" tabindex="-1" aria-labelledby="returnModalLabel"
                         aria-hidden="true">
-                        <div class="modal-dialog">
+                        <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="returnModalLabel">Return Item</h5>
@@ -82,7 +82,8 @@ include "navBar.php";
                                         <input type="hidden" name="lot_id" id="lot_id">
                                         <div class="mb-3">
                                             <label for="returnQty" class="form-label">Quantity</label>
-                                            <input type="number" class="form-control" id="returnQty" name="return_qty">
+                                            <input type="number" class="form-control" id="returnQty" name="return_qty"
+                                                placeholder="Enter Quantity" required>
                                         </div>
                                         <div class="mb-3" style="display: none;">
                                             <label for="reqBy" class="form-label">Quantity</label>
@@ -100,7 +101,7 @@ include "navBar.php";
                                         <div class="mb-3">
                                             <label for="returnReason" class="form-label">Reason for Return</label>
                                             <textarea class="form-control" id="returnReason" name="return_reason"
-                                                rows="3" required></textarea>
+                                                rows="3" required placeholder="Enter Reason for Return"></textarea>
                                         </div>
                                         <button type="submit" class="btn btn-primary">Submit Return</button>
                                     </form>

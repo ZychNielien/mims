@@ -107,6 +107,7 @@ ob_end_flush();
                             <tr class="text-center" style="background-color: #900008; color: white;">
                                 <th scope="col"><input type="checkbox" id="select_all"></th>
                                 <th scope="col">Employee Name</th>
+                                <th scope="col">Username</th>
                                 <th scope="col">Badge No.</th>
                                 <th scope="col">Cost Center</th>
                                 <th scope="col">Designation</th>
@@ -131,6 +132,7 @@ ob_end_flush();
                                                 value="<?php echo $sqlRow['id']; ?>">
                                         </td>
                                         <td data-label="Employee Name"><?php echo $sqlRow['employee_name']; ?></td>
+                                        <td data-label="Username"><?php echo $sqlRow['username']; ?></td>
                                         <td data-label="Badge No."><?php echo $sqlRow['badge_number']; ?></td>
                                         <td data-label="Cost Center"><?php echo $sqlRow['cost_center']; ?></td>
                                         <td data-label="Designation"><?php echo $sqlRow['designation']; ?></td>
