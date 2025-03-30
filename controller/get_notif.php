@@ -14,17 +14,17 @@ if ($con->connect_error) {
 }
 $username = $_SESSION['username'];
 
-// Check if the usertype is Supervisor or Kitting
 if ($_SESSION['user'] == 'Supervisor' || $_SESSION['user'] == 'Kitting') {
 
-    // Selecting all Notif for Supervisor or Kitting
-    $sql = "SELECT * FROM tbl_notif WHERE for_who = '$username' OR for_who = 'admin' ORDER BY created_at DESC";
-    $result = $con->query($sql);
+    $sql = "SELECT * FROM tbl_notif WHERE for_who = '$username' OR for_who = 'admin'";
 
-    if ($result === false) {
-        echo json_encode(['error' => 'Database query failed']);
-        exit;
+    if ($_SESSION['user'] == 'Supervisor') {
+        $sql .= " OR for_who = 'adminOnly'";
     }
+
+    $sql .= " ORDER BY created_at DESC";
+
+    $result = $con->query($sql);
 
     $notifications = [];
 
@@ -38,10 +38,8 @@ if ($_SESSION['user'] == 'Supervisor' || $_SESSION['user'] == 'Kitting') {
         echo json_encode($notifications);
     }
 
-    // If the usertype is User
 } else if ($_SESSION['user'] == 'User') {
 
-    // Selecting all Notif for User
     $sql = "SELECT * FROM tbl_notif WHERE for_who = 'user'  or for_who = '$username' ORDER BY created_at DESC";
 
     $result = $con->query($sql);

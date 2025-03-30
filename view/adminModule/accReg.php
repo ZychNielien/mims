@@ -164,10 +164,10 @@ ob_end_flush();
 
             </div>
 
-            <!-- ACCOUNT CREATION -->
+            <!-- ACCOUNT PASSWORD -->
             <div class="tab-pane fade" id="update_pass" role="tabpanel" aria-labelledby="update_pass-tab">
 
-                <!-- Account Creation and Register Button -->
+                <!-- Account Password Search Inout -->
                 <div class="d-flex justify-between-center w-100 my-3">
 
                     <input type="text" id="search_pass" class="form-control w-50 mx-auto"
@@ -175,7 +175,7 @@ ob_end_flush();
 
                 </div>
 
-                <!-- Accounts Table -->
+                <!-- Accounts Password Table -->
                 <table class="table table-striped w-100">
 
                     <thead>
@@ -194,8 +194,7 @@ ob_end_flush();
                     <tbody id="data-table-pass">
                         <?php
                         $userName = $_SESSION['username'];
-                        $sql = "SELECT *
-                FROM tbl_users WHERE forgot_pass = '1'";
+                        $sql = "SELECT * FROM tbl_users WHERE forgot_pass = '1'";
                         $sql_query = mysqli_query($con, $sql);
 
                         if (mysqli_num_rows($sql_query) > 0) {
@@ -219,7 +218,8 @@ ob_end_flush();
                                     <td data-label="Action">
 
                                         <button class="btn btn-success edit-pass" data-bs-toggle="modal"
-                                            data-bs-target="#change_pass_modal" data-id="<?php echo $sqlRow['id']; ?>">Change
+                                            data-bs-target="#change_pass_modal" data-id="<?php echo $sqlRow['id']; ?>"
+                                            data-username="<?php echo $sqlRow['username']; ?>">Change
                                             Password</button>
 
                                     </td>
@@ -261,6 +261,7 @@ ob_end_flush();
                     <thead>
                         <tr class="text-center" style="background-color: #900008; color: white;">
                             <th scope="col">Employee Name</th>
+                            <th scope="col">Username</th>
                             <th scope="col">Badge No.</th>
                             <th scope="col">Cost Center</th>
                             <th scope="col">Designation</th>
@@ -282,6 +283,7 @@ ob_end_flush();
                                 ?>
                                 <tr class="table-row text-center" style="vertical-align:middle;">
                                     <td data-label="Employee Name"><?php echo $sqlRow['employee_name']; ?></td>
+                                    <td data-label="Username"><?php echo $sqlRow['username']; ?></td>
                                     <td data-label="Badge No."><?php echo $sqlRow['badge_number']; ?></td>
                                     <td data-label="Cost Center"><?php echo $sqlRow['cost_center']; ?></td>
                                     <td data-label="Designation"><?php echo $sqlRow['designation']; ?></td>
@@ -399,7 +401,7 @@ ob_end_flush();
                                             data-supervisor_two="<?php echo $ccs_row['supervisor_two'] ?>">Edit</button>
 
                                         <button class="btn btn-danger delete_css"
-                                            data-id="<?php echo $ccs_row['id'] ?>">Delete</button>
+                                            data-id="<?php echo $ccs_row['id'] ?>" data-ccid_name="<?php echo $ccs_row['ccid_name'] ?>">Delete</button>
                                     </td>
 
                                 </tr>
@@ -429,6 +431,7 @@ ob_end_flush();
                 <div class="modal-body">
                     <form action="../../controller/login.php" method="POST">
                         <input type="hidden" id="forgot_pass_id" name="user_id">
+                        <input type="hidden" id="forgot_pass_username" name="user_username">
                         <div class="mb-3">
                             <label for="forgot_pass_one" class="form-label">New Password</label>
                             <input type="password" class="form-control" id="forgot_pass_one" name="new_pass"
@@ -467,41 +470,41 @@ ob_end_flush();
                         <div class="mb-3">
                             <label for="new_ccid" class="form-label">New CCID</label>
                             <input type="text" class="form-control" id="new_ccid" name="new_ccid"
-                                placeholder="Enter CCID" required>
+                                placeholder="Enter CCID" required autocomplete="off">
                         </div>
 
                         <div class="mb-3 position-relative">
                             <label for="new_ccid_name" class="form-label">New CCID Name</label>
                             <input type="text" class="form-control" id="new_ccid_name" name="new_ccid_name"
-                                placeholder="Enter CCID Name" required>
+                                placeholder="Enter CCID Name" required autocomplete="off">
                         </div>
                         <div class="mb-3 position-relative">
                             <label for="project_code" class="form-label">Project Code</label>
                             <input type="text" class="form-control" id="project_code" name="project_code"
-                                placeholder="Enter Project Code" required>
+                                placeholder="Enter Project Code" required autocomplete="off">
                         </div>
 
                         <div class="mb-3 position-relative">
                             <label for="project_name" class="form-label">Project Name</label>
                             <input type="text" class="form-control" id="project_name" name="project_name"
-                                placeholder="Enter Project Name" required>
+                                placeholder="Enter Project Name" required autocomplete="off">
                         </div>
                         <div class="mb-3 position-relative ">
                             <label for="badge_one" class="form-label">Badge No.</label>
                             <div class="d-flex justify-content-between">
                                 <input type="text" class="form-control mx-1" id="badge_one" name="badge_one"
-                                    placeholder="Enter Badge Number" required>
+                                    placeholder="Enter Badge Number" required autocomplete="off">
                                 <input type="text" class="form-control mx-1" id="badge_two" name="badge_two"
-                                    placeholder="Enter Badge Number">
+                                    placeholder="Enter Badge Number" autocomplete="off">
                             </div>
                         </div>
                         <div class="mb-3 position-relative ">
                             <label for="supervisor_one" class="form-label">Supervisor</label>
                             <div class="d-flex justify-content-between">
                                 <input type="text" class="form-control mx-1" id="supervisor_one" name="supervisor_one"
-                                    placeholder="Enter Supervisor" required>
+                                    placeholder="Enter Supervisor" required autocomplete="off">
                                 <input type="text" class="form-control mx-1" id="supervisor_two" name="supervisor_two"
-                                    placeholder="Enter Supervisor">
+                                    placeholder="Enter Supervisor" autocomplete="off">
                             </div>
                         </div>
 
@@ -527,46 +530,46 @@ ob_end_flush();
                     <form method="POST" action="../../controller/ccs.php">
                         <div class="mb-3" style="display: none;">
                             <label for="edit_id" class="form-label">New CCID</label>
-                            <input type="text" class="form-control" id="edit_id" name="id" required>
+                            <input type="text" class="form-control" id="edit_id" name="id" required autocomplete="off">
                         </div>
                         <div class="mb-3">
                             <label for="edit_new_ccid" class="form-label">New CCID</label>
                             <input type="text" class="form-control" id="edit_new_ccid" name="new_ccid" required
-                                placeholder="Enter CCID">
+                                placeholder="Enter CCID" autocomplete="off">
                         </div>
 
                         <div class="mb-3 position-relative">
                             <label for="edit_new_ccid_name" class="form-label">New CCID Name</label>
                             <input type="text" class="form-control" id="edit_new_ccid_name" name="new_ccid_name"
-                                placeholder="Enter CCID Name" required>
+                                placeholder="Enter CCID Name" required autocomplete="off">
                         </div>
                         <div class="mb-3 position-relative">
                             <label for="edit_project_code" class="form-label">Project Code</label>
                             <input type="text" class="form-control" id="edit_project_code" name="project_code"
-                                placeholder="Enter Project Code" required>
+                                placeholder="Enter Project Code" required autocomplete="off">
                         </div>
 
                         <div class="mb-3 position-relative">
                             <label for="edit_project_name" class="form-label">Project Name</label>
                             <input type="text" class="form-control" id="edit_project_name" name="project_name"
-                                placeholder="Enter Project Name" required>
+                                placeholder="Enter Project Name" required autocomplete="off">
                         </div>
                         <div class="mb-3 position-relative ">
                             <label for="edit_badge_one" class="form-label">Badge No.</label>
                             <div class="d-flex justify-content-between">
                                 <input type="text" class="form-control mx-1" id="edit_badge_one" name="badge_one"
-                                    placeholder="Enter Badge Number" required>
+                                    placeholder="Enter Badge Number" required autocomplete="off">
                                 <input type="text" class="form-control mx-1" id="edit_badge_two" name="badge_two"
-                                    placeholder="Enter Badge Number">
+                                    placeholder="Enter Badge Number" autocomplete="off">
                             </div>
                         </div>
                         <div class="mb-3 position-relative ">
                             <label for="edit_supervisor_one" class="form-label">Supervisor</label>
                             <div class="d-flex justify-content-between">
                                 <input type="text" class="form-control mx-1" id="edit_supervisor_one"
-                                    placeholder="Enter Supervisor" name="supervisor_one" required>
+                                    placeholder="Enter Supervisor" name="supervisor_one" required autocomplete="off">
                                 <input type="text" class="form-control mx-1" id="edit_supervisor_two"
-                                    placeholder="Enter Supervisor" name="supervisor_two">
+                                    placeholder="Enter Supervisor" name="supervisor_two" autocomplete="off">
                             </div>
                         </div>
 
@@ -594,18 +597,18 @@ ob_end_flush();
                         <div class="mb-3 mx-1">
                             <label for="employee_name" class="form-label">Employee Name</label>
                             <input type="text" class="form-control" id="employee_name" name="employee_name"
-                                placeholder="Enter Employee Name" required>
+                                placeholder="Enter Employee Name" required autocomplete="off">
                         </div>
                         <div class="mb-3 position-relative d-flex justify-content-evenly">
                             <div class="w-50 mx-1">
                                 <label for="username" class="form-label">Username</label>
                                 <input type="text" class="form-control " id="username" name="username"
-                                    placeholder="Enter username" required>
+                                    placeholder="Enter username" required autocomplete="off">
                             </div>
                             <div class="w-50  mx-1">
                                 <label for="passwordred" class="form-label">Password</label>
                                 <input type="password" class="form-control" id="passwordred" name="password"
-                                    placeholder="Enter password" required>
+                                    placeholder="Enter password" required autocomplete="off">
                                 <i class="bi bi-eye-slash" id="toggle-password"
                                     style="position: absolute; right: 10px; top: 40px; cursor: pointer;"></i>
                             </div>
@@ -614,7 +617,7 @@ ob_end_flush();
                             <div class="w-50 mx-1">
                                 <label for="badge_number" class="form-label">Badge Number</label>
                                 <input type="text" class="form-control " id="badge_number" name="badge_number"
-                                    placeholder="Enter Badge Number" required>
+                                    placeholder="Enter Badge Number" required autocomplete="off">
                             </div>
                             <div class="w-50  mx-1">
                                 <label for="designation" class="form-label">Designation</label>
@@ -693,13 +696,13 @@ ob_end_flush();
                         <div class="mb-3 mx-1">
                             <label for="edit_employee_name" class="form-label">Employee Name</label>
                             <input type="text" class="form-control" id="edit_employee_name" name="employee_name"
-                                placeholder="Enter Employee Name" required>
+                                placeholder="Enter Employee Name" required autocomplete="off">
                         </div>
                         <div class="mb-3 position-relative d-flex justify-content-evenly">
                             <div class="w-50 mx-1">
                                 <label for="edit_badge_number" class="form-label">Badge Number</label>
                                 <input type="text" class="form-control " id="edit_badge_number" name="badge_number"
-                                    placeholder="Enter Badge Number" required>
+                                    placeholder="Enter Badge Number" required autocomplete="off">
                             </div>
                             <div class="w-50  mx-1">
                                 <label for="edit_designation" class="form-label">Designation</label>
@@ -808,17 +811,33 @@ ob_end_flush();
         });
 
         // Search Input for Accounts Tab
+        // $('#search_account').on('input', function () {
+        //     var searchTerm = $(this).val().toLowerCase();
+        //     $('#data-table-account tr').each(function () {
+        //         var rowText = $(this).text().toLowerCase();
+        //         if (rowText.indexOf(searchTerm) === -1) {
+        //             $(this).hide();
+        //         } else {
+        //             $(this).show();
+        //         }
+        //     });
+        // });
+
         $('#search_account').on('input', function () {
             var searchTerm = $(this).val().toLowerCase();
             $('#data-table-account tr').each(function () {
-                var rowText = $(this).text().toLowerCase();
-                if (rowText.indexOf(searchTerm) === -1) {
+                var firstTdText = $(this).find('td:first').text().toLowerCase();
+                if (firstTdText.indexOf(searchTerm) === -1) {
                     $(this).hide();
                 } else {
                     $(this).show();
                 }
             });
         });
+
+
+
+
 
         // Search Input for Cost Center Tab
         $('#search_cost').on('input', function () {
@@ -934,10 +953,11 @@ ob_end_flush();
         // Delete Cost Center Data
         $('.delete_css').on('click', function () {
             var itemId = $(this).data('id');
+            var itemCcid_name = $(this).data('ccid_name');
 
             Swal.fire({
                 title: 'Are you sure?',
-                text: "You won't be able to revert this action!",
+                text: "You won't be able to revert this action for CCID: " + itemCcid_name + "!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
@@ -953,8 +973,10 @@ ob_end_flush();
         // Update Account Password Data
         $('.edit-pass').on('click', function () {
             var forgot_pass_id = $(this).data('id');
+            var forgot_pass_username = $(this).data('username');
 
             $('#forgot_pass_id').val(forgot_pass_id);
+            $('#forgot_pass_username').val(forgot_pass_username);
         });
 
         // Edit Accounts Data

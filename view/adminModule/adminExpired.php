@@ -58,7 +58,10 @@ include "navBar.php";
             <tbody id="data-table">
                 <?php
                 $userName = $_SESSION['username'];
-                $sql = "SELECT * FROM tbl_stock WHERE status = 'Expired'  ORDER BY dts DESC";
+                $sql = "SELECT *, SUM(part_qty) AS total_part_qty
+            FROM tbl_stock
+            WHERE status = 'Expired'
+            GROUP BY part_name, exp_date ORDER BY exp_date DESC";
                 $sql_query = mysqli_query($con, $sql);
 
                 if (mysqli_num_rows($sql_query) > 0) {
@@ -67,7 +70,7 @@ include "navBar.php";
                         <tr class="table-row  text-center">
 
                             <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
-                            <td data-label="Quantity"><?php echo $sqlRow['part_qty']; ?></td>
+                            <td data-label="Quantity"><?php echo $sqlRow['total_part_qty']; ?></td>
                             <td data-label="Machine No"><?php echo $sqlRow['exp_date']; ?></td>
                             <td data-label="Reason"><?php echo $sqlRow['kitting_id']; ?></td>
                             <td data-label="Requested By"><?php echo $sqlRow['updated_by']; ?></td>

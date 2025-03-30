@@ -14,7 +14,7 @@ $update_expired_sql = "UPDATE tbl_stock SET status = 'Expired' WHERE exp_date <=
 mysqli_query($con, $update_expired_sql);
 
 // Selecting All Active Stocks
-$sql = "SELECT ti.*, ts.exp_date,
+$sql = "SELECT ti.*, 
        IFNULL(MIN(CASE WHEN ts.status = 'Active' THEN ts.exp_date END), '') AS least_exp_date, 
        IFNULL(SUM(CASE WHEN ts.status = 'Active' THEN ts.part_qty END), 0) AS total_part_qty,
        SUM(CASE WHEN ts.status = 'Expired' THEN ts.part_qty ELSE 0 END) AS expired_qty
@@ -49,46 +49,27 @@ if ($sql_query) {
                 'expired_qty' => $expired_qty
             ];
 
-            $check_stock = "SELECT part_name, exp_date, SUM(part_qty) AS total_part_qty
-            FROM tbl_stock
-            WHERE exp_date = '$today'
-            GROUP BY part_name, exp_date";
+            if ($expired_qty > 0) {
 
-            $check_stock_query = mysqli_query($con, $check_stock);
+                // Selecting Expired Notif
+                $check_notification_sql = "SELECT * FROM tbl_notif WHERE message LIKE '%$part_name%' AND for_who = 'admin' AND destination = 'Expired' AND DATE(created_at) = '$today'";
+                $check_notification_query = mysqli_query($con, $check_notification_sql);
 
-            if ($check_stock_query) {
-                while ($check_row = mysqli_fetch_assoc($check_stock_query)) {
-                    $part_name = $check_row['part_name'];  // Correct the assignment here
-                    $total_qty = $check_row['total_part_qty'];
-                    $exp_date = $check_row['exp_date'];
+                if (mysqli_num_rows($check_notification_query) == 0) {
+                    $dts = date('Y-m-d H:i:s');
+                    $message = htmlspecialchars($part_name, ENT_QUOTES, 'UTF-8') . ' has expired. Total expired quantity: ' . $expired_qty;
+                    $for = "admin";
 
-                    if ($exp_date == $today && $total_qty > 0) {
-                        // Sanitize part name for use in the LIKE clause
-                        $part_name_safe = mysqli_real_escape_string($con, $part_name);
-                        $check_notification_sql = "SELECT * FROM tbl_notif WHERE message LIKE '%$part_name_safe%' AND for_who = 'admin' AND destination = 'Expired' AND DATE(created_at) = '$today'";
-                        $check_notification_query = mysqli_query($con, $check_notification_sql);
+                    // Inserting Expired Notification
+                    $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
+                                  VALUES ('System', '$message', 0, '$dts', '$for', 'Expired')";
+                    $sql_notif_query = mysqli_query($con, $sql_notif);
 
-                        if (mysqli_num_rows($check_notification_query) == 0) {
-                            // Insert notification
-                            $dts = date('Y-m-d H:i:s');
-                            $message = htmlspecialchars($part_name, ENT_QUOTES, 'UTF-8') . ' has expired. Total expired quantity: ' . $total_qty;
-                            $for = "admin";
-
-                            // Insert new notification into tbl_notif
-                            $sql_notif = "INSERT INTO tbl_notif (username, message, is_read, created_at, for_who, destination) 
-                          VALUES ('System', '$message', 0, '$dts', '$for', 'Expired')";
-                            $sql_notif_query = mysqli_query($con, $sql_notif);
-
-                            if (!$sql_notif_query) {
-                                echo "Error creating notification: " . mysqli_error($con);
-                            }
-                        }
+                    if (!$sql_notif_query) {
+                        echo "Error creating notification: " . mysqli_error($con);
                     }
                 }
             }
-
-
-
         }
     }
 }

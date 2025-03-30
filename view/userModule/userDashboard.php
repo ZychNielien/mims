@@ -152,7 +152,7 @@ include "navBar.php";
                     <div class="mb-1">
                         <label for="lot_id" class="form-label">LOT ID</label>
                         <input type="text" class="form-control" id="lot_id" name="lot_id" required
-                            placeholder="Enter Lot ID">
+                            placeholder="Enter Lot ID" autocomplete="off">
                     </div>
 
                     <!-- Withdrawal Reason -->

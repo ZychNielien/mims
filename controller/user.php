@@ -30,7 +30,7 @@ if (isset($_POST['register'])) {
         $desciption = $account_username . " has created an account for " . $employee_name;
         $dts = date('Y-m-d H:i:s');
 
-        $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', 'Account Creation','$desciption' , '$dts')";
+        $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', 'Account Registration','$desciption' , '$dts')";
         $sql_log_query = mysqli_query($con, $sql_log);
 
         if ($sql_log_query) {
@@ -74,9 +74,23 @@ if (isset($_POST['account_submit'])) {
 
         $sql = "INSERT INTO tbl_users (employee_name, username, password, badge_number, designation, account_type,cost_center,supervisor_one,supervisor_two ,usertype) VALUES ('$employee_name', '$employee_username','$employee_password', '$badge_number','$designation', '$account_type','$cost_center', '$supervisor_one','$supervisor_two',  1)";
         if (mysqli_query($con, $sql)) {
-            $_SESSION['status'] = "Your account has been successfully created. Please await approval from the administrator before you can log in.";
-            $_SESSION['status_code'] = "success";
-            header("Location: ../view/index.php");
+
+            $dts = date('Y-m-d H:i:s');
+            $message = htmlspecialchars($employee_name, ENT_QUOTES, 'UTF-8') . " account registration is awaiting approval.";
+            $for = "adminOnly";
+            $destination = "Account Registration Pending Approval";
+
+            $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
+                          VALUES ('System', '$message', 0, '$dts', '$for', '$destination')";
+            $sql_notif_query = mysqli_query($con, $sql_notif);
+
+            if ($sql_notif_query) {
+                $_SESSION['status'] = "Your account has been successfully created. Please await approval from the administrator before you can log in.";
+                $_SESSION['status_code'] = "success";
+                header("Location: ../view/index.php");
+            }
+
+
         } else {
             $_SESSION['status'] = "Error registering user.";
             $_SESSION['status_code'] = "error";
@@ -86,38 +100,68 @@ if (isset($_POST['account_submit'])) {
     }
 }
 
-// APPROVAL
+// ACCOUNT APPROVAL
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['selected_ids']) && !empty($_POST['selected_ids'])) {
         $selected_ids = $_POST['selected_ids'];
         $action = $_POST['action'];
 
-        // Create a comma-separated string of selected user IDs
-        $ids = implode(',', $selected_ids);
+        $ids = implode(',', array_map('intval', $selected_ids));
 
         if ($action == 'approve') {
-            // Update the status of selected users to 'approved'
             $sql = "UPDATE tbl_users SET usertype = '2' WHERE id IN ($ids)";
             $sql_query = mysqli_query($con, $sql);
+
             if ($sql_query) {
-                $_SESSION['status'] = "Selected users have been approved.";
-                $_SESSION['status_code'] = "success";
-                header("Location: ../view/adminModule/accReg.php");
+                $sql_fetch = "SELECT id, employee_name FROM tbl_users WHERE id IN ($ids)";
+                $fetch_query = mysqli_query($con, $sql_fetch);
+
+                if ($fetch_query) {
+                    $account_username = $_SESSION['username'];
+                    $actionLog = "Account Approval Confirmed";
+                    $dts = date('Y-m-d H:i:s');
+
+                    while ($row = mysqli_fetch_assoc($fetch_query)) {
+                        $employee_name = $row['employee_name'];
+                        $sql_log = "INSERT INTO tbl_log (username, action, description, dts) VALUES ('$account_username', '$actionLog', '$account_username has approved the account registration request of $employee_name.', '$dts')";
+                        mysqli_query($con, $sql_log);
+                    }
+
+                    $_SESSION['status'] = "Selected users have been approved.";
+                    $_SESSION['status_code'] = "success";
+                    header("Location: ../view/adminModule/accReg.php");
+                }
             }
         } elseif ($action == 'reject') {
-            // Update the status of selected users to 'rejected'
             $sql = "UPDATE tbl_users SET usertype = '3' WHERE id IN ($ids)";
             $sql_query = mysqli_query($con, $sql);
+
             if ($sql_query) {
-                $_SESSION['status'] = "Selected users have been rejected.";
-                $_SESSION['status_code'] = "success";
-                header("Location: ../view/adminModule/accReg.php");
+                $sql_fetch = "SELECT id, employee_name FROM tbl_users WHERE id IN ($ids)";
+                $fetch_query = mysqli_query($con, $sql_fetch);
+
+                if ($fetch_query) {
+                    $account_username = $_SESSION['username'];
+                    $actionLog = "Account Rejection Confirmed";
+                    $dts = date('Y-m-d H:i:s');
+
+                    while ($row = mysqli_fetch_assoc($fetch_query)) {
+                        $employee_name = $row['employee_name'];
+                        $sql_log = "INSERT INTO tbl_log (username, action, description, dts) VALUES ('$account_username', '$actionLog', '$account_username has rejected the account registration request of $employee_name.', '$dts')";
+                        mysqli_query($con, $sql_log);
+                    }
+
+                    $_SESSION['status'] = "Selected users have been rejected.";
+                    $_SESSION['status_code'] = "success";
+                    header("Location: ../view/adminModule/accReg.php");
+                }
             }
         }
     } else {
         echo "No users selected.";
     }
 }
+
 
 
 
@@ -141,7 +185,7 @@ if (isset($_POST['editUser'])) {
         $desciption = $account_username . " has made changes to the account of " . $employee_name;
         $dts = date('Y-m-d H:i:s');
 
-        $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', 'Account Edit','$desciption' , '$dts')";
+        $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', 'Account Modification','$desciption' , '$dts')";
         $sql_log_query = mysqli_query($con, $sql_log);
 
         if ($sql_log_query) {
@@ -162,10 +206,10 @@ if (isset($_GET['id'])) {
 
     $sql = "DELETE FROM tbl_users WHERE id = '$user_id'";
 
-    $sql_user = "SELECT username FROM `tbl_users` WHERE id = '$user_id'";
+    $sql_user = "SELECT employee_name FROM `tbl_users` WHERE id = '$user_id'";
     $sql_user_query = mysqli_query($con, $sql_user);
     $userRow = mysqli_fetch_assoc($sql_user_query);
-    $employee_name = $userRow['username'];
+    $employee_name = $userRow['employee_name'];
 
     if (mysqli_query($con, $sql)) {
         $account_username = $_SESSION['username'];

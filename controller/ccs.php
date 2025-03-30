@@ -23,9 +23,21 @@ if (isset($_POST['submit_cc'])) {
     $sql_query = mysqli_query($con, $sql);
 
     if ($sql_query) {
-        $_SESSION['status'] = "Submitted successfully!";
-        $_SESSION['status_code'] = "success";
-        header("Location: ../view/adminModule/accReg.php");
+
+        $account_username = $_SESSION['username'];
+        $action = "Cost Center Registration";
+        $description = $account_username . " has successfully registered a new " . $new_ccid_name . " in the system.";
+        $dts = date('Y-m-d H:i:s');
+
+        // Insert Log History
+        $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+        $sql_log_query = mysqli_query($con, $sql_log);
+
+        if ($sql_log_query) {
+            $_SESSION['status'] = "Submitted successfully!";
+            $_SESSION['status_code'] = "success";
+            header("Location: ../view/adminModule/accReg.php");
+        }
     }
 }
 
@@ -47,9 +59,20 @@ if (isset($_POST['submit_edit_cc'])) {
     $sql_query = mysqli_query($con, $sql);
 
     if ($sql_query) {
-        $_SESSION['status'] = "Updated successfully!";
-        $_SESSION['status_code'] = "success";
-        header("Location: ../view/adminModule/accReg.php");
+        $account_username = $_SESSION['username'];
+        $action = "Cost Center Modification";
+        $description = $account_username . " has successfully updated the details of the " . $new_ccid_name . " in the system.";
+        $dts = date('Y-m-d H:i:s');
+
+        // Insert Log History
+        $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+        $sql_log_query = mysqli_query($con, $sql_log);
+
+        if ($sql_log_query) {
+            $_SESSION['status'] = "Updated successfully!";
+            $_SESSION['status_code'] = "success";
+            header("Location: ../view/adminModule/accReg.php");
+        }
     }
 }
 
@@ -57,14 +80,31 @@ if (isset($_POST['submit_edit_cc'])) {
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
+    // Select Cost Center CCID Name
+    $select = "SELECT ccid_name FROM `tbl_ccs` WHERE id = '$id'";
+    $select_query = mysqli_query($con, $select);
+    $selectedRow = mysqli_fetch_assoc($select_query);
+    $ccid_name = $selectedRow['ccid_name'];
+
     // Deleting Cost Center
     $sql = "DELETE FROM `tbl_ccs` WHERE id = '$id'";
     $sql_query = mysqli_query($con, $sql);
 
     if ($sql_query) {
-        $_SESSION['status'] = "Deleted successfully!";
-        $_SESSION['status_code'] = "success";
-        header("Location: ../view/adminModule/accReg.php");
+        $account_username = $_SESSION['username'];
+        $action = "Cost Center Deletion";
+        $description = $account_username . " has successfully deleted the " . $ccid_name . " from the system.";
+        $dts = date('Y-m-d H:i:s');
+
+        // Insert Log History
+        $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+        $sql_log_query = mysqli_query($con, $sql_log);
+
+        if ($sql_log_query) {
+            $_SESSION['status'] = "Deleted successfully!";
+            $_SESSION['status_code'] = "success";
+            header("Location: ../view/adminModule/accReg.php");
+        }
     } else {
         $_SESSION['status'] = "Error deleting user.";
         $_SESSION['status_code'] = "error";

@@ -46,6 +46,12 @@ include "navBar.php";
 
                 <div class="container px-3 my-3 d-flex flex-wrap justify-content-evenly">
 
+                    <!-- Prevent Kitting to View this Button -->
+                    <?php if ($_SESSION['user'] !== 'Kitting'): ?>
+                        <button type="button" class="btn btn-danger my-1" id="delete-selected-btn">Delete
+                            Selected</button>
+                    <?php endif; ?>
+
                     <button type="button" class="btn btn-success m-1" data-bs-toggle="modal"
                         data-bs-target="#materialRegistrationModal">Material Registration</button>
 
@@ -62,6 +68,10 @@ include "navBar.php";
                     <thead>
                         <tr class="text-center"
                             style="background-color: #900008; color: white; vertical-align: middle;">
+                            <?php if ($_SESSION['user'] !== 'Kitting'): ?>
+                                <th><input type="checkbox" id="select-all"></th>
+                            <?php endif; ?>
+
                             <th>Part Number</th>
                             <th>Part Description</th>
                             <th>Minimum Inventory Requirement</th>
@@ -358,6 +368,12 @@ include "navBar.php";
             }
         });
 
+        var user = $('body').data('user');
+
+        if (user == 'admin') {
+            $('input[name="selected_items[]"]').hide();
+        }
+
         // EDIT BUTTON FOR PART NUMBER
         $('.edit-btn').on('click', function () {
             const partId = $(this).data('id');
@@ -445,6 +461,78 @@ include "navBar.php";
             XLSX.writeFile(wb, "Inventory.xlsx");
         });
 
+        // SELECT ALL CHECKBOX FUNCTION
+        $('#select-all').change(function () {
+            var checkboxes = $('input[name="selected_items[]"]');
+            checkboxes.prop('checked', this.checked);
+        });
+
+        // DELETE ALL SELECTED CHECKBOX FUNCTION
+        $('#delete-selected-btn').click(function () {
+            var selectedItems = $('input[name="selected_items[]"]:checked');
+
+            if (selectedItems.length > 0) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete them!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var selectedIds = [];
+                        selectedItems.each(function () {
+                            selectedIds.push($(this).val());
+                        });
+
+                        var formData = new FormData($('#deleteAll')[0]);
+                        formData.append('delete_multiple', true);
+                        formData.append('selected_items', JSON.stringify(selectedIds));
+
+                        $.ajax({
+                            url: '../../controller/inventory.php',
+                            method: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function (response) {
+                                var data = JSON.parse(response);
+                                if (data.success) {
+                                    Swal.fire({
+                                        title: 'Deleted!',
+                                        text: data.message,
+                                        icon: 'success'
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        title: 'Error!',
+                                        text: data.message,
+                                        icon: 'error'
+                                    });
+                                }
+                            },
+                            error: function () {
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: "There was an issue with the request. Please try again.",
+                                    icon: 'error'
+                                });
+                            }
+                        });
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'No items selected!',
+                    text: "Please select at least one item to delete.",
+                    icon: 'error'
+                });
+            }
+        });
+
         // Edit Material Button
         $('tbody').on('click', '.edit-btn', function () {
             const partId = $(this).data('id');
@@ -492,11 +580,15 @@ include "navBar.php";
 
                     var row = `
                 <tr class="table-row text-center" style="vertical-align: middle;" data-part-qty="${item.part_qty}" data-min-invent-req="${item.min_invent_req}">
+                                <?php if ($_SESSION['user'] !== 'Kitting'): ?>
+                    <td><input type="checkbox" name="selected_items[]" value="${item.id}"></td>
+                <?php endif; ?>
+
                     <td data-label="Part Name" class="${rowClass}">${item.part_name}</td>
                     <td data-label="Part Desc" class="${rowClass}">${item.part_desc}</td>
-                    <td data-label="Min Invent Req" class="${rowClass}">${item.min_invent_req} ${item.unit}(s)</td>
+                    <td data-label="Min Invent Req" class="${rowClass}">${item.min_invent_req}</td>
                     <td data-label="Exp Date" class="${rowClass}">${item.least_exp_date}</td>
-                    <td data-label="Part Qty" class="${rowClass}">${item.total_part_qty}  ${item.unit}(s)</td>
+                    <td data-label="Part Qty" class="${rowClass}">${item.total_part_qty}</td>
                     <td data-label="Action">
                         <a class="btn btn-primary edit-btn" 
                         data-id="${item.id}" 
@@ -507,12 +599,6 @@ include "navBar.php";
                         data-location="${item.location}"
                         data-min_invent_req="${item.min_invent_req}" 
                         data-unit="${item.unit}">Edit</a>
-                        <?php if ($_SESSION['user'] !== 'Kitting'): ?>
-                            <a class="btn btn-danger delete-btn" 
-                            data-id="${item.id}" 
-                            data-name="${item.part_name}">Delete</a>
-                        <?php endif; ?>
-
                     </td>
                 </tr>
             `;
@@ -545,66 +631,6 @@ include "navBar.php";
 
         fetchInventoryData();
         setInterval(fetchInventoryData, 10000);
-
-        $(document).on('click', '.delete-btn', function () {
-            var partId = $(this).data('id');
-            var partName = $(this).data('name');
-
-            // SweetAlert confirmation
-            Swal.fire({
-                title: `Are you sure you want to delete "${partName}"?`,
-                text: "This action cannot be undone!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Make the AJAX request to delete the part
-                    $.ajax({
-                        url: '../../controller/inventory.php', // The server-side script that handles the deletion
-                        method: 'POST',
-                        data: { id: partId },
-                        success: function (response) {
-                            console.log(response); // Log the response for debugging
-
-                            // Ensure response is parsed correctly (in case it is a string)
-                            try {
-                                response = JSON.parse(response);
-                            } catch (e) {
-                                console.error('Error parsing response:', e);
-                            }
-
-                            if (response.success) {
-                                // Notify user and remove the row from the table
-                                Swal.fire(
-                                    'Deleted!',
-                                    `${partName} has been deleted.`,
-                                    'success'
-                                ).then(() => {
-                                    // Remove the row from the table
-                                    $(`[data-id="${partId}"]`).closest('tr').remove();
-                                });
-                            } else {
-                                Swal.fire(
-                                    'Error!',
-                                    response.message || 'There was an issue deleting the part. Please try again.',
-                                    'error'
-                                );
-                            }
-                        },
-                        error: function () {
-                            Swal.fire(
-                                'Error!',
-                                'An error occurred while processing your request.',
-                                'error'
-                            );
-                        }
-                    });
-                }
-            });
-        });
 
 
     })

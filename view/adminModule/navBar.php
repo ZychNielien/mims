@@ -258,7 +258,6 @@ if (!isset($_SESSION['username'])) {
 
             // Notification Mark as Read 
             $('#notification-bell').on('click', function () {
-                console.log('Marking all unread notifications as read');
                 markAllAsRead();
             });
 
@@ -381,6 +380,10 @@ if (!isset($_SESSION['username'])) {
                             notificationLink = "adminExpired.php";
                         } else if (notification.destination === "Withdrawal") {
                             notificationLink = "adminWithdrawal.php";
+                        } else if (notification.destination === "Request password change") {
+                            notificationLink = "accReg.php";
+                        } else if (notification.destination === "Account Registration Pending Approval") {
+                            notificationLink = "accReg.php";
                         }
 
                         notificationElement.append(`
@@ -427,7 +430,6 @@ if (!isset($_SESSION['username'])) {
                 dataType: 'json',
                 success: function (response) {
                     if (response.success) {
-                        console.log('All notifications marked as read successfully');
                         fetchNotifications();
                     } else {
                         console.error('Error marking all notifications as read:', response.error);
