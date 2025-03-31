@@ -207,4 +207,73 @@ if (isset($_GET['reason_id'])) {
     header("Location: ../view/adminModule/adminData.php?tab=withdraw");
     exit();
 }
+
+// INSERT Unit
+if (isset($_POST['unit_submit'])) {
+    $unit = strtolower($_POST['unit']);
+
+    $unit_check = "SELECT * FROM `tbl_unit` WHERE unit = '$unit'";
+    if (mysqli_num_rows(mysqli_query($con, $unit_check)) == 0) {
+        $unit_sql = "INSERT INTO `tbl_unit` (unit) VALUES ('$unit')";
+        if (mysqli_query($con, $unit_sql)) {
+            $_SESSION['status'] = "The unit " . strtoupper($unit) . " has been successfully added to the system.";
+            $_SESSION['status_code'] = "success";
+        } else {
+            $_SESSION['status'] = "Error adding unit.";
+            $_SESSION['status_code'] = "error";
+        }
+    } else {
+        $_SESSION['status'] = "The unit " . strtoupper($unit) . " already exists in the system.";
+        $_SESSION['status_code'] = "error";
+    }
+
+    header("Location: ../view/adminModule/adminData.php?tab=unit");
+    exit();
+}
+
+// UPDATE WITHDRAWAL REASON
+if (isset($_POST['unit_update'])) {
+    $unit = strtolower($_POST['unit']);
+    $id = $_POST['unit_id'];
+
+    $unit_check = "SELECT * FROM `tbl_unit` WHERE unit = '$unit'";
+    if (mysqli_num_rows(mysqli_query($con, $unit_check)) == 0) {
+        $unit_sql = "UPDATE `tbl_unit` SET unit = '$unit' WHERE id = '$id'";
+        if (mysqli_query($con, $unit_sql)) {
+            $_SESSION['status'] = "The unit : " . strtoupper($unit) . " has been successfully updated in the system.";
+            $_SESSION['status_code'] = "success";
+            header("Location: ../view/adminModule/adminData.php?tab=unit");
+        }
+    } else {
+        $_SESSION['status'] = "The unit : " . strtoupper($unit) . " already exists in the system.";
+        $_SESSION['status_code'] = "error";
+        header("Location: ../view/adminModule/adminData.php?tab=unit");
+    }
+}
+
+// DELETE WITHDRAWAL REASON
+if (isset($_GET['unit_id'])) {
+    $id = mysqli_real_escape_string($con, $_GET['unit_id']);
+    $unit_check = "SELECT * FROM `tbl_unit` WHERE id = '$id'";
+    $unit_query = mysqli_query($con, $unit_check);
+
+    if (mysqli_num_rows($unit_query) > 0) {
+        $unit_row = mysqli_fetch_assoc($unit_query);
+        $unit = $unit_row['unit'];
+        $unit_sql = "DELETE FROM `tbl_unit` WHERE id = '$id'";
+        if (mysqli_query($con, $unit_sql)) {
+            $_SESSION['status'] = "The unit " . strtoupper($unit) . " has been successfully deleted.";
+            $_SESSION['status_code'] = "success";
+        } else {
+            $_SESSION['status'] = "Failed to delete unit " . strtoupper($unit) . ".";
+            $_SESSION['status_code'] = "error";
+        }
+    } else {
+        $_SESSION['status'] = "Unit not found.";
+        $_SESSION['status_code'] = "error";
+    }
+
+    header("Location: ../view/adminModule/adminData.php?tab=unit");
+    exit();
+}
 ?>

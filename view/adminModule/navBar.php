@@ -7,10 +7,9 @@ session_start();
 include "../../model/dbconnection.php";
 
 // Navigation Page Active
-$directoryURI = $_SERVER['REQUEST_URI'];
-$path = parse_url($directoryURI, PHP_URL_PATH);
-$components = explode("/", $path);
-$page = $components[4];
+$page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+$tab = isset($_GET['tab']) ? $_GET['tab'] : 'default';
+
 
 // Prevent User
 if ($_SESSION['user'] == 'User') {
@@ -111,14 +110,16 @@ if (!isset($_SESSION['username'])) {
                     " aria-current="page" href="#">Inventory</a>
                     </li>
                     <li class="nav-item">
-                        <a href="adminWithdrawal.php" class=" <?php
+                        <a href="adminWithdrawal.php" style="<?php
                         if ($page == "adminWithdrawal.php") {
-                            echo "nav-link active";
+                            echo "  background-color: white;
+                                    color: #900008;
+                                    border-radius: 5px;
+                                    text-align: center;";
                         } else {
-                            echo "nav-link text-white";
+                            echo "color: white;";
                         }
-                        ?>
-                    " aria-current="page" href="#">Withdrawal</a>
+                        ?>" class=" nav-link" aria-current="page" href="#">Withdrawal </a>
                     </li>
                     <li class="nav-item">
                         <a href="adminApproval.php" class=" <?php
@@ -132,7 +133,7 @@ if (!isset($_SESSION['username'])) {
                     </li>
                     <li class="nav-item dropdown">
                         <a class=" <?php
-                        if ($page == "adminIssuance.php" || $page == "adminRejection.php" || $page == "adminReceiving.php") {
+                        if ($page == "adminIssuance.php" || $page == "adminRejection.php" || $page == "adminReceiving.php" || $page == "adminExpired.php" || $page == "adminLog.php") {
                             echo "nav-link dropdown-toggle active";
                         } else {
                             echo "nav-link dropdown-toggle text-white";
@@ -161,14 +162,16 @@ if (!isset($_SESSION['username'])) {
                     </li>
                     <?php if ($_SESSION['user'] !== 'Kitting'): ?>
                         <li class="nav-item" id="accountRegistrationKitting">
-                            <a href="accReg.php" class=" <?php
+                            <a href="accReg.php" style="<?php
                             if ($page == "accReg.php") {
-                                echo "nav-link active";
+                                echo "  background-color: white;
+                                    color: #900008;
+                                    border-radius: 5px;
+                                    text-align: center;";
                             } else {
-                                echo "nav-link text-white";
+                                echo "color: white;";
                             }
-                            ?>
-                    " href="#">Registration</a>
+                            ?>" class=" nav-link">Registration</a>
                         </li>
                     <?php endif; ?>
                 </ul>
@@ -189,10 +192,12 @@ if (!isset($_SESSION['username'])) {
                         <span><?php echo $_SESSION['username'] ?></span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
+                        <?php if ($_SESSION['user'] !== 'Kitting'): ?>
+                            <li><a href="adminData.php" class="dropdown-item"><i class="bi bi-gear-fill"></i> Data
+                                    Management</a></li>
+                        <?php endif; ?>
                         <li><a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#changePassword"><i
                                     class="bi bi-lock-fill"></i> Change Password</a></li>
-                        <li><a href="adminData.php" class="dropdown-item"><i class="bi bi-gear-fill"></i> Data
-                                Management</a></li>
                         <hr class="dropdown-divider">
                         </li>
                         <li><a href="../../controller/logout.php" class="dropdown-item"><i
@@ -380,10 +385,14 @@ if (!isset($_SESSION['username'])) {
                             notificationLink = "adminInventory.php";
                         } else if (notification.destination === "Expired") {
                             notificationLink = "adminExpired.php";
-                        } else if (notification.destination === "Withdrawal") {
-                            notificationLink = "adminWithdrawal.php";
+                        } else if (notification.destination === "Approved") {
+                            notificationLink = "adminWithdrawal.php?tab=approved";
+                        } else if (notification.destination === "Rejected") {
+                            notificationLink = "adminWithdrawal.php?tab=rejected";
+                        } else if (notification.destination === "Returned") {
+                            notificationLink = "adminWithdrawal.php?tab=returned";
                         } else if (notification.destination === "Request password change") {
-                            notificationLink = "accReg.php";
+                            notificationLink = "accReg.php?tab=password";
                         } else if (notification.destination === "Account Registration Pending Approval") {
                             notificationLink = "accReg.php";
                         }

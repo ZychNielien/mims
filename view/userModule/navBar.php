@@ -98,14 +98,16 @@ if (!isset($_SESSION['username'])) {
                     </li>
 
                     <li class="nav-item">
-                        <a href="userHistory.php" class=" <?php
+                        <a href="userHistory.php" style="<?php
                         if ($page == "userHistory.php") {
-                            echo "nav-link active";
+                            echo "  background-color: white;
+                                    color: #900008;
+                                    border-radius: 5px;
+                                    text-align: center;";
                         } else {
-                            echo "nav-link text-white";
+                            echo "color: white;";
                         }
-                        ?>
-                    " href="#">Withdrawal History</a>
+                        ?>" class=" nav-link">Withdrawal History</a>
                     </li>
 
                 </ul>
@@ -309,8 +311,17 @@ if (!isset($_SESSION['username'])) {
 
                         const formattedTimeAgo = timeAgo(notification.created_at);
 
+                        let notificationLink = "userHistory.php";
+                        if (notification.destination === "Approved") {
+                            notificationLink = "userHistory.php?tab=approved";
+                        } else if (notification.destination === "Rejected") {
+                            notificationLink = "userHistory.php?tab=rejected";
+                        } else if (notification.destination === "Returned") {
+                            notificationLink = "userHistory.php?tab=returned";
+                        }
+
                         notificationElement.append(`
-                    <div><a class="amessage" href="userHistory.php">
+                    <div><a class="amessage" href="${notificationLink}">
                         <div class="d-flex justify-content-between">
                             <strong>${notification.username}</strong>  
                             <small>${formattedTimeAgo}</small>

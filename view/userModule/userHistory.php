@@ -35,12 +35,13 @@ include "navBar.php";
         <!-- Navigation Tab for all Request Tab -->
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home"
-                    type="button" role="tab" aria-controls="nav-home" aria-selected="true">Approved</button>
-                <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile"
-                    type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Rejected</button>
-                <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact"
-                    type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Returned</button>
+                <button class="nav-link active" id="approved-tab" data-bs-toggle="tab"
+                    data-bs-target="#approved-tab-pane" type="button" role="tab" aria-controls="approved-tab-pane"
+                    aria-selected="true">Approved</button>
+                <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected-tab-pane"
+                    type="button" role="tab" aria-controls="rejected-tab-pane" aria-selected="false">Rejected</button>
+                <button class="nav-link" id="returned-tab" data-bs-toggle="tab" data-bs-target="#returned-tab-pane"
+                    type="button" role="tab" aria-controls="returned-tab-pane" aria-selected="false">Returned</button>
             </div>
         </nav>
 
@@ -48,7 +49,8 @@ include "navBar.php";
         <div class="tab-content mt-3" id="nav-tabContent">
 
             <!-- Approve Request Tab -->
-            <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+            <div class="tab-pane fade show active" id="approved-tab-pane" role="tabpanel"
+                aria-labelledby="approved-tab">
 
                 <div class="container  ">
 
@@ -136,7 +138,7 @@ include "navBar.php";
             </div>
 
             <!-- Rejected Request Tab -->
-            <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+            <div class="tab-pane fade" id="rejected-tab-pane" role="tabpanel" aria-labelledby="rejected-tab">
 
                 <div class="container  ">
 
@@ -180,7 +182,7 @@ include "navBar.php";
             </div>
 
             <!-- Returned Request Tab -->
-            <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
+            <div class="tab-pane fade" id="returned-tab-pane" role="tabpanel" aria-labelledby="returned-tab">
 
                 <div class="container">
 
@@ -237,6 +239,13 @@ include "navBar.php";
 <script>
 
     $(document).ready(function () {
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('tab') || 'approved';
+        $('.nav-link').removeClass('active');
+        $('.tab-pane').removeClass('show active');
+        $(`#${activeTab}-tab`).addClass('active');
+        $(`#${activeTab}-tab-pane`).addClass('show active');
 
         filterDataApprove();
         filterDataReject();

@@ -439,7 +439,7 @@ include "navBar.php";
             }
 
             var wb = XLSX.utils.table_to_book(table[0], { sheet: "ChartData" });
-            XLSX.writeFile(wb, "ChartData.xlsx");
+            XLSX.writeFile(wb, "Top_Material_Consumption.xlsx");
         });
 
         // Cost Center Export to Excel

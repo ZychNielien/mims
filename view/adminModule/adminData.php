@@ -51,6 +51,11 @@ include "navBar.php";
                     type="button" role="tab" aria-controls="withdraw-tab-pane" aria-selected="false">Withdrawal
                     Reason</button>
             </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="unit-tab" data-bs-toggle="tab" data-bs-target="#unit-tab-pane"
+                    type="button" role="tab" aria-controls="unit-tab-pane" aria-selected="false">Unit of
+                    Measure</button>
+            </li>
         </ul>
 
         <div class="tab-content" id="myTabContent">
@@ -62,7 +67,7 @@ include "navBar.php";
                         <div class="d-flex justify-content-center align-items-center gap-2">
                             <label for="search_machine" class="fw-bold">Search:</label>
                             <input type="text" class="form-control w-auto" id="search_machine" required
-                                autocomplete="off" placeholder="Search Machine Number">
+                                autocomplete="off" placeholder="Machine Number">
                         </div>
 
                         <form action="../../controller/data.php" method="POST" class="d-flex gap-2">
@@ -119,7 +124,7 @@ include "navBar.php";
                         <div class="d-flex justify-content-center align-items-center gap-2">
                             <label for="search_station" class="fw-bold">Search:</label>
                             <input type="text" class="form-control w-auto" id="search_station" required
-                                autocomplete="off" placeholder="Search Station Code">
+                                autocomplete="off" placeholder="Station Code">
                         </div>
                         <form action="../../controller/data.php" method="POST" class="d-flex gap-2">
                             <input type="text" class="form-control w-auto" required autocomplete="off"
@@ -177,7 +182,7 @@ include "navBar.php";
                         <div class="d-flex justify-content-center align-items-center gap-2">
                             <label for="search_reason" class="fw-bold">Search:</label>
                             <input type="text" class="form-control w-auto" id="search_reason" required
-                                autocomplete="off" placeholder="Search Withdrawal Reason">
+                                autocomplete="off" placeholder="Withdrawal Reason">
                         </div>
                         <form action="../../controller/data.php" method="POST" class="d-flex gap-2">
                             <input type="text" class="form-control w-auto" required autocomplete="off"
@@ -214,6 +219,63 @@ include "navBar.php";
 
                                     <?php
                                 }
+                            }
+                            ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- UNIT -->
+            <div class="tab-pane fade" id="unit-tab-pane" role="tabpanel" aria-labelledby="unit-tab" tabindex="0">
+                <div class="container">
+                    <div class="d-flex justify-content-evenly flex-wrap flex-row w-100 gap-3 m-2">
+                        <div class="d-flex justify-content-center align-items-center gap-2">
+                            <label for="search_unit" class="fw-bold">Search:</label>
+                            <input type="text" class="form-control w-auto" id="search_unit" required autocomplete="off"
+                                placeholder="Unit">
+                        </div>
+
+                        <form action="../../controller/data.php" method="POST" class="d-flex gap-2">
+                            <input type="text" class="form-control w-auto" required autocomplete="off"
+                                placeholder="Enter Unit" name="unit">
+                            <button type="submit" class="btn btn-success" name="unit_submit">Register</button>
+                        </form>
+                    </div>
+                    <table class="table table-striped w-100">
+                        <thead>
+                            <tr class="text-center"
+                                style="background-color: #900008; color: white; vertical-align: middle;">
+                                <th>Machine Number</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-unit">
+                            <?php
+                            $unit_sql = "SELECT * FROM `tbl_unit`";
+                            $unit_query = mysqli_query($con, $unit_sql);
+                            if (mysqli_num_rows($unit_query) > 0) {
+                                while ($unitRow = mysqli_fetch_Assoc($unit_query)) {
+                                    ?>
+                                    <tr class="table-row text-center" style="vertical-align: middle;">
+                                        <td data-label="Unit"><?php echo strtoupper($unitRow['unit']); ?></td>
+                                        <td data-label="Action">
+                                            <button class="btn btn-primary unit-edit"
+                                                data-unit="<?php echo $unitRow['unit']; ?>"
+                                                data-id="<?php echo $unitRow['id']; ?>">Update</button>
+                                            <button class="btn btn-danger unit-delete"
+                                                data-unit="<?php echo $unitRow['unit']; ?>"
+                                                data-id="<?php echo $unitRow['id']; ?>">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <?php
+                                }
+                            } else {
+                                ?>
+                                <tr>
+                                    <td colspan="8" class="text-center">No machine number found</td>
+                                </tr>
+                                <?php
                             }
                             ?>
                         </tbody>
@@ -288,6 +350,30 @@ include "navBar.php";
                             </div>
                             <input type="hidden" id="reason_id" name="reason_id">
                             <button type="submit" class="btn btn-primary" name="reason_update">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unit Modification Modal -->
+        <div class="modal fade" id="editUnitModal" tabindex="-1" aria-labelledby="editUnitModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editUnitModalLabel">Edit Unit</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="../../controller/data.php">
+                            <div class="mb-3">
+                                <label for="unit" class="form-label">Unit</label>
+                                <input type="text" class="form-control" id="unit" name="unit" required
+                                    autocomplete="OFF">
+                            </div>
+                            <input type="hidden" id="unit_id" name="unit_id">
+                            <button type="submit" class="btn btn-primary" name="unit_update">Save Changes</button>
                         </form>
                     </div>
                 </div>
@@ -424,6 +510,46 @@ include "navBar.php";
             }).then((result) => {
                 if (result.isConfirmed) {
                     window.location.href = '../../controller/data.php?reason_id=' + encodeURIComponent(id);
+                }
+            });
+        });
+
+        // SEARCH Unit
+        $('#search_unit').on('input', function () {
+            var searchTerm = $(this).val().toLowerCase();
+            $('#data-table-unit tr').each(function () {
+                var rowText = $(this).text().toLowerCase();
+                if (rowText.indexOf(searchTerm) === -1) {
+                    $(this).hide();
+                } else {
+                    $(this).show();
+                }
+            });
+        });
+
+        // MODIFICATION MACHINE NUMBER
+        $(document).on('click', '.unit-edit', function () {
+            const withdrawalReason = $(this).data('unit');
+            const reasonId = $(this).data('id');
+            $('#unit').val(withdrawalReason);
+            $('#unit_id').val(reasonId);
+            $('#editUnitModal').modal('show');
+        });
+
+        // DELETION MACHINE NUMBER
+        $(document).on('click', '.unit-delete', function () {
+            const id = $(this).data('id');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '../../controller/data.php?unit_id=' + encodeURIComponent(id);
                 }
             });
         });

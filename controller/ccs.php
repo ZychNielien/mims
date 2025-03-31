@@ -36,7 +36,7 @@ if (isset($_POST['submit_cc'])) {
         if ($sql_log_query) {
             $_SESSION['status'] = "Submitted successfully!";
             $_SESSION['status_code'] = "success";
-            header("Location: ../view/adminModule/accReg.php");
+            header("Location: ../view/adminModule/accReg.php?tab=costcenter");
         }
     }
 }
@@ -71,7 +71,7 @@ if (isset($_POST['submit_edit_cc'])) {
         if ($sql_log_query) {
             $_SESSION['status'] = "Updated successfully!";
             $_SESSION['status_code'] = "success";
-            header("Location: ../view/adminModule/accReg.php");
+            header("Location: ../view/adminModule/accReg.php?tab=costcenter");
         }
     }
 }
@@ -103,12 +103,12 @@ if (isset($_GET['id'])) {
         if ($sql_log_query) {
             $_SESSION['status'] = "Deleted successfully!";
             $_SESSION['status_code'] = "success";
-            header("Location: ../view/adminModule/accReg.php");
+            header("Location: ../view/adminModule/accReg.php?tab=costcenter");
         }
     } else {
         $_SESSION['status'] = "Error deleting user.";
         $_SESSION['status_code'] = "error";
-        header("Location: ../view/adminModule/accReg.php");
+        header("Location: ../view/adminModule/accReg.php?tab=costcenter");
     }
 
 }

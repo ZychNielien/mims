@@ -40,7 +40,7 @@ if (isset($_POST['action']) && isset($_POST['ids']) && !empty($_POST['ids'])) {
 
                 // Insert Notification to the Requester
                 $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
-                              VALUES ('$approved_by', '$mensahe', 0, '$dts', '$current_req_by','Withdrawal')";
+                              VALUES ('$approved_by', '$mensahe', 0, '$dts', '$current_req_by','Approved')";
 
                 if (mysqli_query($con, $sql_notif)) {
                 } else {
@@ -88,7 +88,7 @@ if (isset($_POST['action']) && isset($_POST['ids']) && !empty($_POST['ids'])) {
 
                 // Insert notification for the user who requested the part
                 $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
-                              VALUES ('$approved_by', '$mensahe', 0, '$dts', '$for' , 'Withdrawal')";
+                              VALUES ('$approved_by', '$mensahe', 0, '$dts', '$for' , 'Rejected')";
 
                 if (mysqli_query($con, $sql_notif)) {
 

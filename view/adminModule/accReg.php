@@ -57,21 +57,21 @@ ob_end_flush();
         <!-- Navitaion Tab -->
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button"
-                    role="tab" aria-controls="home" aria-selected="true">Account Approval</button>
+                <button class="nav-link active" id="approval-tab" data-bs-toggle="tab" data-bs-target="#approval-tab-pane" type="button"
+                    role="tab" aria-controls="approval-tab-pane" aria-selected="true">Account Approval</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link " id="update_pass-tab" data-bs-toggle="tab" data-bs-target="#update_pass"
-                    type="button" role="tab" aria-controls="update_pass" aria-selected="true">Update Account
+                <button class="nav-link " id="password-tab" data-bs-toggle="tab" data-bs-target="#password-tab-pane"
+                    type="button" role="tab" aria-controls="password-tab-pane" aria-selected="true">Update Account
                     Password</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link " id="account_list-tab" data-bs-toggle="tab" data-bs-target="#account_list"
-                    type="button" role="tab" aria-controls="account_list" aria-selected="true">Account Records</button>
+                <button class="nav-link " id="account-tab" data-bs-toggle="tab" data-bs-target="#account-tab-pane"
+                    type="button" role="tab" aria-controls="account-tab-pane" aria-selected="true">Account Records</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button"
-                    role="tab" aria-controls="profile" aria-selected="false">Cost Center / Supervisor</button>
+                <button class="nav-link" id="costcenter-tab" data-bs-toggle="tab" data-bs-target="#costcenter-tab-pane" type="button"
+                    role="tab" aria-controls="costcenter-tab-pane" aria-selected="false">Cost Center / Supervisor</button>
             </li>
         </ul>
 
@@ -79,7 +79,7 @@ ob_end_flush();
         <div class="tab-content" id="myTabContent">
 
             <!-- ACCOUNT APPROVAL -->
-            <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+            <div class="tab-pane fade" id="approval-tab-pane" role="tabpanel" aria-labelledby="approval-tab">
 
                 <!-- Approval Form -->
                 <form action="../../controller/user.php" method="post">
@@ -165,7 +165,7 @@ ob_end_flush();
             </div>
 
             <!-- ACCOUNT PASSWORD -->
-            <div class="tab-pane fade" id="update_pass" role="tabpanel" aria-labelledby="update_pass-tab">
+            <div class="tab-pane fade" id="password-tab-pane" role="tabpanel" aria-labelledby="password-tab">
 
                 <!-- Account Password Search Inout -->
                 <div class="d-flex justify-between-center w-100 my-3">
@@ -241,7 +241,7 @@ ob_end_flush();
             </div>
 
             <!-- ACCOUNT CREATION -->
-            <div class="tab-pane fade" id="account_list" role="tabpanel" aria-labelledby="account_list-tab">
+            <div class="tab-pane fade" id="account-tab-pane" role="tabpanel" aria-labelledby="account-tab">
 
                 <!-- Account Creation and Register Button -->
                 <div class="d-flex justify-between-evenly w-100">
@@ -328,7 +328,7 @@ ob_end_flush();
             </div>
 
             <!-- COST CENTER TAB -->
-            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+            <div class="tab-pane fade" id="costcenter-tab-pane" role="tabpanel" aria-labelledby="costcenter-tab">
 
                 <!-- Search and Cost Center Button -->
                 <div class="d-flex justify-between-evenly w-100">
@@ -771,6 +771,13 @@ ob_end_flush();
 
 <script>
     $(document).ready(function () {
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('tab') || 'approval';
+        $('.nav-link').removeClass('active');
+        $('.tab-pane').removeClass('show active');
+        $(`#${activeTab}-tab`).addClass('active');
+        $(`#${activeTab}-tab-pane`).addClass('show active');
 
         // Search Input for Approval Tab
         $('#search').on('input', function () {

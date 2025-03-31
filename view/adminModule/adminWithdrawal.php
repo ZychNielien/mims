@@ -23,23 +23,25 @@ include "navBar.php";
     <!-- Navigation Tabs -->
     <nav class="m-3">
         <div class="nav nav-tabs" id="nav-tab" role="tablist">
-            <button class="nav-link active" id="nav-material-withdraw-tab" data-bs-toggle="tab"
-                data-bs-target="#nav-material-withdraw" type="button" role="tab" aria-controls="nav-material-withdraw"
-                aria-selected="true">Material Withdrawal</button>
-            <button class="nav-link" id="nav-approved-tab" data-bs-toggle="tab" data-bs-target="#nav-approved"
-                type="button" role="tab" aria-controls="nav-approved" aria-selected="false">Approved Request</button>
-            <button class="nav-link" id="nav-rejected-tab" data-bs-toggle="tab" data-bs-target="#nav-rejected"
-                type="button" role="tab" aria-controls="nav-rejected" aria-selected="false">Rejected Request</button>
-            <button class="nav-link" id="nav-returned-tab" data-bs-toggle="tab" data-bs-target="#nav-returned"
-                type="button" role="tab" aria-controls="nav-returned" aria-selected="false">Returned Request</button>
+            <button class="nav-link active" id="withdraw-tab" data-bs-toggle="tab" data-bs-target="#withdraw-tab-pane"
+                type="button" role="tab" aria-controls="withdraw-tab-pane" aria-selected="true">Material
+                Withdrawal</button>
+            <button class="nav-link" id="approved-tab" data-bs-toggle="tab" data-bs-target="#approved-tab-pane"
+                type="button" role="tab" aria-controls="approved-tab-pane" aria-selected="false">Approved
+                Request</button>
+            <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected-tab-pane"
+                type="button" role="tab" aria-controls="rejected-tab-pane" aria-selected="false">Rejected
+                Request</button>
+            <button class="nav-link" id="returned-tab" data-bs-toggle="tab" data-bs-target="#returned-tab-pane"
+                type="button" role="tab" aria-controls="returned-tab-pane" aria-selected="false">Returned
+                Request</button>
         </div>
     </nav>
 
     <div class="tab-content mt-3" id="nav-tabContent">
 
         <!-- Material Withdrawal Tab -->
-        <div class="tab-pane fade show active" id="nav-material-withdraw" role="tabpanel"
-            aria-labelledby="nav-material-withdraw-tab">
+        <div class="tab-pane fade show active" id="withdraw-tab-pane" role="tabpanel" aria-labelledby="withdraw-tab">
             <div class="px-5 hatian d-flex justify-between align-center w-100 my-3">
                 <div class="divWithdrawal px-3 w-25">
                     <div class="containerTitle">
@@ -248,7 +250,7 @@ include "navBar.php";
         </div>
 
         <!-- Approved Request Tab -->
-        <div class="tab-pane fade" id="nav-approved" role="tabpanel" aria-labelledby="nav-approved-tab">
+        <div class="tab-pane fade" id="approved-tab-pane" role="tabpanel" aria-labelledby="approved-tab">
 
             <div class="container  ">
 
@@ -341,7 +343,7 @@ include "navBar.php";
         </div>
 
         <!-- Rejected Request Tab -->
-        <div class="tab-pane fade" id="nav-rejected" role="tabpanel" aria-labelledby="nav-rejected-tab">
+        <div class="tab-pane fade" id="rejected-tab-pane" role="tabpanel" aria-labelledby="rejected-tab">
 
             <div class="container  ">
 
@@ -390,7 +392,7 @@ include "navBar.php";
         </div>
 
         <!-- Returned Request Tab -->
-        <div class="tab-pane fade" id="nav-returned" role="tabpanel" aria-labelledby="nav-returned-tab">
+        <div class="tab-pane fade" id="returned-tab-pane" role="tabpanel" aria-labelledby="returned-tab">
 
             <div class="container  ">
 
@@ -445,6 +447,13 @@ include "navBar.php";
 
 <script>
     $(document).ready(function () {
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTab = urlParams.get('tab') || 'withdraw';
+        $('.nav-link').removeClass('active');
+        $('.tab-pane').removeClass('show active');
+        $(`#${activeTab}-tab`).addClass('active');
+        $(`#${activeTab}-tab-pane`).addClass('show active');
 
         filterDataApprove();
         filterDataReject();

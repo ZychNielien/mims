@@ -38,11 +38,11 @@ if (isset($_POST['register'])) {
             if (mysqli_query($con, $sql)) {
                 $_SESSION['status'] = "User registered successfully!";
                 $_SESSION['status_code'] = "success";
-                header("Location: ../view/adminModule/accReg.php");
+                header("Location: ../view/adminModule/accReg.php?tab=account");
             } else {
                 $_SESSION['status'] = "Error registering user.";
                 $_SESSION['status_code'] = "error";
-                header("Location: ../view/adminModule/accReg.php");
+                header("Location: ../view/adminModule/accReg.php?tab=account");
             }
         }
 
@@ -191,12 +191,12 @@ if (isset($_POST['editUser'])) {
         if ($sql_log_query) {
             $_SESSION['status'] = "User details updated successfully!";
             $_SESSION['status_code'] = "success";
-            header("Location: ../view/adminModule/accReg.php");
+            header("Location: ../view/adminModule/accReg.php?tab=account");
         }
     } else {
         $_SESSION['status'] = "Error updating user details.";
         $_SESSION['status_code'] = "error";
-        header("Location: ../view/adminModule/accReg.php");
+        header("Location: ../view/adminModule/accReg.php?tab=account");
     }
 }
 
@@ -222,12 +222,12 @@ if (isset($_GET['id'])) {
         if ($sql_log_query) {
             $_SESSION['status'] = "User deleted successfully!";
             $_SESSION['status_code'] = "success";
-            header("Location: ../view/adminModule/accReg.php");
+            header("Location: ../view/adminModule/accReg.php?tab=account");
         }
     } else {
         $_SESSION['status'] = "Error deleting user.";
         $_SESSION['status_code'] = "error";
-        header("Location: ../view/adminModule/accReg.php");
+        header("Location: ../view/adminModule/accReg.php?tab=account");
     }
 }
 

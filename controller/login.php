@@ -159,14 +159,14 @@ if (isset($_POST['change_pass'])) {
             if ($sql_log_query) {
                 $_SESSION['status'] = "Password has been changed successfully.";
                 $_SESSION['status_code'] = "success";
-                header("Location: ../view/adminModule/accReg.php");
+                header("Location: ../view/adminModule/accReg.php?tab=password");
                 exit();
             }
         }
     } else {
         $_SESSION['status'] = "The new password and confirm password do not match. Please ensure both fields are identical and try again.";
         $_SESSION['status_code'] = "error";
-        header("Location: ../view/adminModule/accReg.php");
+        header("Location: ../view/adminModule/accReg.php?tab=password");
         exit();
     }
 }
