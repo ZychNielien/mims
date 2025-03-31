@@ -146,22 +146,21 @@ include "navBar.php";
                                 <label for="part_unit" class="form-label">Unit of Measure</label>
                                 <select class="form-select" id="part_unit" name="unit" required>
                                     <option selected value="">Select Unit</option>
-                                    <option value="kea">KEA</option>
-                                    <option value="srn">SRN</option>
-                                    <option value="spl">SPL</option>
-                                    <option value="kg">KG</option>
-                                    <option value="ea">EA</option>
-                                    <option value="rol">ROL</option>
-                                    <option value="pc">PC</option>
-                                    <option value="m">M</option>
-                                    <option value="pkg">PKG</option>
-                                    <option value="bx">BX</option>
-                                    <option value="rm">RM</option>
-                                    <option value="bag">BAG</option>
-                                    <option value="pr">PR</option>
-                                    <option value="set">SET</option>
-                                    <option value="gal">GAL</option>
-                                    <option value="bt">BT</option>
+                                    <?php
+                                    $select_unit = "SELECT * FROM tbl_unit";
+                                    $select_unit_query = mysqli_query($con, $select_unit);
+
+                                    if (mysqli_num_rows($select_unit_query) > 0) {
+                                        while ($unit_row = mysqli_fetch_assoc($select_unit_query)) {
+                                            ?>
+                                            <option value="<?php echo $unit_row['unit']; ?>"
+                                                data-id="<?php echo $unit_row['id'] ?>">
+                                                <?php echo strtoupper($unit_row['unit']); ?>
+                                            </option>
+                                            <?php
+                                        }
+                                    }
+                                    ?>
                                 </select>
                             </div>
                     </div>
@@ -311,22 +310,21 @@ include "navBar.php";
                                 <label for="new_unit" class="form-label">Unit of Measure</label>
                                 <select class="form-select" id="new_unit" name="new_unit" required>
                                     <option selected value="">Select Unit</option>
-                                    <option value="kea">KEA</option>
-                                    <option value="srn">SRN</option>
-                                    <option value="spl">SPL</option>
-                                    <option value="kg">KG</option>
-                                    <option value="ea">EA</option>
-                                    <option value="rol">ROL</option>
-                                    <option value="pc">PC</option>
-                                    <option value="m">M</option>
-                                    <option value="pkg">PKG</option>
-                                    <option value="bx">BX</option>
-                                    <option value="rm">RM</option>
-                                    <option value="bag">BAG</option>
-                                    <option value="pr">PR</option>
-                                    <option value="set">SET</option>
-                                    <option value="gal">GAL</option>
-                                    <option value="bt">BT</option>
+                                    <?php
+                                    $select_unit = "SELECT * FROM tbl_unit";
+                                    $select_unit_query = mysqli_query($con, $select_unit);
+
+                                    if (mysqli_num_rows($select_unit_query) > 0) {
+                                        while ($unit_row = mysqli_fetch_assoc($select_unit_query)) {
+                                            ?>
+                                            <option value="<?php echo $unit_row['unit']; ?>"
+                                                data-id="<?php echo $unit_row['id'] ?>">
+                                                <?php echo strtoupper($unit_row['unit']); ?>
+                                            </option>
+                                            <?php
+                                        }
+                                    }
+                                    ?>
                                 </select>
                             </div>
 

@@ -191,6 +191,8 @@ if (!isset($_SESSION['username'])) {
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#changePassword"><i
                                     class="bi bi-lock-fill"></i> Change Password</a></li>
+                        <li><a href="adminData.php" class="dropdown-item"><i class="bi bi-gear-fill"></i> Data
+                                Management</a></li>
                         <hr class="dropdown-divider">
                         </li>
                         <li><a href="../../controller/logout.php" class="dropdown-item"><i

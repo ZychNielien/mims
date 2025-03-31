@@ -94,16 +94,21 @@ include "navBar.php";
                                 <label for="station_code" class="form-label">Station Code</label>
                                 <select class="form-select" id="station_code" name="station_code" required>
                                     <option value="">Select Station Code</option>
-                                    <option value="CDP 1">CDP 1</option>
-                                    <option value="CDP 2">CDP 2</option>
-                                    <option value="CDP 3">CDP 3</option>
-                                    <option value="DA">DA</option>
-                                    <option value="WB">WB</option>
-                                    <option value="Mold">Mold</option>
-                                    <option value="EOL">EOL</option>
-                                    <option value="Engg">Engg</option>
-                                    <option value="MEE">MEE</option>
-                                    <option value="MFG">MFG</option>
+                                    <?php
+                                    $sql_station = "SELECT station_code FROM tbl_station_code";
+                                    $sql_station_query = mysqli_query($con, $sql_station);
+                                    if ($sql_station_query) {
+                                        while ($statiobRow = mysqli_fetch_assoc($sql_station_query)) {
+                                            ?>
+
+                                            <option value="<?php echo $statiobRow['station_code'] ?>">
+                                                <?php echo $statiobRow['station_code'] ?>
+                                            </option>
+
+                                            <?php
+                                        }
+                                    }
+                                    ?>
                                 </select>
 
                             </div>
@@ -143,14 +148,21 @@ include "navBar.php";
                                 <label for="with_reason" class="form-label">Withdrawal Reason</label>
                                 <select class="form-select" id="with_reason" name="with_reason" required>
                                     <option value="">Select Withdrawal Reason</option>
-                                    <option value="MC Setup">MC Setup</option>
-                                    <option value="Replacement">Replacement</option>
-                                    <option value="General Use">General Use</option>
-                                    <option value="Change Cap">Change Cap</option>
-                                    <option value="Dummy Use">Dummy Use</option>
-                                    <option value="Engineering Eval">Engineering Eval</option>
-                                    <option value="Use for Packaging">Use for Packaging</option>
-                                    <option value="Use for Cleaning">Use for Cleaning</option>
+                                    <?php
+                                    $sql_withreason = "SELECT reason FROM tbl_withdrawal_reason";
+                                    $sql_withreason_query = mysqli_query($con, $sql_withreason);
+                                    if ($sql_withreason_query) {
+                                        while ($withreasonRow = mysqli_fetch_assoc($sql_withreason_query)) {
+                                            ?>
+
+                                            <option value="<?php echo $withreasonRow['reason'] ?>">
+                                                <?php echo $withreasonRow['reason'] ?>
+                                            </option>
+
+                                            <?php
+                                        }
+                                    }
+                                    ?>
                                 </select>
                             </div>
                             <button type="submit" class="btn btn-primary" name="mat_req_part">Submit</button>

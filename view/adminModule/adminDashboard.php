@@ -91,16 +91,21 @@ include "navBar.php";
                 <label for="station_code">Station Code</label>
                 <select class="form-select" id="station_code" name="station_code">
                     <option selected value="">Select Station Code</option>
-                    <option value="CDP 1">CDP 1</option>
-                    <option value="CDP 2">CDP 2</option>
-                    <option value="CDP 3">CDP 3</option>
-                    <option value="DA">DA</option>
-                    <option value="WB">WB</option>
-                    <option value="Mold">Mold</option>
-                    <option value="EDL">EDL</option>
-                    <option value="Engg">Engg</option>
-                    <option value="MEE">MEE</option>
-                    <option value="MFG">MFG</option>
+                    <?php
+                    $sql_station = "SELECT station_code FROM tbl_station_code";
+                    $sql_station_query = mysqli_query($con, $sql_station);
+                    if ($sql_station_query) {
+                        while ($statiobRow = mysqli_fetch_assoc($sql_station_query)) {
+                            ?>
+
+                            <option value="<?php echo $statiobRow['station_code'] ?>">
+                                <?php echo $statiobRow['station_code'] ?>
+                            </option>
+
+                            <?php
+                        }
+                    }
+                    ?>
                 </select>
             </div>
 
