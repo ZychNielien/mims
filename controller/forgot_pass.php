@@ -16,7 +16,7 @@ if (isset($_SESSION['username'])) {
     if (mysqli_query($con, $sql)) {
         $_SESSION['status'] = "You may now proceed with creating your new account by visiting the Registration tab.";
         $_SESSION['status_code'] = "success";
-        header("Location: ../view/index.php");
+        header("Location: ../view/index.php?tab=register");
         exit();
     } else {
         echo "Error deleting record: " . mysqli_error($con);

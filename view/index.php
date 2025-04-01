@@ -59,12 +59,12 @@ include "../model/dbconnection.php";
             <!-- Navigation Tab -->
             <ul class="nav nav-pills mb-3 w-100 border" id="ex1" role="tablist">
                 <li class="nav-item w-50 text-center" role="presentation">
-                    <a class="nav-link active" id="tab-login" data-bs-toggle="pill" href="#pills-login" role="tab"
-                        aria-controls="pills-login" aria-selected="true">Login</a>
+                    <a class="nav-link active" id="login-tab" data-bs-toggle="pill" href="#login-tab-pane" role="tab"
+                        aria-controls="login-tab-pane" aria-selected="true">Login</a>
                 </li>
                 <li class="nav-item w-50 text-center" role="presentation">
-                    <a class="nav-link" id="tab-register" data-bs-toggle="pill" href="#pills-register" role="tab"
-                        aria-controls="pills-register" aria-selected="false">Register</a>
+                    <a class="nav-link" id="register-tab" data-bs-toggle="pill" href="#register-tab-pane" role="tab"
+                        aria-controls="register-tab-pane" aria-selected="false">Register</a>
                 </li>
             </ul>
 
@@ -72,8 +72,7 @@ include "../model/dbconnection.php";
             <div class="tab-content form-container">
 
                 <!-- Login Tab -->
-                <div class="tab-pane fade show active form-content" id="pills-login" role="tabpanel"
-                    aria-labelledby="tab-login">
+                <div class="tab-pane fade form-content" id="login-tab-pane" role="tabpanel" aria-labelledby="login-tab">
 
                     <!-- Login Title -->
                     <h4 class="text-center mb-4">Welcome back! Please log in to continue.</h4>
@@ -113,11 +112,11 @@ include "../model/dbconnection.php";
                 </div>
 
                 <!-- Registration Tab -->
-                <div class="tab-pane fade form-content" id="pills-register" role="tabpanel"
-                    aria-labelledby="tab-register">
+                <div class="tab-pane fade form-content" id="register-tab-pane" role="tabpanel"
+                    aria-labelledby="register-tab">
 
                     <!-- Registration Title -->
-                    <h4 class="text-center mb-4">Create an account to get started</h4>
+                    <h4 class="text-center mb-4">Create an account to get started.</h4>
 
                     <!-- Registration Form -->
                     <form method="POST" action="../controller/user.php"
@@ -306,6 +305,13 @@ include "../model/dbconnection.php";
         <?php endif; ?>
 
         $(document).ready(function () {
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const activeTab = urlParams.get('tab') || 'login';
+            $('.nav-link').removeClass('active');
+            $('.tab-pane').removeClass('show active');
+            $(`#${activeTab}-tab`).addClass('active');
+            $(`#${activeTab}-tab-pane`).addClass('show active');
 
             // Show Password for Login Password
             $('#toggleLoginPassword').click(function () {
