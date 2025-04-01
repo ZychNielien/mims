@@ -23,7 +23,7 @@ if (isset($_POST['register'])) {
 
         $_SESSION['status'] = "Username is already taken, please choose another one.";
         $_SESSION['status_code'] = "error";
-        header("Location: ../view/adminModule/accReg.php");
+        header("Location: ../view/adminModule/accReg.php?tab=account");
     } else {
 
         $account_username = $_SESSION['username'];

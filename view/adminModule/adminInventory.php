@@ -44,7 +44,9 @@ include "navBar.php";
             <!-- Delete Material Dorm Form -->
             <form id="deleteAll">
 
-                <div class="container px-3 my-3 d-flex flex-wrap justify-content-evenly">
+                <div class="container px-3 my-3 d-flex flex-wrap justify-content-between align-items-center">
+                    <input type="text" id="search_inventory" class="form-control w-25" placeholder="Search Part Number"
+                        autocomplete="off" />
 
                     <button type="button" class="btn btn-success m-1" data-bs-toggle="modal"
                         data-bs-target="#materialRegistrationModal">Material Registration</button>
@@ -53,8 +55,8 @@ include "navBar.php";
                         data-bs-target="#addToStockModal">Add to Stock</button>
 
                     <button id="export-btn" class="btn btn-success my-1">Export to Excel</button>
-
                 </div>
+
 
                 <!-- Inventory Table -->
                 <table class="table table-striped" id="data-table" data-username="<?php echo $_SESSION['user']; ?>">
@@ -71,7 +73,7 @@ include "navBar.php";
                         </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody id="data-table-inventory">
                     </tbody>
 
                 </table>
@@ -463,6 +465,18 @@ include "navBar.php";
             $('#part_unit').val(partunit);
             $('#part_option').val(partOption);
             $('#editModal').modal('show');
+        });
+
+        $('#search_inventory').on('input', function () {
+            var searchTerm = $(this).val().toLowerCase();
+            $('#data-table-inventory tr').each(function () {
+                var firstTdText = $(this).find('td:first').text().toLowerCase();
+                if (firstTdText.indexOf(searchTerm) === -1) {
+                    $(this).hide();
+                } else {
+                    $(this).show();
+                }
+            });
         });
 
         // Table Body for Material Table
