@@ -1,9 +1,6 @@
 <?php
 
-// Database Connection
 include "../model/dbconnection.php";
-
-// Session Start
 session_start();
 
 // Submit new Cost Center

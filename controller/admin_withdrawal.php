@@ -1,12 +1,7 @@
 <?php
 
-// Database Connection
 include "../model/dbconnection.php";
-
-// Session Start
 session_start();
-
-// Manila Time Zone
 date_default_timezone_set('Asia/Manila');
 
 // Material Deletion for Admin
@@ -26,7 +21,6 @@ if (isset($_POST['selected_ids']) && isset($_POST['part_quantities']) && isset($
         $expDate = $expDates[$i];
         $total_quantity_to_add += $quantity;
 
-        // Deleting the requested material withdrawal
         $sql = "DELETE FROM tbl_requested WHERE id = $id";
         $delete_result = mysqli_query($con, $sql);
 
@@ -35,7 +29,6 @@ if (isset($_POST['selected_ids']) && isset($_POST['part_quantities']) && isset($
             exit;
         }
 
-        // Updating the inventory with the withdrawn material
         $update_inventory_sql = "UPDATE tbl_stock SET part_qty = part_qty + $quantity WHERE part_name = '$part_name' AND exp_date = '$expDate' ";
         $update_result = mysqli_query($con, $update_inventory_sql);
 

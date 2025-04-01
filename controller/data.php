@@ -6,6 +6,9 @@ include "../model/dbconnection.php";
 // Session Start
 session_start();
 
+$account_username = $_SESSION['username'];
+$dts = date('Y-m-d H:i:s');
+
 // INSERT MACHINE NUMBER
 if (isset($_POST['machine_submit'])) {
     $machine = strtoupper($_POST['machine']);
@@ -14,9 +17,17 @@ if (isset($_POST['machine_submit'])) {
     if (mysqli_num_rows(mysqli_query($con, $machine_check)) == 0) {
         $machine_sql = "INSERT INTO `tbl_machine` (machine_number) VALUES  ('$machine')";
         if (mysqli_query($con, $machine_sql)) {
-            $_SESSION['status'] = "Machine number " . strtoupper($machine) . " has been successfully added to the system.";
-            $_SESSION['status_code'] = "success";
-            header("Location: ../view/adminModule/adminData.php");
+
+            $action = "Machine Number Registration";
+            $description = $account_username . " has successfully registered a new " . $machine . " in the system.";
+
+            $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+            if (mysqli_query($con, $sql_log)) {
+
+                $_SESSION['status'] = "Machine number " . strtoupper($machine) . " has been successfully added to the system.";
+                $_SESSION['status_code'] = "success";
+                header("Location: ../view/adminModule/adminData.php");
+            }
         }
     } else {
         $_SESSION['status'] = "The machine number " . strtoupper($machine) . " already exists in the system.";
@@ -33,9 +44,15 @@ if (isset($_POST['machine_update'])) {
     if (mysqli_num_rows(mysqli_query($con, $machine_check)) == 0) {
         $machine_sql = "UPDATE `tbl_machine` SET machine_number = '$machine' WHERE id = '$id'";
         if (mysqli_query($con, $machine_sql)) {
-            $_SESSION['status'] = "The machine number " . strtoupper($machine) . " has been successfully updated in the system.";
-            $_SESSION['status_code'] = "success";
-            header("Location: ../view/adminModule/adminData.php");
+            $action = "Machine Number Modification";
+            $description = $account_username . " has successfully updated the details of the " . $machine . " in the system.";
+
+            $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+            if (mysqli_query($con, $sql_log)) {
+                $_SESSION['status'] = "The machine number " . strtoupper($machine) . " has been successfully updated in the system.";
+                $_SESSION['status_code'] = "success";
+                header("Location: ../view/adminModule/adminData.php");
+            }
         }
     } else {
         $_SESSION['status'] = "The machine number " . strtoupper($machine) . " already exists in the system.";
@@ -55,8 +72,14 @@ if (isset($_GET['machine_id'])) {
         $machine = $machine_row['machine_number'];
         $machine_sql = "DELETE FROM `tbl_machine` WHERE id = '$id'";
         if (mysqli_query($con, $machine_sql)) {
-            $_SESSION['status'] = "Machine number " . strtoupper($machine) . " has been successfully deleted.";
-            $_SESSION['status_code'] = "success";
+            $action = "Machine Number Deletion";
+            $description = $account_username . " has successfully deleted the " . $machine . " from the system.";
+
+            $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+            if (mysqli_query($con, $sql_log)) {
+                $_SESSION['status'] = "Machine number " . strtoupper($machine) . " has been successfully deleted.";
+                $_SESSION['status_code'] = "success";
+            }
         } else {
             $_SESSION['status'] = "Failed to delete machine number " . strtoupper($machine) . ".";
             $_SESSION['status_code'] = "error";
@@ -78,8 +101,14 @@ if (isset($_POST['station_submit'])) {
     if (mysqli_num_rows(mysqli_query($con, $station_check)) == 0) {
         $station_sql = "INSERT INTO `tbl_station_code` (station_code) VALUES ('$station')";
         if (mysqli_query($con, $station_sql)) {
-            $_SESSION['status'] = "The station code $station has been successfully added to the system.";
-            $_SESSION['status_code'] = "success";
+            $action = "Station Code Registration";
+            $description = $account_username . " has successfully registered a new " . $station . " in the system.";
+
+            $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+            if (mysqli_query($con, $sql_log)) {
+                $_SESSION['status'] = "The station code $station has been successfully added to the system.";
+                $_SESSION['status_code'] = "success";
+            }
         } else {
             $_SESSION['status'] = "Error adding station code.";
             $_SESSION['status_code'] = "error";
@@ -102,9 +131,15 @@ if (isset($_POST['station_update'])) {
     if (mysqli_num_rows(mysqli_query($con, $station_check)) == 0) {
         $station_sql = "UPDATE `tbl_station_code` SET station_code = '$station' WHERE id = '$id'";
         if (mysqli_query($con, $station_sql)) {
-            $_SESSION['status'] = "The station code " . strtoupper($station) . " has been successfully updated in the system.";
-            $_SESSION['status_code'] = "success";
-            header("Location: ../view/adminModule/adminData.php?tab=station");
+            $action = "Station Code Modification";
+            $description = $account_username . " has successfully updated the details of the " . $station . " in the system.";
+
+            $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+            if (mysqli_query($con, $sql_log)) {
+                $_SESSION['status'] = "The station code " . strtoupper($station) . " has been successfully updated in the system.";
+                $_SESSION['status_code'] = "success";
+                header("Location: ../view/adminModule/adminData.php?tab=station");
+            }
         }
     } else {
         $_SESSION['status'] = "The station code " . strtoupper($station) . " already exists in the system.";
@@ -124,8 +159,14 @@ if (isset($_GET['station_id'])) {
         $station = $station_row['station_code'];
         $station_sql = "DELETE FROM `tbl_station_code` WHERE id = '$id'";
         if (mysqli_query($con, $station_sql)) {
-            $_SESSION['status'] = "The station code " . strtoupper($station) . " has been successfully deleted.";
-            $_SESSION['status_code'] = "success";
+            $action = "Station Code Deletion";
+            $description = $account_username . " has successfully deleted the " . $station . " from the system.";
+
+            $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+            if (mysqli_query($con, $sql_log)) {
+                $_SESSION['status'] = "The station code " . strtoupper($station) . " has been successfully deleted.";
+                $_SESSION['status_code'] = "success";
+            }
         } else {
             $_SESSION['status'] = "Failed to delete station code " . strtoupper($station) . ".";
             $_SESSION['status_code'] = "error";
@@ -147,8 +188,14 @@ if (isset($_POST['reason_submit'])) {
     if (mysqli_num_rows(mysqli_query($con, $reason_check)) == 0) {
         $reason_sql = "INSERT INTO `tbl_withdrawal_reason` (reason) VALUES ('$reason')";
         if (mysqli_query($con, $reason_sql)) {
-            $_SESSION['status'] = "The withdrawal reason $reason has been successfully added to the system.";
-            $_SESSION['status_code'] = "success";
+            $action = "Withdrawal Reason Registration";
+            $description = $account_username . " has successfully registered a new " . $reason . " in the system.";
+
+            $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+            if (mysqli_query($con, $sql_log)) {
+                $_SESSION['status'] = "The withdrawal reason $reason has been successfully added to the system.";
+                $_SESSION['status_code'] = "success";
+            }
         } else {
             $_SESSION['status'] = "Error adding withdrawal reason.";
             $_SESSION['status_code'] = "error";
@@ -171,9 +218,15 @@ if (isset($_POST['reason_update'])) {
     if (mysqli_num_rows(mysqli_query($con, $reason_check)) == 0) {
         $reason_sql = "UPDATE `tbl_withdrawal_reason` SET reason = '$reason' WHERE id = '$id'";
         if (mysqli_query($con, $reason_sql)) {
-            $_SESSION['status'] = "The withdrawal reason : " . strtoupper($reason) . " has been successfully updated in the system.";
-            $_SESSION['status_code'] = "success";
-            header("Location: ../view/adminModule/adminData.php?tab=withdraw");
+            $action = "Withdrawal Reason Modification";
+            $description = $account_username . " has successfully updated the details of the " . $reason . " in the system.";
+
+            $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+            if (mysqli_query($con, $sql_log)) {
+                $_SESSION['status'] = "The withdrawal reason : " . strtoupper($reason) . " has been successfully updated in the system.";
+                $_SESSION['status_code'] = "success";
+                header("Location: ../view/adminModule/adminData.php?tab=withdraw");
+            }
         }
     } else {
         $_SESSION['status'] = "The withdrawal reason : " . strtoupper($reason) . " already exists in the system.";
@@ -193,8 +246,14 @@ if (isset($_GET['reason_id'])) {
         $reason = $reason_row['reason'];
         $reason_sql = "DELETE FROM `tbl_withdrawal_reason` WHERE id = '$id'";
         if (mysqli_query($con, $reason_sql)) {
-            $_SESSION['status'] = "The station code " . strtoupper($reason) . " has been successfully deleted.";
-            $_SESSION['status_code'] = "success";
+            $action = "Withdrawal Reason Deletion";
+            $description = $account_username . " has successfully deleted the " . $reason . " from the system.";
+
+            $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+            if (mysqli_query($con, $sql_log)) {
+                $_SESSION['status'] = "The station code " . strtoupper($reason) . " has been successfully deleted.";
+                $_SESSION['status_code'] = "success";
+            }
         } else {
             $_SESSION['status'] = "Failed to delete station code " . strtoupper($reason) . ".";
             $_SESSION['status_code'] = "error";
@@ -216,8 +275,14 @@ if (isset($_POST['unit_submit'])) {
     if (mysqli_num_rows(mysqli_query($con, $unit_check)) == 0) {
         $unit_sql = "INSERT INTO `tbl_unit` (unit) VALUES ('$unit')";
         if (mysqli_query($con, $unit_sql)) {
-            $_SESSION['status'] = "The unit " . strtoupper($unit) . " has been successfully added to the system.";
-            $_SESSION['status_code'] = "success";
+            $action = "Unit of Measure Registration";
+            $description = $account_username . " has successfully registered a new " . $unit . " in the system.";
+
+            $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+            if (mysqli_query($con, $sql_log)) {
+                $_SESSION['status'] = "The unit " . strtoupper($unit) . " has been successfully added to the system.";
+                $_SESSION['status_code'] = "success";
+            }
         } else {
             $_SESSION['status'] = "Error adding unit.";
             $_SESSION['status_code'] = "error";
@@ -240,9 +305,15 @@ if (isset($_POST['unit_update'])) {
     if (mysqli_num_rows(mysqli_query($con, $unit_check)) == 0) {
         $unit_sql = "UPDATE `tbl_unit` SET unit = '$unit' WHERE id = '$id'";
         if (mysqli_query($con, $unit_sql)) {
-            $_SESSION['status'] = "The unit : " . strtoupper($unit) . " has been successfully updated in the system.";
-            $_SESSION['status_code'] = "success";
-            header("Location: ../view/adminModule/adminData.php?tab=unit");
+            $action = "Unit of Measure Modification";
+            $description = $account_username . " has successfully updated the details of the " . $unit . " in the system.";
+
+            $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+            if (mysqli_query($con, $sql_log)) {
+                $_SESSION['status'] = "The unit : " . strtoupper($unit) . " has been successfully updated in the system.";
+                $_SESSION['status_code'] = "success";
+                header("Location: ../view/adminModule/adminData.php?tab=unit");
+            }
         }
     } else {
         $_SESSION['status'] = "The unit : " . strtoupper($unit) . " already exists in the system.";
@@ -262,8 +333,14 @@ if (isset($_GET['unit_id'])) {
         $unit = $unit_row['unit'];
         $unit_sql = "DELETE FROM `tbl_unit` WHERE id = '$id'";
         if (mysqli_query($con, $unit_sql)) {
-            $_SESSION['status'] = "The unit " . strtoupper($unit) . " has been successfully deleted.";
-            $_SESSION['status_code'] = "success";
+            $action = "Unit of Measure Deletion";
+            $description = $account_username . " has successfully deleted the " . $unit . " from the system.";
+
+            $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+            if (mysqli_query($con, $sql_log)) {
+                $_SESSION['status'] = "The unit " . strtoupper($unit) . " has been successfully deleted.";
+                $_SESSION['status_code'] = "success";
+            }
         } else {
             $_SESSION['status'] = "Failed to delete unit " . strtoupper($unit) . ".";
             $_SESSION['status_code'] = "error";
