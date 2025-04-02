@@ -22,7 +22,7 @@ if ($_SESSION['user'] == 'Supervisor' || $_SESSION['user'] == 'Kitting') {
         $sql .= " OR for_who = 'adminOnly'";
     }
 
-    $sql .= " ORDER BY created_at DESC";
+    $sql .= " ORDER BY created_at DESC LIMIT 50";
 
     $result = $con->query($sql);
 

@@ -187,7 +187,7 @@ include "navBar.php";
                     <div class="modal-body">
                         <form method="POST" action="../../controller/inventory.php">
                             <?php
-                            $query = "SELECT id, part_name FROM tbl_inventory";
+                            $query = "SELECT id, part_name FROM tbl_inventory ORDER BY part_name ASC";
                             $result = mysqli_query($con, $query);
                             ?>
 
@@ -348,6 +348,9 @@ include "navBar.php";
 <script>
 
     $(document).ready(function () {
+
+        var today = new Date().toISOString().split('T')[0];
+        $('#exp_date').attr('min', today);
 
         // Minimum value of Minimum Requirement should equal to 1
         $('#new_min_invent_req').on('input', function () {
@@ -562,7 +565,6 @@ include "navBar.php";
             var partId = $(this).data('id');
             var partName = $(this).data('name');
 
-            // SweetAlert confirmation
             Swal.fire({
                 title: `Are you sure you want to delete "${partName}"?`,
                 text: "This action cannot be undone!",
@@ -573,15 +575,11 @@ include "navBar.php";
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Make the AJAX request to delete the part
                     $.ajax({
-                        url: '../../controller/inventory.php', // The server-side script that handles the deletion
+                        url: '../../controller/inventory.php',
                         method: 'POST',
                         data: { id: partId },
                         success: function (response) {
-                            console.log(response); // Log the response for debugging
-
-                            // Ensure response is parsed correctly (in case it is a string)
                             try {
                                 response = JSON.parse(response);
                             } catch (e) {
@@ -589,13 +587,11 @@ include "navBar.php";
                             }
 
                             if (response.success) {
-                                // Notify user and remove the row from the table
                                 Swal.fire(
                                     'Deleted!',
                                     `${partName} has been deleted.`,
                                     'success'
                                 ).then(() => {
-                                    // Remove the row from the table
                                     $(`[data-id="${partId}"]`).closest('tr').remove();
                                 });
                             } else {

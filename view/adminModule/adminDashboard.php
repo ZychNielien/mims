@@ -147,7 +147,7 @@ include "navBar.php";
         <div class="text-center">
             <label for="endDate" class="m-0">Part Number:</label>
             <?php
-            $query = "SELECT id, part_name FROM tbl_inventory";
+            $query = "SELECT id, part_name FROM tbl_inventory ORDER BY part_name ASC";
             $result = mysqli_query($con, $query);
             ?>
             <select class="form-select" id="mat_partSelect">
