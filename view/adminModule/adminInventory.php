@@ -35,50 +35,46 @@ include "navBar.php";
     <section class="w-100" style="max-height: 90%;">
 
         <!-- Main Container -->
-        <div class="container hatian d-flex flex-column justify-content-center align-center w-100">
+        <div class="mx-5 hatian d-flex flex-column justify-content-center align-center ">
 
             <!-- Title Div -->
             <h2 class="text-center" style="color: #900008; font-weight: bold;">Inventory of Parts
             </h2>
 
-            <!-- Delete Material Dorm Form -->
-            <form id="deleteAll">
 
-                <div class="container px-3 my-3 d-flex flex-wrap justify-content-between align-items-center">
-                    <input type="text" id="search_inventory" class="form-control w-25" placeholder="Search Part Number"
-                        autocomplete="off" />
+            <div class="px-3 my-3 d-flex flex-wrap justify-content-between align-items-center">
+                <input type="text" id="search_inventory" class="form-control w-25" placeholder="Search Part Number"
+                    autocomplete="off" />
 
-                    <button type="button" class="btn btn-success m-1" data-bs-toggle="modal"
-                        data-bs-target="#materialRegistrationModal">Material Registration</button>
+                <button type="button" class="btn btn-success m-1" data-bs-toggle="modal"
+                    data-bs-target="#materialRegistrationModal">Material Registration</button>
 
-                    <button type="button" class="btn btn-primary m-1" data-bs-toggle="modal"
-                        data-bs-target="#addToStockModal">Add to Stock</button>
+                <button type="button" class="btn btn-primary m-1" data-bs-toggle="modal"
+                    data-bs-target="#addToStockModal">Add to Stock</button>
 
-                    <button id="export-btn" class="btn btn-success my-1">Export to Excel</button>
-                </div>
+                <button id="export-btn" class="btn btn-success my-1">Export to Excel</button>
+            </div>
 
 
-                <!-- Inventory Table -->
-                <table class="table table-striped" id="data-table" data-username="<?php echo $_SESSION['user']; ?>">
+            <!-- Inventory Table -->
+            <table class="table table-striped" id="data-table" data-username="<?php echo $_SESSION['user']; ?>">
 
-                    <thead>
-                        <tr class="text-center"
-                            style="background-color: #900008; color: white; vertical-align: middle;">
-                            <th>Part Number</th>
-                            <th>Part Description</th>
-                            <th>Minimum Inventory Requirement</th>
-                            <th>Earliest Expiration Date</th>
-                            <th>Existing Inventory</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
+                <thead>
+                    <tr class="text-center" style="background-color: #900008; color: white; vertical-align: middle;">
+                        <th>Part Number</th>
+                        <th>Part Description</th>
+                        <th>Minimum Inventory Requirement</th>
+                        <th>Earliest Expiration Date</th>
+                        <th>Existing Inventory</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
 
-                    <tbody id="data-table-inventory">
-                    </tbody>
+                <tbody id="data-table-inventory">
+                </tbody>
 
-                </table>
+            </table>
 
-            </form>
 
         </div>
 
@@ -562,7 +558,6 @@ include "navBar.php";
             var partId = $(this).data('id');
             var partName = $(this).data('name');
 
-            // SweetAlert confirmation
             Swal.fire({
                 title: `Are you sure you want to delete "${partName}"?`,
                 text: "This action cannot be undone!",
@@ -573,15 +568,12 @@ include "navBar.php";
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Make the AJAX request to delete the part
                     $.ajax({
-                        url: '../../controller/inventory.php', // The server-side script that handles the deletion
+                        url: '../../controller/inventory.php',
                         method: 'POST',
                         data: { id: partId },
                         success: function (response) {
-                            console.log(response); // Log the response for debugging
 
-                            // Ensure response is parsed correctly (in case it is a string)
                             try {
                                 response = JSON.parse(response);
                             } catch (e) {
@@ -589,13 +581,12 @@ include "navBar.php";
                             }
 
                             if (response.success) {
-                                // Notify user and remove the row from the table
+
                                 Swal.fire(
                                     'Deleted!',
                                     `${partName} has been deleted.`,
                                     'success'
                                 ).then(() => {
-                                    // Remove the row from the table
                                     $(`[data-id="${partId}"]`).closest('tr').remove();
                                 });
                             } else {

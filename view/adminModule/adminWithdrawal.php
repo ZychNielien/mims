@@ -42,7 +42,7 @@ include "navBar.php";
 
         <!-- Material Withdrawal Tab -->
         <div class="tab-pane fade show active" id="withdraw-tab-pane" role="tabpanel" aria-labelledby="withdraw-tab">
-            <div class="px-5 hatian d-flex justify-between align-center w-100 my-3">
+            <div class="px-3 hatian d-flex justify-between align-center w-100 my-3">
                 <div class="divWithdrawal px-3 w-25">
                     <div class="containerTitle">
                         <h4>Material Withdrawal</h4>
@@ -252,7 +252,7 @@ include "navBar.php";
         <!-- Approved Request Tab -->
         <div class="tab-pane fade" id="approved-tab-pane" role="tabpanel" aria-labelledby="approved-tab">
 
-            <div class="container  ">
+            <div class="mx-3">
 
                 <!-- Title Tab -->
                 <h3 class="text-center fw-bold" style="color: #900008;">History of Approved Requests</h3>
@@ -280,8 +280,8 @@ include "navBar.php";
                                     aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form id="returnForm">
-                                    <input type="hidden" name="lot_id" id="lot_id">
+                                <form method="POST" action="../../controller/update_status.php">
+                                    <input type="hidden" name="id" id="returnId">
                                     <div class="mb-3">
                                         <label for="returnQty" class="form-label">Quantity</label>
                                         <input type="number" class="form-control" id="returnQty" name="return_qty"
@@ -326,8 +326,10 @@ include "navBar.php";
                             <th scope="col">Machine No.</th>
                             <th scope="col">Withdrawal Reason</th>
                             <th scope="col">Requested By</th>
-                            <th scope="col">Status</th>
+                            <th scope="col">Approved Qty</th>
+                            <th scope="col">Approved Reason</th>
                             <th scope="col">Approved By</th>
+                            <th scope="col">Status</th>
                             <th scope="col">Action</th>
                         </tr>
                     </thead>
@@ -345,7 +347,7 @@ include "navBar.php";
         <!-- Rejected Request Tab -->
         <div class="tab-pane fade" id="rejected-tab-pane" role="tabpanel" aria-labelledby="rejected-tab">
 
-            <div class="container  ">
+            <div class="mx-3">
 
                 <!-- Title Tab -->
                 <h3 class="text-center fw-bold" style="color: #900008;">History of Rejected Requests</h3>
@@ -376,8 +378,9 @@ include "navBar.php";
                             <th scope="col">Machine No.</th>
                             <th scope="col">Withdrawal Reason</th>
                             <th scope="col">Requested By</th>
-                            <th scope="col">Status</th>
+                            <th scope="col">Rejected Reason</th>
                             <th scope="col">Rejected By</th>
+                            <th scope="col">Status</th>
                         </tr>
                     </thead>
 
@@ -394,7 +397,7 @@ include "navBar.php";
         <!-- Returned Request Tab -->
         <div class="tab-pane fade" id="returned-tab-pane" role="tabpanel" aria-labelledby="returned-tab">
 
-            <div class="container  ">
+            <div class="mx-3">
 
                 <!-- Title Tab -->
                 <h3 class="text-center fw-bold" style="color: #900008;">History of Returned Requests</h3>
@@ -424,10 +427,10 @@ include "navBar.php";
                             <th scope="col">Machine No.</th>
                             <th scope="col">Withdrawal Reason</th>
                             <th scope="col">Returned By</th>
-                            <th scope="col">Status</th>
                             <th scope="col">Return Qty</th>
                             <th scope="col">Return Reason</th>
                             <th scope="col">Received By</th>
+                            <th scope="col">Status</th>
                         </tr>
                     </thead>
 
@@ -566,79 +569,12 @@ include "navBar.php";
             var reqBy = $(this).data('req-by');
             var partName = $(this).data('part-name');
             $('#part_namereturn').val(partName);
-            $('#lot_id').val(Id);
+            $('#returnId').val(Id);
             $('#reqBy').val(reqBy);
             $('#returnQty').attr('max', partQty);
             $('#returnQty').val('');
 
             $('#quantityMessage').text('Your requested quantity for this part is ' + partQty + '. Please return a quantity below or equal to this.');
-        });
-
-        // Return Item Submit Form
-        $('#returnForm').submit(function (e) {
-            e.preventDefault();
-
-            var Id = $('#lot_id').val();
-            var returnReason = $('#returnReason').val();
-            var returnQty = $('#returnQty').val();
-            var reqBy = $('#reqBy').val();
-            var partNameReturn = $('#part_namereturn').val();
-
-            $.ajax({
-                url: '../../controller/update_status.php',
-                type: 'POST',
-                data: {
-                    lot_id: Id,
-                    return_reason: returnReason,
-                    return_qty: returnQty,
-                    req_by: reqBy,
-                    part_name: partNameReturn
-
-                },
-                success: function (response) {
-                    console.log(response);
-                    try {
-                        var data = JSON.parse(response);
-
-                        if (data.status === 'success') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: data.message,
-                                confirmButtonText: 'OK'
-                            }).then(() => {
-                                $('#returnModal').modal('hide');
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: data.message,
-                                confirmButtonText: 'OK'
-                            });
-                        }
-                    } catch (e) {
-                        console.error("Error parsing JSON:", e);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Server Error',
-                            text: 'There was an issue with the request. Please try again.',
-                            confirmButtonText: 'OK'
-                        });
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("AJAX error:", status, error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'AJAX Error',
-                        text: 'There was an issue with the request. Please try again.',
-                        confirmButtonText: 'OK'
-                    });
-                }
-            });
-
         });
 
         // Approve Request Date Selection

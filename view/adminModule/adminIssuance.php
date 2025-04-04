@@ -30,7 +30,7 @@ include "navBar.php";
     </div>
 
     <!-- Main Container -->
-    <div class="container">
+    <div class="mx-5">
 
         <!-- Search and Export to Excel -->
         <div class="d-flex flex-wrap justify-content-evenly">
@@ -51,6 +51,8 @@ include "navBar.php";
                     <th scope="col">Machine No.</th>
                     <th scope="col">Withdrawal Reason</th>
                     <th scope="col">Requested By</th>
+                    <th scope="col">Approved Qty</th>
+                    <th scope="col">Approved Reason</th>
                     <th scope="col">Approved By</th>
                     <th scope="col">Status</th>
                 </tr>
@@ -59,7 +61,7 @@ include "navBar.php";
             <tbody id="data-table">
                 <?php
                 $userName = $_SESSION['username'];
-                $sql = "SELECT * FROM tbl_requested WHERE status = 'approved'  ORDER BY dts DESC";
+                $sql = "SELECT * FROM tbl_requested WHERE status = 'approved'  ORDER BY dts_approve DESC";
                 $sql_query = mysqli_query($con, $sql);
 
                 if (mysqli_num_rows($sql_query) > 0) {
@@ -67,7 +69,7 @@ include "navBar.php";
                         ?>
                         <tr class="table-row  text-center">
 
-                            <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts']; ?></td>
+                            <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts_approve']; ?></td>
                             <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
                             <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
                             <td data-label="Part Desc"><?php echo $sqlRow['part_desc']; ?></td>
@@ -75,6 +77,9 @@ include "navBar.php";
                             <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
                             <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                             <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>
+                            <td data-label='Approved Qty'><?php echo $sqlRow['approved_qty']; ?></td>
+                            <td data-label='Approved Reason'><?php echo $sqlRow['approved_reason']; ?></td>
+
                             <td data-label="Approved By"><?php echo $sqlRow['approved_by']; ?></td>
                             <td data-label="Status"><?php echo $sqlRow['status']; ?></td>
                         </tr>

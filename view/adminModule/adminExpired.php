@@ -27,7 +27,7 @@ include "navBar.php";
 <section style="max-height: 90%;">
 
     <!-- Main Container -->
-    <div class="container">
+    <div class="mx-5">
 
         <!-- Title Div -->
         <div class="welcomeDiv my-2">

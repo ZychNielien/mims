@@ -30,7 +30,7 @@ include "navBar.php";
     </div>
 
     <!-- Main Container -->
-    <div class="container">
+    <div class="mx-5">
 
         <!-- Rejection History Table -->
         <table class="table table-striped w-100">
@@ -53,7 +53,7 @@ include "navBar.php";
 
                 <?php
                 $userName = $_SESSION['username'];
-                $sql = "SELECT * FROM tbl_requested WHERE status = 'rejected'  ORDER BY dts DESC";
+                $sql = "SELECT * FROM tbl_requested WHERE status = 'rejected'  ORDER BY dts_rejected DESC";
                 $sql_query = mysqli_query($con, $sql);
 
                 if (mysqli_num_rows($sql_query) > 0) {
@@ -61,7 +61,7 @@ include "navBar.php";
                         ?>
                         <tr class="table-row  text-center">
 
-                            <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts']; ?></td>
+                            <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts_rejected']; ?></td>
                             <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
                             <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
                             <td data-label="Part Desc"><?php echo $sqlRow['part_desc']; ?></td>

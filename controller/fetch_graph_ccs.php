@@ -8,49 +8,95 @@ date_default_timezone_set('Asia/Manila');
 // Database Connection
 include "../model/dbconnection.php";
 
+// Get parameters
 $startDate = isset($_GET['startDate']) ? $_GET['startDate'] : null;
 $endDate = isset($_GET['endDate']) ? $_GET['endDate'] : null;
 $partName = isset($_GET['partName']) ? $_GET['partName'] : null;
 
-// Selecting Cost Center Data Approved
-$query = "
-SELECT tc.ccid, COUNT(tr.cost_center) AS requested_count
+// Ensure endDate includes the full day
+if ($endDate) {
+    $endDate = date('Y-m-d 23:59:59', strtotime($endDate));
+}
+
+// Query for Ranking & Graph (Overall Cost Center Count)
+$queryRanking = "
+SELECT 
+    tc.ccid, 
+    COUNT(tr.cost_center) AS requested_count
 FROM tbl_ccs tc
-LEFT JOIN tbl_requested tr ON tr.cost_center = tc.ccid AND tr.status = 'APPROVED'
+LEFT JOIN tbl_requested tr 
+    ON tr.cost_center = tc.ccid 
+    AND tr.status = 'APPROVED'
 ";
 
+$conditions = [];
+
 if ($startDate && $endDate) {
-    $endDate = date('Y-m-d 23:59:59', strtotime($endDate));
-    $query .= " WHERE tr.dts_approve BETWEEN '$startDate' AND '$endDate' ";
+    $conditions[] = "tr.dts_approve BETWEEN '$startDate' AND '$endDate'";
 } elseif ($startDate) {
-    $query .= " WHERE tr.dts_approve >= '$startDate' ";
+    $conditions[] = "tr.dts_approve >= '$startDate'";
 } elseif ($endDate) {
-    $endDate = date('Y-m-d 23:59:59', strtotime($endDate));
-    $query .= " WHERE tr.dts_approve <= '$endDate' ";
+    $conditions[] = "tr.dts_approve <= '$endDate'";
 }
 
 if ($partName) {
-    if ($startDate || $endDate) {
-        $query .= " AND tr.part_name = '$partName' ";
-    } else {
-        $query .= " WHERE tr.part_name = '$partName' ";
-    }
+    $conditions[] = "tr.part_name = '$partName'";
 }
 
-$query .= " GROUP BY tc.ccid";
+if (!empty($conditions)) {
+    $queryRanking .= " WHERE " . implode(" AND ", $conditions);
+}
 
-$result = mysqli_query($con, $query);
+$queryRanking .= " GROUP BY tc.ccid ORDER BY requested_count DESC";
 
-$data = [];
+$resultRanking = mysqli_query($con, $queryRanking);
 
-if ($result) {
-    while ($row = mysqli_fetch_assoc($result)) {
-        $data[] = [
+$rankingData = [];
+
+if ($resultRanking) {
+    while ($row = mysqli_fetch_assoc($resultRanking)) {
+        $rankingData[] = [
             'ccid' => $row['ccid'],
             'requested_count' => $row['requested_count']
         ];
     }
 }
 
-echo json_encode($data);
+// Query for Date-Specific Table (Per Date & Cost Center)
+$queryDateSpecific = "
+SELECT 
+    tc.ccid, 
+    DATE(tr.dts_approve) AS approve_date, 
+    COUNT(tr.cost_center) AS requested_count
+FROM tbl_ccs tc
+LEFT JOIN tbl_requested tr 
+    ON tr.cost_center = tc.ccid 
+    AND tr.status = 'APPROVED'
+";
+
+if (!empty($conditions)) {
+    $queryDateSpecific .= " WHERE " . implode(" AND ", $conditions);
+}
+
+$queryDateSpecific .= " GROUP BY tc.ccid, approve_date ORDER BY approve_date ASC";
+
+$resultDateSpecific = mysqli_query($con, $queryDateSpecific);
+
+$dateSpecificData = [];
+
+if ($resultDateSpecific) {
+    while ($row = mysqli_fetch_assoc($resultDateSpecific)) {
+        $dateSpecificData[] = [
+            'ccid' => $row['ccid'],
+            'requested_count' => $row['requested_count'],
+            'date' => $row['approve_date']
+        ];
+    }
+}
+
+// Merge both datasets and return JSON response
+echo json_encode([
+    'ranking' => $rankingData,
+    'dateSpecific' => $dateSpecificData
+]);
 ?>

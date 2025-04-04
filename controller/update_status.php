@@ -9,111 +9,124 @@ date_default_timezone_set('Asia/Manila');
 // Session Start
 session_start();
 
+$dts = date('Y-m-d H:i:s');
+$username = $_SESSION['username'];
+
 // Admin Withdrawal Requests Approval 
-if (isset($_POST['action']) && isset($_POST['ids']) && !empty($_POST['ids'])) {
-    $ids = $_POST['ids'];
-    $status = $_POST['action'] == 'approve' ? 'approved' : 'rejected';
-
-    $dts = date('Y-m-d H:i:s');
-    $req_by = $_POST['req_by'];
-    $approved_by = $_SESSION['username'];
-
-    // Check if the Action is Approve
-    if ($status === 'approved') {
-
-        $qty = $_POST['qty'];
-        $part_name = $_POST['part_name'];
-
-        $ids_str = implode(',', $ids);
-
-        // Update the Request to Approve
-        $sql = "UPDATE tbl_requested SET status = 'approved' , approved_by = '$approved_by' , dts_approve = '$dts' WHERE id IN ($ids_str)";
-        if (mysqli_query($con, $sql)) {
-
-            for ($i = 0; $i < count($ids); $i++) {
-                $current_qty = $qty[$i];
-                $current_part_name = $part_name[$i];
-                $current_req_by = $req_by[$i];
-
-                $mensahe = $approved_by . ' has approved ' . $current_qty . ' of ' . $current_part_name . '. Click here for more details.';
-                $for = "user";
-
-                // Insert Notification to the Requester
-                $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
-                              VALUES ('$approved_by', '$mensahe', 0, '$dts', '$current_req_by','Approved')";
-
-                if (mysqli_query($con, $sql_notif)) {
-                } else {
-                    echo "Error inserting notification for $current_part_name";
-                }
-            }
-            echo "Success";
-        } else {
-            echo "Error: " . mysqli_error($con);
-        }
-
-        // Checking if the Action is Reject
-    } else if ($status === 'rejected') {
-
-        $qty = $_POST['qty'];
-        $part_name = $_POST['part_name'];
-        $req_by = $_POST['req_by'];
+if (isset($_POST['approve_submit'])) {
+    if (isset($_POST['ids']) && isset($_POST['quantities']) && isset($_POST['reasons']) && isset($_POST['part_names']) && isset($_POST['request_bys'])) {
         $ids = $_POST['ids'];
-        $exp_date = $_POST['exp_date'];
-
-        if (empty($qty) || empty($part_name) || empty($req_by) || empty($ids) || empty($exp_date)) {
-            $_SESSION['status'] = "Invalid data provided.";
-            $_SESSION['status_code'] = "error";
-            header("location: ../view/adminModule/adminApproval.php");
-            exit();
-        }
-
-        $total_rejected_qty = array_sum($qty);
-        echo "Total quantity rejected: " . $total_rejected_qty;
+        $quantities = $_POST['quantities'];
+        $reasons = $_POST['reasons'];
+        $part_names = $_POST['part_names'];
+        $request_bys = $_POST['request_bys'];
+        $success = true;
 
         for ($i = 0; $i < count($ids); $i++) {
-            $current_qty = $qty[$i];
-            $current_part_name = $part_name[$i];
-            $current_req_by = $req_by[$i];
-            $current_id = $ids[$i];
-            $current_exp_date = $exp_date[$i];
+            $id = intval($ids[$i]);
+            $quantity = intval($quantities[$i]);
+            $reason = mysqli_real_escape_string($con, $reasons[$i]);
+            $current_part_name = $part_names[$i];
+            $current_req_by = $request_bys[$i];
 
-            // Update the Stocks: Increase the part quantity by the rejected amount
-            $qty_update = "UPDATE tbl_stock SET part_qty = part_qty + $current_qty WHERE part_name = '$current_part_name' AND exp_date = '$current_exp_date'";
+            $mensahe = $username . ' has approved ' . $quantity . ' of ' . $current_part_name . '. Click here for more details.';
+            $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
+                          VALUES ('$username', '$mensahe', 0, '$dts', '$current_req_by','Approved')";
+
+            if (!mysqli_query($con, $sql_notif)) {
+                $success = false;
+                break;
+            }
+
+            $updateQuery = "UPDATE tbl_requested SET approved_qty='$quantity', approved_reason='$reason', status='Approved' , approved_by = '$username' , dts_approve = '$dts' WHERE id='$id'";
+
+            if (!mysqli_query($con, $updateQuery)) {
+                $success = false;
+                break;
+            }
+
+            $getPartQtyQuery = "SELECT part_qty, part_name, exp_date FROM tbl_requested WHERE id='$id'";
+            $result = mysqli_query($con, $getPartQtyQuery);
+
+            if ($result && mysqli_num_rows($result) > 0) {
+                $row = mysqli_fetch_assoc($result);
+                $part_qty = $row['part_qty'];
+                $part_name = $row['part_name'];
+                $exp_date = $row['exp_date'];
+
+                if ($quantity < $part_qty) {
+                    $stockDiff = $part_qty - $quantity;
+
+                    $updateStockQuery = "UPDATE tbl_stock SET part_qty = part_qty + '$stockDiff' WHERE part_name = '$part_name' AND exp_date = '$exp_date'";
+
+                    if (!mysqli_query($con, $updateStockQuery)) {
+                        $success = false;
+                        break;
+                    }
+                }
+            } else {
+                $success = false;
+                break;
+            }
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode(["success" => $success]);
+    } else {
+        echo json_encode(["success" => false, "error" => "Missing data"]);
+    }
+}
+
+
+if (isset($_POST['reject_submit'])) {
+    if (isset($_POST['ids']) && isset($_POST['reasons']) && isset($_POST['part_names']) && isset($_POST['request_bys']) && isset($_POST['quantities']) && isset($_POST['exp_dates'])) {
+        $ids = $_POST['ids'];
+        $reasons = $_POST['reasons'];
+        $part_names = $_POST['part_names'];
+        $req_bys = $_POST['request_bys'];
+        $quantities = $_POST['quantities'];
+        $exp_dates = $_POST['exp_dates'];
+
+        $success = true;
+
+        for ($i = 0; $i < count($ids); $i++) {
+            $id = intval($ids[$i]);
+            $reason = mysqli_real_escape_string($con, $reasons[$i]);
+            $quantity = intval($quantities[$i]);
+            $current_part_name = $part_names[$i];
+            $current_req_by = $req_bys[$i];
+            $exp_date = $exp_dates[$i];
+
+
+            $qty_update = "UPDATE tbl_stock SET part_qty = part_qty + $quantity WHERE part_name = '$current_part_name' AND exp_date = '$exp_date'";
 
             if (mysqli_query($con, $qty_update)) {
 
-                $mensahe = $approved_by . ' has rejected ' . $current_qty . ' of ' . $current_part_name . '. Click here for more details.';
-                $for = $current_req_by;
-
-                // Insert notification for the user who requested the part
+                $mensahe = $username . ' has rejected ' . $quantity . ' of ' . $current_part_name . '. Click here for more details.';
                 $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
-                              VALUES ('$approved_by', '$mensahe', 0, '$dts', '$for' , 'Rejected')";
+                         VALUES ('$username', '$mensahe', 0, '$dts', '$current_req_by' , 'Rejected')";
 
-                if (mysqli_query($con, $sql_notif)) {
-
-                    // Update the request status to Rejected
-                    $sql = "UPDATE tbl_requested SET status = 'rejected', rejected_by = '$approved_by' , dts_rejected = '$dts' WHERE id = $current_id";
-                    mysqli_query($con, $sql);
-                } else {
-                    echo "Error inserting notification for $current_part_name<br>";
+                if (!mysqli_query($con, $sql_notif)) {
+                    $success = false;
+                    break;
                 }
-            } else {
-                echo "Error updating inventory for part: $current_part_name<br>";
+
+                $updateQuery = "UPDATE tbl_requested SET rejected_reason='$reason', status='Rejected' , rejected_by = '$username' , dts_rejected = '$dts' WHERE id='$id'";
+                if (!mysqli_query($con, $updateQuery)) {
+                    $success = false;
+                    break;
+                }
             }
         }
 
-        $_SESSION['status'] = "Rejection processed successfully!";
-        $_SESSION['status_code'] = "success";
-        header("location: ../view/adminModule/adminWithdrawal.php");
-        exit();
+        echo json_encode(["success" => $success]);
+    } else {
+        echo json_encode(["success" => false, "error" => "Missing data"]);
     }
-
 }
 
-// Admin Withdrawal Requests Return
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $lot_id = $_POST['lot_id'];
+if (isset($_POST['submitReturn'])) {
+    $lot_id = $_POST['id'];
     $return_qty = $_POST['return_qty'];
     $return_reason = $_POST['return_reason'];
     $dts = date('Y-m-d H:i:s');
@@ -130,23 +143,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Update the status of the request to Returning
     $sql = "UPDATE tbl_requested 
             SET status = 'returning', return_reason = '$return_reason', dts_return = '$dts', return_qty = '$return_qty'
-            WHERE id = '$lot_id' AND status = 'approved'";
+            WHERE id = '$lot_id' AND status = 'Approved'";
 
     if (mysqli_query($con, $sql)) {
-
         // Insert Notification to the admin
         $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at,for_who, destination) VALUES ('$req_by', '$mensahe',0,'$dts','$for', 'Scrap')";
         $sql_notif_query = mysqli_query($con, $sql_notif);
 
         if ($sql_notif_query) {
-            echo json_encode(['status' => 'success', 'message' => 'You are now authorized to return the ' . $part_name . ' with a quantity of ' . $return_qty]);
+            if ($_SESSION['user'] == "Supervisor" || $_SESSION['user'] == "Kitting") {
+                $_SESSION['status'] = 'You are now authorized to return the ' . $part_name . ' with a quantity of ' . $return_qty;
+                $_SESSION['status_code'] = "success";
+                header("location: ../view/adminModule/adminWithdrawal.php?tab=approved");
+                exit();
+            } else if ($_SESSION['user'] == "User") {
+                $_SESSION['status'] = 'You are now authorized to return the ' . $part_name . ' with a quantity of ' . $return_qty;
+                $_SESSION['status_code'] = "success";
+                header("location: ../view/userModule/userHistory.php?tab=approved");
+                exit();
+            }
+
+
         }
 
-    } else {
-        echo json_encode(['status' => 'error', 'message' => 'Error updating item: ' . mysqli_error($con)]);
     }
-} else {
-    echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
 }
 
 

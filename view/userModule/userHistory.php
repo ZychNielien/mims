@@ -30,7 +30,7 @@ include "navBar.php";
         <h2 class="text-center">Welcome, <?php echo $_SESSION['username'] ?>!</h2>
     </div>
 
-    <div class="container">
+    <div class="mx-5">
 
         <!-- Navigation Tab for all Request Tab -->
         <nav>
@@ -52,7 +52,7 @@ include "navBar.php";
             <div class="tab-pane fade show active" id="approved-tab-pane" role="tabpanel"
                 aria-labelledby="approved-tab">
 
-                <div class="container  ">
+                <div class="mx-3">
 
                     <!-- Approve Request Title -->
                     <h3 class="text-center fw-bold" style="color: #900008;">History of Approved Requests</h3>
@@ -80,8 +80,8 @@ include "navBar.php";
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <form id="returnForm">
-                                        <input type="hidden" name="lot_id" id="lot_id">
+                                    <form method="POST" action="../../controller/update_status.php">
+                                        <input type="hidden" name="id" id="returnId">
                                         <div class="mb-3">
                                             <label for="returnQty" class="form-label">Quantity</label>
                                             <input type="number" class="form-control" id="returnQty" name="return_qty"
@@ -103,9 +103,10 @@ include "navBar.php";
                                         <div class="mb-3">
                                             <label for="returnReason" class="form-label">Reason for Return</label>
                                             <textarea class="form-control" id="returnReason" name="return_reason"
-                                                rows="3" required placeholder="Enter Reason for Return"></textarea>
+                                                rows="3" placeholder="Enter Reason for Return" required></textarea>
                                         </div>
-                                        <button type="submit" class="btn btn-primary">Submit Return</button>
+                                        <button type="submit" class="btn btn-primary" name="submitReturn">Submit
+                                            Return</button>
                                     </form>
                                 </div>
                             </div>
@@ -117,7 +118,7 @@ include "navBar.php";
                         <thead>
                             <tr class="text-center"
                                 style="background-color: #900008; color: white; vertical-align: middle;">
-                                <th scope="col">Date / Time / Shift</th>
+                                <th scope="col">Approved Date / Time</th>
                                 <th scope="col">Lot ID</th>
                                 <th scope="col">Part Number</th>
                                 <th scope="col">Item Description</th>
@@ -125,8 +126,10 @@ include "navBar.php";
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Requested By</th>
-                                <th scope="col">Status</th>
+                                <th scope="col">Approved Qty</th>
+                                <th scope="col">Approved Reason</th>
                                 <th scope="col">Approved By</th>
+                                <th scope="col">Status</th>
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>
@@ -140,7 +143,7 @@ include "navBar.php";
             <!-- Rejected Request Tab -->
             <div class="tab-pane fade" id="rejected-tab-pane" role="tabpanel" aria-labelledby="rejected-tab">
 
-                <div class="container  ">
+                <div class="mx-3">
 
                     <!-- Rejected Request Title -->
                     <h3 class="text-center fw-bold" style="color: #900008;">History of Rejected Requests</h3>
@@ -162,7 +165,7 @@ include "navBar.php";
                         <thead>
                             <tr class="text-center"
                                 style="background-color: #900008; color: white; vertical-align: middle;">
-                                <th scope="col">Date / Time / Shift</th>
+                                <th scope="col">Rejected Date / Time</th>
                                 <th scope="col">Lot ID</th>
                                 <th scope="col">Part Number</th>
                                 <th scope="col">Item Description</th>
@@ -170,8 +173,9 @@ include "navBar.php";
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Requested By</th>
-                                <th scope="col">Status</th>
+                                <th scope="col">Rejected Reason</th>
                                 <th scope="col">Rejected By</th>
+                                <th scope="col">Status</th>
                             </tr>
                         </thead>
                         <tbody id="data-table-reject">
@@ -184,7 +188,7 @@ include "navBar.php";
             <!-- Returned Request Tab -->
             <div class="tab-pane fade" id="returned-tab-pane" role="tabpanel" aria-labelledby="returned-tab">
 
-                <div class="container">
+                <div class="mx-3">
 
                     <!-- Returned Request Title -->
                     <h3 class="text-center fw-bold" style="color: #900008;">History of Returned Requests</h3>
@@ -207,17 +211,17 @@ include "navBar.php";
                         <thead>
                             <tr class="text-center"
                                 style="background-color: #900008; color: white; vertical-align: middle;">
-                                <th scope="col">Date/Time of Return</th>
+                                <th scope="col">Returned Date/Time</th>
                                 <th scope="col">Lot ID</th>
                                 <th scope="col">Part Number</th>
                                 <th scope="col">Qty.</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Returned By</th>
-                                <th scope="col">Status</th>
                                 <th scope="col">Return Qty</th>
                                 <th scope="col">Return Reason</th>
                                 <th scope="col">Received By</th>
+                                <th scope="col">Status</th>
                             </tr>
                         </thead>
                         <tbody id="data-table-return">
@@ -345,7 +349,7 @@ include "navBar.php";
             var reqBy = $(this).data('req-by');
             var partName = $(this).data('part-name');
             $('#part_namereturn').val(partName);
-            $('#lot_id').val(Id);
+            $('#returnId').val(Id);
             $('#reqBy').val(reqBy);
             $('#returnQty').attr('max', partQty);
             $('#returnQty').val('');
@@ -353,72 +357,6 @@ include "navBar.php";
             $('#quantityMessage').text('Your requested quantity for this part is ' + partQty + '. Please return a quantity below or equal to this.');
         });
 
-        // Return Item Submit Form
-        $('#returnForm').submit(function (e) {
-            e.preventDefault();
-
-            var Id = $('#lot_id').val();
-            var returnReason = $('#returnReason').val();
-            var returnQty = $('#returnQty').val();
-            var reqBy = $('#reqBy').val();
-            var partNameReturn = $('#part_namereturn').val();
-
-            $.ajax({
-                url: '../../controller/user_query.php',
-                type: 'POST',
-                data: {
-                    lot_id: Id,
-                    return_reason: returnReason,
-                    return_qty: returnQty,
-                    req_by: reqBy,
-                    part_name: partNameReturn
-
-                },
-                success: function (response) {
-                    console.log(response);
-                    try {
-                        var data = JSON.parse(response);
-
-                        if (data.status === 'success') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Success',
-                                text: data.message,
-                                confirmButtonText: 'OK'
-                            }).then(() => {
-                                $('#returnModal').modal('hide');
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: data.message,
-                                confirmButtonText: 'OK'
-                            });
-                        }
-                    } catch (e) {
-                        console.error("Error parsing JSON:", e);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Server Error',
-                            text: 'There was an issue with the request. Please try again.',
-                            confirmButtonText: 'OK'
-                        });
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("AJAX error:", status, error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'AJAX Error',
-                        text: 'There was an issue with the request. Please try again.',
-                        confirmButtonText: 'OK'
-                    });
-                }
-            });
-
-        });
 
     });
 

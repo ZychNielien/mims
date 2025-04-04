@@ -30,7 +30,7 @@ include "navBar.php";
     </div>
 
     <!-- Main Container -->
-    <div class="container">
+    <div class="mx-5">
 
         <!-- Search Input and Export to Excel -->
         <div class="d-flex flex-wrap justify-content-evenly">

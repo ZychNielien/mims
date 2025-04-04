@@ -12,7 +12,7 @@ $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 $userName = $_SESSION['username'];
 
 // Select Withdrawal Request Where Status is Returned
-$sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'returned'";
+$sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'returned' ORDER BY dts_return DESC";
 
 if ($startDate && $endDate) {
     $startDateTime = $startDate . ' 00:00:00';
@@ -34,10 +34,10 @@ if (mysqli_num_rows($sql_query) > 0) {
                 <td data-label='Machine Number'>{$sqlRow['machine_no']}</td>
                 <td data-label='Qithdrawal Reason'>{$sqlRow['with_reason']}</td>
                 <td data-label='Return By'>{$sqlRow['req_by']}</td>
-                <td data-label='Status'>{$sqlRow['status']}</td>
                 <td data-label='Return Qty'>{$sqlRow['return_qty']}</td>
                 <td data-label='Return Reason'>{$sqlRow['return_reason']}</td>
                 <td data-label='Receieved By'>{$sqlRow['received_by']}</td>
+                <td data-label='Status'>{$sqlRow['status']}</td>
               </tr>";
     }
 } else {

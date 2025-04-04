@@ -28,7 +28,7 @@ include "navBar.php";
     </div>
 
     <!-- Main Container -->
-    <div class="px-5 hatian d-flex justify-between align-center w-100">
+    <div class="px-5 hatian d-flex justify-between align-center">
 
         <!-- Material Withdrawal Side -->
         <div class="divWithdrawal px-3 w-25">

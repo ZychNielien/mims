@@ -12,7 +12,7 @@ $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 $userName = $_SESSION['username'];
 
 // Select Withdrawal Request Where Status is Rejected
-$sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'rejected'";
+$sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'rejected' ORDER BY dts_rejected DESC";
 
 if ($startDate && $endDate) {
     $startDateTime = $startDate . ' 00:00:00';
@@ -35,8 +35,9 @@ if (mysqli_num_rows($sql_query) > 0) {
                 <td data-label='Machine No'>{$sqlRow['machine_no']}</td>
                 <td data-label='Reason'>{$sqlRow['with_reason']}</td>
                 <td data-label='Requested By'>{$sqlRow['req_by']}</td>
-                <td data-label='Status'>{$sqlRow['status']}</td>
+                <td data-label='Status'>{$sqlRow['rejected_reason']}</td>
                 <td data-label='Rejected By'>{$sqlRow['rejected_by']}</td>
+                <td data-label='Status'>{$sqlRow['status']}</td>
               </tr>";
     }
 } else {

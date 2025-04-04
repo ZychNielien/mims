@@ -35,7 +35,7 @@ include "navBar.php";
     </div>
 
     <!-- Main Container -->
-    <div class="container">
+    <div class="mx-5">
 
         <!-- Approval Buttons -->
         <div class="d-flex justify-content-start gap-3 w-100">
@@ -110,6 +110,76 @@ include "navBar.php";
 
     </div>
 
+    <!-- Approval Modal -->
+    <div class="modal fade" id="approvalModal" tabindex="-1" aria-labelledby="approvalModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="approvalModalLabel">Approve Selected Requests</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="approvalForm">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="text-center text-white" style="background-color: #900008;">
+                                    <tr>
+                                        <th>Requested By</th>
+                                        <th>Part Number</th>
+                                        <th>Requested Quantity</th>
+                                        <th>Approved Quantity</th>
+                                        <th>Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalItemList">
+                                    <!-- Selected items will be injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success" name="approve_submit">Approve</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rejection Modal -->
+    <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectModalLabel">Reject Selected Requests</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="rejectForm">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="text-center text-white" style="background-color: #900008;">
+                                    <tr>
+                                        <th>Requested By</th>
+                                        <th>Part Number</th>
+                                        <th>Requested Quantity</th>
+                                        <th>Rejection Reason</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalRejectItemList">
+                                    <!-- Selected items for rejection will be injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger" name="reject_submit">Reject</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 </section>
 
 <script>
@@ -121,118 +191,197 @@ include "navBar.php";
             $('.select-row').prop('checked', $(this).prop('checked'));
         });
 
-        // Approve Button Script
-        $('#approve-btn').on('click', function () {
-            var selectedIds = [];
-            var selectedQty = [];
-            var selectedReq = [];
-            var selectedPartNames = [];
-            $('.select-row:checked').each(function () {
-                selectedIds.push($(this).data('id'));
-                selectedQty.push($(this).data('qty'));
-                selectedReq.push($(this).data('req_by'));
-                selectedPartNames.push($(this).data('part_name'));
+
+        // When Approve button is clicked
+        $("#approve-btn").click(function () {
+            $("#modalItemList").empty(); // Clear previous data
+
+            // Get all checked checkboxes
+            let selectedItems = $(".select-row:checked");
+
+            if (selectedItems.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No items selected',
+                    text: 'Please select at least one request to approve.',
+                    confirmButtonText: 'Ok'
+                });
+                return;
+            }
+
+            // Populate modal with selected items
+            selectedItems.each(function () {
+                let id = $(this).data("id");
+                let reqBy = $(this).data("req_by");
+                let partName = $(this).data("part_name");
+                let qty = $(this).data("qty");
+
+                let row = `
+            <tr class=" text-center" style="vertical-align: middle;">
+                <td>${reqBy}</td>
+                <td>${partName} <input type="hidden" name="ids[]" value="${id}"></td>
+                <td style="display:none;"> 
+                <input type="hidden" name="part_names[]" value="${partName}">
+                <input type="hidden" name="request_bys[]" value="${reqBy}">
+                </td>
+                <td>${qty}</td>
+                <td><input type="number" name="quantities[]" value="${qty}" max="${qty}" class="form-control" min="1" required></td>
+                <td>
+                <input type="text" name="reasons[]" class="form-control" placeholder="Reason (Optional)">
+
+                </td>
+            </tr>
+            `;
+                $("#modalItemList").append(row);
             });
 
-            if (selectedIds.length > 0) {
-                $.ajax({
-                    url: '../../controller/update_status.php',
-                    type: 'POST',
-                    data: {
-                        action: 'approve',
-                        ids: selectedIds,
-                        qty: selectedQty,
-                        req_by: selectedReq,
-                        part_name: selectedPartNames
-                    },
-                    success: function (response) {
-                        Swal.fire({
-                            title: 'Success!',
-                            text: 'Selected items have been approved.',
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                location.reload();
-                            }
-                        });
-                    },
-                    error: function () {
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'An error occurred while approving the selected items.',
-                            icon: 'error',
-                            confirmButtonText: 'Try Again'
-                        });
-                    }
-                });
-            } else {
-                Swal.fire({
-                    title: 'Warning!',
-                    text: 'Please select at least one item to approve.',
-                    icon: 'warning',
-                    confirmButtonText: 'OK'
-                });
-            }
+            // Show modal
+            $("#approvalModal").modal("show");
         });
 
-        // Reject Button Script
-        $('#reject-btn').on('click', function () {
-            var selectedIds = [];
-            var selectedQty = [];
-            var selectedReq = [];
-            var selectedPartNames = [];
-            var selectedExpDates = [];
+        // Handle form submission using AJAX
+        $("#approvalForm").submit(function (e) {
+            e.preventDefault();
 
-            $('.select-row:checked').each(function () {
-                selectedIds.push($(this).data('id'));
-                selectedQty.push($(this).data('qty'));
-                selectedReq.push($(this).data('req_by'));
-                selectedPartNames.push($(this).data('part_name'));
-                selectedExpDates.push($(this).data('exp_date'));
-            });
+            let formData = $(this).serialize();
+            formData += "&approve_submit=1"; // Add to identify approve
 
-            if (selectedIds.length > 0) {
-                $.ajax({
-                    url: '../../controller/update_status.php',
-                    type: 'POST',
-                    data: {
-                        action: 'reject',
-                        ids: selectedIds,
-                        qty: selectedQty,
-                        req_by: selectedReq,
-                        part_name: selectedPartNames,
-                        exp_date: selectedExpDates
-                    },
-                    success: function (response) {
+            console.log(formData);  // Check what is being sent
+
+            $.ajax({
+                url: '../../controller/update_status.php',
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                success: function (response) {
+                    console.log(response);  // Log the response to see the structure
+                    if (response.success) {
+                        // SweetAlert2 success notification
                         Swal.fire({
-                            title: 'Rejected!',
-                            text: 'Selected items have been rejected.',
                             icon: 'success',
-                            confirmButtonText: 'OK'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                location.reload();
-                            }
+                            title: 'Success!',
+                            text: 'Requests approved successfully!',
+                            confirmButtonText: 'Ok'
+                        }).then(() => {
+                            location.reload(); // Reload the page after closing the SweetAlert
                         });
-                    },
-                    error: function () {
+                    } else {
+                        // SweetAlert2 error notification
                         Swal.fire({
-                            title: 'Error!',
-                            text: 'An error occurred while rejecting the selected items.',
                             icon: 'error',
-                            confirmButtonText: 'Try Again'
+                            title: 'Error',
+                            text: response.error || 'An unexpected error occurred.',
+                            confirmButtonText: 'Ok'
                         });
                     }
-                });
-            } else {
+                },
+                error: function (xhr, status, error) {
+                    console.log("AJAX Error: ", status, error);  // Log the error details
+                    console.log(xhr.responseText);  // Log the raw response from the server
+
+                    // SweetAlert2 error notification for AJAX error
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed to process approval',
+                        text: 'See console for details.',
+                        confirmButtonText: 'Ok'
+                    });
+                }
+            });
+        });
+
+
+
+        $("#reject-btn").click(function () {
+            $("#modalRejectItemList").empty(); // Clear previous data
+
+            // Get all checked checkboxes
+            let selectedItems = $(".select-row:checked");
+
+            if (selectedItems.length === 0) {
                 Swal.fire({
-                    title: 'Warning!',
-                    text: 'Please select at least one item to reject.',
                     icon: 'warning',
-                    confirmButtonText: 'OK'
+                    title: 'No items selected',
+                    text: 'Please select at least one request to reject.',
+                    confirmButtonText: 'Ok'
                 });
+                return;
             }
+
+            // Populate modal with selected items
+            selectedItems.each(function () {
+                let id = $(this).data("id");
+                let reqBy = $(this).data("req_by");
+                let partName = $(this).data("part_name");
+                let qty = $(this).data("qty");
+                let exp_date = $(this).data("exp_date");
+
+                let row = `
+            <tr class=" text-center" style="vertical-align: middle;">
+                <td>${reqBy}</td>
+                <td>${partName} <input type="hidden" name="ids[]" value="${id}"></td>
+                <td>${qty}</td>
+                <td style="display:none;"> 
+                    <input type="hidden" name="part_names[]" value="${partName}">
+                    <input type="hidden" name="request_bys[]" value="${reqBy}">
+                    <input type="hidden" name="quantities[]" value="${qty}">
+                    <input type="hidden" name="exp_dates[]" value="${exp_date}">
+                </td>
+                <td>
+                    <input type="text" name="reasons[]" class="form-control" placeholder="Reason for rejection">
+                </td>
+            </tr>
+        `;
+                $("#modalRejectItemList").append(row);
+            });
+
+            // Show modal
+            $("#rejectModal").modal("show");
+        });
+
+
+        $("#rejectForm").submit(function (e) {
+            e.preventDefault();
+
+            let formData = $(this).serialize();
+            formData += "&reject_submit=1"; // Add to identify reject
+
+            $.ajax({
+                url: '../../controller/update_status.php',
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        // SweetAlert2 success notification
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Rejected!',
+                            text: 'Requests have been rejected successfully.',
+                            confirmButtonText: 'Ok'
+                        }).then(() => {
+                            location.reload(); // Reload the page after closing the SweetAlert
+                        });
+                    } else {
+                        // SweetAlert2 error notification
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error || 'An unexpected error occurred.',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                },
+                error: function () {
+                    // SweetAlert2 error notification for AJAX error
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed to process rejection',
+                        text: 'See console for details.',
+                        confirmButtonText: 'Ok'
+                    });
+                }
+            });
         });
 
     });

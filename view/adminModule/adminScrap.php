@@ -36,7 +36,7 @@ include "navBar.php";
     </div>
 
     <!-- Main Container -->
-    <div class="container">
+    <div class="mx-5">
 
         <!-- Navigation Tab -->
         <nav>
@@ -56,7 +56,7 @@ include "navBar.php";
             <!-- Items Awaiting Receipt Tab -->
             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
 
-                <div class="container my-4">
+                <div class="mx-3 my-4">
 
                     <!-- Items Awaiting Receipt Table -->
                     <table class="table table-striped w-100">
@@ -82,7 +82,7 @@ include "navBar.php";
                             <?php
 
                             $userName = $_SESSION['username'];
-                            $sql = "SELECT * FROM tbl_requested WHERE status = 'returning'";
+                            $sql = "SELECT * FROM tbl_requested WHERE status = 'returning' ORDER BY dts_return DESC";
 
 
                             $sql_query = mysqli_query($con, $sql);
@@ -130,7 +130,7 @@ include "navBar.php";
             <!-- Processed Returned Items -->
             <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
 
-                <div class="container my-4">
+                <div class="mx-3 my-4">
 
                     <!-- Processed Returned Items Table -->
                     <table class="table table-striped w-100">

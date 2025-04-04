@@ -11,7 +11,7 @@ $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 $userName = $_SESSION['username'];
 
 // Select Withdrawal Request Where Status is Approved
-$sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'approved'";
+$sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'approved' ORDER BY dts_approve DESC";
 
 if ($startDate && $endDate) {
     $startDateTime = $startDate . ' 00:00:00';
@@ -33,13 +33,15 @@ if (mysqli_num_rows($sql_query) > 0) {
             <td data-label='Part Desc'><?php echo $sqlRow['part_desc']; ?></td>
             <td data-label='Part Qty'><?php echo $sqlRow['part_qty']; ?></td>
             <td data-label='Machine Number'><?php echo $sqlRow['machine_no']; ?></td>
-            <td data-label='Qithdrawal Reason'><?php echo $sqlRow['with_reason']; ?></td>
+            <td data-label='Withdrawal Reason'><?php echo $sqlRow['with_reason']; ?></td>
             <td data-label='Return By'><?php echo $sqlRow['req_by']; ?></td>
-            <td data-label='Status'><?php echo $sqlRow['status']; ?></td>
+            <td data-label='Approved Qty'><?php echo $sqlRow['approved_qty']; ?></td>
+            <td data-label='Approved Reason'><?php echo $sqlRow['approved_reason']; ?></td>
             <td data-label='Return Qty'><?php echo $sqlRow['approved_by']; ?></td>
+            <td data-label='Status'><?php echo $sqlRow['status']; ?></td>
             <td data-label='Receieved By'> <button class="btn btn-primary return-btn" data-bs-toggle="modal"
                     data-bs-target="#returnModal" data-id="<?php echo $sqlRow['id']; ?>"
-                    data-part-qty="<?php echo $sqlRow['part_qty']; ?>" data-req-by="<?php echo $sqlRow['req_by']; ?>"
+                    data-part-qty="<?php echo $sqlRow['approved_qty']; ?>" data-req-by="<?php echo $sqlRow['req_by']; ?>"
                     data-part-name="<?php echo $sqlRow['part_name']; ?>">Return</button></td>
         </tr>
         <?php

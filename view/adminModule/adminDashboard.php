@@ -172,32 +172,57 @@ include "navBar.php";
     </div>
 
     <!-- Cost Center With Highest Withdrawal Graph Container -->
-    <div class="container full-container my-4 d-flex justify-content-between">
+    <div class="container full-container my-4">
 
-        <!-- Cost Center With Highest Withdrawal Graph -->
-        <div class="col-md-8 barContainer mx-2">
-            <canvas id="barChart" style="min-height: 400px;"></canvas>
+        <!-- Row for the Chart & Ranking Table -->
+        <div class="row d-flex flex-wrap justify-content-between">
+            <!-- Cost Center With Highest Withdrawal Graph -->
+            <div class="col-lg-8 col-md-12 barContainer mb-4">
+                <canvas id="barChart" style="min-height: 400px;"></canvas>
+            </div>
+
+            <!-- Cost Center With Highest Withdrawal Table -->
+            <div class="col-lg-4 col-md-12 tableContainer mb-4">
+                <div class="table-responsive" style="max-height: 550px; overflow-y: auto;">
+                    <table id="rankingTable" class="table table-bordered">
+                        <thead>
+                            <tr class="text-center"
+                                style="background-color: #900008; color: white; vertical-align: middle;">
+                                <th>Rank</th>
+                                <th>Cost Center ID (ccid)</th>
+                                <th>Requested Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
-        <!-- Cost Center With Highest Withdrawal Table -->
-        <div class="col-md-4 mx-2 tableContainer">
-            <div class="table-container">
-                <table id="rankingTable" class="table table-bordered">
-                    <thead>
-                        <tr class="text-center"
-                            style="background-color: #900008; color: white; vertical-align: middle;">
-                            <th>Rank</th>
-                            <th>Cost Center ID (ccid)</th>
-                            <th>Requested Count</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+        <!-- Row for the Date-Specific Table -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-12 tableContainer">
+                <div class="table-responsive">
+                    <table id="dateSpecificTable" class="table table-bordered">
+                        <thead>
+                            <tr class="text-center"
+                                style="background-color: #900008; color: white; vertical-align: middle;">
+                                <th>Date</th>
+                                <th>Cost Center</th>
+                                <th>Requested Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data will be inserted here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
     </div>
+
 
 </section>
 
@@ -210,6 +235,7 @@ include "navBar.php";
         var partNames = [];
         var partQtys = [];
         var returnQtys = [];
+        var rawData = [];
         var combinedChart = null;
 
         // Update Top Material Consumption / Withdrawal Function
@@ -232,10 +258,11 @@ include "navBar.php";
                 type: 'GET',
                 data: requestData,
                 success: function (response) {
-                    var data = JSON.parse(response);
+                    var data = $.parseJSON(response);
                     partNames = data.part_names;
                     partQtys = data.part_qtys;
                     returnQtys = data.return_qtys;
+                    rawData = data.raw_data;
 
                     createChart(partNames, partQtys, returnQtys);
                 }
@@ -252,12 +279,11 @@ include "navBar.php";
             updateChartData(start_date, end_date, cost_center, station_code);
         });
 
-        // Update Top Material Consumption / Withdrawal Function
         updateChartData('', '', '', '');
 
         // Top Material Consumption / Withdrawal Graph Creation
         function createChart(partNames, partQtys, returnQtys) {
-            var ctx = document.getElementById('combinedChart').getContext('2d');
+            var ctx = $('#combinedChart')[0].getContext('2d');
 
             if (combinedChart != null) {
                 combinedChart.destroy();
@@ -290,7 +316,7 @@ include "navBar.php";
                         x: {
                             title: {
                                 display: true,
-                                text: 'Part Name'
+                                text: 'Part Number'
                             },
                             grid: {
                                 offset: true
@@ -321,11 +347,8 @@ include "navBar.php";
             }
         });
 
-        // Bar Graph
-        var barChart;
-
         // Cost Center Graph Fetching
-        function fetchData(startDate = null, endDate = null, partName = null) {
+        function fetchData(startDate = null, endDate = null, partName = null, selectedDate = null) {
             $.ajax({
                 url: '../../controller/fetch_graph_ccs.php',
                 method: 'GET',
@@ -333,50 +356,56 @@ include "navBar.php";
                 data: {
                     startDate: startDate,
                     endDate: endDate,
-                    partName: partName
+                    partName: partName,
+                    selectedDate: selectedDate
                 },
-                success: function (data) {
-                    var ccidValues = [];
-                    var requestCountValues = [];
-                    var rankingData = [];
-
-                    $.each(data, function (index, item) {
-                        ccidValues.push(item.ccid);
-                        requestCountValues.push(item.requested_count);
-                        rankingData.push({
-                            ccid: item.ccid,
-                            requested_count: item.requested_count
-                        });
-                    });
-
-                    rankingData.sort(function (a, b) {
-                        return b.requested_count - a.requested_count;
-                    });
+                success: function (response) {
+                    var rankingData = response.ranking;
+                    var dailyData = response.dateSpecific;
 
                     var tableBody = $('#rankingTable tbody');
                     tableBody.empty();
-                    rankingData.forEach(function (item, index) {
+                    $.each(rankingData, function (index, item) {
                         var rank = index + 1;
                         var row = `<tr class="table-row text-center">
-                    <td>${rank}</td>
-                    <td>${item.ccid}</td>
-                    <td>${item.requested_count}</td>
-                </tr>`;
+                                        <td>${rank}</td>
+                                        <td>${item.ccid}</td>
+                                        <td>${item.requested_count}</td>
+                                    </tr>`;
                         tableBody.append(row);
                     });
 
-                    if (barChart) {
+                    // Sorting dailyData based on date
+                    dailyData.sort(function (a, b) {
+                        return new Date(a.date) - new Date(b.date);
+                    });
+
+                    var dateSpecificTableBody = $('#dateSpecificTable tbody');
+                    dateSpecificTableBody.empty();
+                    $.each(dailyData, function (index, item) {
+                        if (item.date === null || item.date === '') {
+                            return;
+                        }
+                        var row = `<tr class="table-row text-center">
+                                        <td>${item.date}</td>
+                                        <td>${item.ccid}</td>
+                                        <td>${item.requested_count}</td>
+                                    </tr>`;
+                        dateSpecificTableBody.append(row);
+                    });
+
+                    if (barChart instanceof Chart) {
                         barChart.destroy();
                     }
 
-                    var ctx = document.getElementById('barChart').getContext('2d');
+                    var ctx = $('#barChart')[0].getContext('2d');
                     barChart = new Chart(ctx, {
                         type: 'bar',
                         data: {
-                            labels: ccidValues,
+                            labels: rankingData.map(item => item.ccid),
                             datasets: [{
                                 label: 'Withdrawn Count',
-                                data: requestCountValues,
+                                data: rankingData.map(item => item.requested_count),
                                 backgroundColor: '#900008',
                                 borderColor: '#900008',
                                 borderWidth: 1
@@ -409,7 +438,14 @@ include "navBar.php";
             });
         }
 
-        // Cost Center Graph Function
+        $('#start_date, #end_date').on('change', function () {
+            var startDate = $('#start_date').val();
+            var endDate = $('#end_date').val();
+            var partName = $('#part_name').val();
+
+            fetchData(startDate, endDate, partName);
+        });
+
         fetchData();
 
         // Cost Center Selections
@@ -417,53 +453,96 @@ include "navBar.php";
             var startDate = $('#startDate').val();
             var endDate = $('#endDate').val();
             var partName = $('#mat_partSelect').val();
+            var selectedDate = startDate;
 
             fetchData(startDate, endDate, partName);
         });
 
+
         // Top Material Consumption / Withdrawal Export to Excel
         $('#with_export_btn').click(function () {
-            var table = $('<table></table>');
-            var headerRow = $('<tr></tr>');
-            headerRow.append('<th>Part Name</th>');
-            headerRow.append('<th>Withdrawn Quantity</th>');
-            headerRow.append('<th>Return Quantity</th>');
-            table.append(headerRow);
+            var wb = XLSX.utils.book_new();
+
+            var chartData = [
+                ["Part Number", "Withdrawn Quantity", "Return Quantity"]
+            ];
 
             for (var i = 0; i < partNames.length; i++) {
-                var row = $('<tr></tr>');
-                row.append('<td>' + partNames[i] + '</td>');
-                row.append('<td>' + partQtys[i] + '</td>');
-                row.append('<td>' + returnQtys[i] + '</td>');
-                table.append(row);
+                if (partQtys[i] !== 0 || returnQtys[i] !== 0) {
+                    chartData.push([partNames[i], partQtys[i], returnQtys[i]]);
+                }
             }
 
-            var wb = XLSX.utils.table_to_book(table[0], { sheet: "ChartData" });
+            var wsChartData = XLSX.utils.aoa_to_sheet(chartData);
+            XLSX.utils.book_append_sheet(wb, wsChartData, "ChartData");
+
+            // **Sheet 2: FilteredData**
+            var filteredData = [
+                ["Date Approved", "Part Number", "Withdrawn Quantity", "Return Quantity", "Cost Center", "Station Code"]
+            ];
+
+            for (var i = 0; i < rawData.length; i++) {
+                if (rawData[i].part_qty !== 0 || rawData[i].return_qty !== 0) {
+                    filteredData.push([
+                        rawData[i].dts_approve,
+                        rawData[i].part_name,
+                        rawData[i].part_qty,
+                        rawData[i].return_qty,
+                        rawData[i].cost_center,
+                        rawData[i].station_code
+                    ]);
+                }
+            }
+
+            var wsFilteredData = XLSX.utils.aoa_to_sheet(filteredData);
+            XLSX.utils.book_append_sheet(wb, wsFilteredData, "FilteredData");
+
             XLSX.writeFile(wb, "Top_Material_Consumption.xlsx");
         });
 
+
+
+
         // Cost Center Export to Excel
         $('#export-btn').click(function () {
-            var visibleRows = $('#rankingTable .table-row');
-            var filteredRows = [];
+            var tables = [];
 
-            visibleRows.each(function () {
-                if ($(this).css('display') !== 'none') {
-                    filteredRows.push(this);
-                }
+            function extractTableData(tableSelector) {
+                var visibleRows = $(tableSelector + ' .table-row');
+                var filteredRows = [];
+
+                visibleRows.each(function () {
+                    if ($(this).css('display') !== 'none') {
+                        filteredRows.push(this);
+                    }
+                });
+
+                var table = $('<table></table>');
+                var headerRow = $(tableSelector + ' thead').clone(true);
+                table.append(headerRow);
+
+                $(filteredRows).each(function () {
+                    var newRow = $(this).clone(true);
+                    table.append(newRow);
+                });
+
+                return table[0];
+            }
+
+            var rankingTable = extractTableData('#rankingTable');
+            tables.push({ table: rankingTable, sheetName: "Cost Center Ranking" });
+
+            var dateSpecificTable = extractTableData('#dateSpecificTable');
+            tables.push({ table: dateSpecificTable, sheetName: "Date-Specific Data" });
+
+            var wb = XLSX.utils.book_new();
+
+            tables.forEach(function (item) {
+                var ws = XLSX.utils.table_to_sheet(item.table);
+                XLSX.utils.book_append_sheet(wb, ws, item.sheetName);
             });
 
-            var table = $('<table></table>');
-            var headerRow = $('#rankingTable thead').clone(true);
-            table.append(headerRow);
-
-            $(filteredRows).each(function () {
-                var newRow = $(this).clone(true);
-                table.append(newRow);
-            });
-
-            var wb = XLSX.utils.table_to_book(table[0], { sheet: "Filtered Data" });
-            XLSX.writeFile(wb, "Cost_Center_Ranking.xlsx");
+            XLSX.writeFile(wb, "Cost_Center_Data.xlsx");
         });
 
     });
