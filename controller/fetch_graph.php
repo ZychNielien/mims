@@ -33,7 +33,7 @@ if (isset($_GET['start_date']) && isset($_GET['end_date'])) {
         $select_material .= " AND station_code = '$station_code'";
     }
 
-    $select_material .= " ORDER BY id ASC";
+    $select_material .= " ORDER BY part_name ASC";
 
     $select_material_query = mysqli_query($con, $select_material);
 

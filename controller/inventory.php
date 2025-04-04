@@ -357,7 +357,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {
             $sql = "DELETE FROM tbl_inventory WHERE id = $partId";
 
             if (mysqli_query($con, $sql)) {
-                echo json_encode(['success' => true]);
+
+                $delete_stock = "DELETE FROM tbl_stock WHERE part_name = '$part_name'";
+
+                if(mysqli_query($con, $delete_stock)){
+
+                    echo json_encode(['success' => true]);
+                }
+
+
             } else {
                 error_log("Failed to delete part: " . mysqli_error($con) . " SQL: $sql");
                 echo json_encode(['success' => false, 'message' => 'Error executing delete query']);

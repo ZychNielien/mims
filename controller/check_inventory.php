@@ -21,7 +21,7 @@ $sql = "SELECT ti.*, ts.exp_date,
         FROM tbl_inventory ti
         LEFT JOIN tbl_stock ts ON ti.part_name = ts.part_name
         GROUP BY ti.part_name, ti.part_desc, ti.min_invent_req
-        ORDER BY ti.id ASC";
+        ORDER BY ti.part_name ASC";
 $sql_query = mysqli_query($con, $sql);
 
 if ($sql_query) {

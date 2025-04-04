@@ -47,7 +47,7 @@ include "navBar.php";
                 $select_user_query = mysqli_query($con, $select_user);
                 $select_user_row = mysqli_fetch_assoc($select_user_query);
 
-                $query = "SELECT id, part_name FROM tbl_inventory";
+                $query = "SELECT id, part_name FROM tbl_inventory ORDER BY part_name ASC";
                 $result = mysqli_query($con, $query);
 
                 ?>

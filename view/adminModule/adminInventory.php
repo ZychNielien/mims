@@ -183,7 +183,7 @@ include "navBar.php";
                     <div class="modal-body">
                         <form method="POST" action="../../controller/inventory.php">
                             <?php
-                            $query = "SELECT id, part_name FROM tbl_inventory";
+                            $query = "SELECT id, part_name FROM tbl_inventory ORDER BY part_name ASC";
                             $result = mysqli_query($con, $query);
                             ?>
 
@@ -344,6 +344,9 @@ include "navBar.php";
 <script>
 
     $(document).ready(function () {
+
+        var today = new Date().toISOString().split('T')[0];
+        $('#exp_date').attr('min', today);
 
         // Minimum value of Minimum Requirement should equal to 1
         $('#new_min_invent_req').on('input', function () {

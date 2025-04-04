@@ -55,7 +55,7 @@ include "navBar.php";
                         $select_user_row = mysqli_fetch_assoc($select_user_query);
 
 
-                        $query = "SELECT id, part_name FROM tbl_inventory";
+                        $query = "SELECT id, part_name FROM tbl_inventory ORDER BY part_name ASC";
                         $result = mysqli_query($con, $query);
                         ?>
                         <input type="hidden" value="<?php echo $select_user_row['cost_center'] ?>" name="cost_center">
