@@ -8,7 +8,6 @@ ini_set('display_errors', 1);
 if (isset($_GET['cost_center_id'])) {
     $cost_center_id = $_GET['cost_center_id'];
 
-    // Selecting Supervisors when selecting Cost Center
     $query = "SELECT supervisor_one, supervisor_two FROM tbl_ccs WHERE id = ?";
     $stmt = $con->prepare($query);
     $stmt->bind_param('i', $cost_center_id);

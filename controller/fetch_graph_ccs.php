@@ -1,24 +1,17 @@
 <?php
-// Session Start
+
 session_start();
-
-// Manila Time Zone
 date_default_timezone_set('Asia/Manila');
-
-// Database Connection
 include "../model/dbconnection.php";
 
-// Get parameters
 $startDate = isset($_GET['startDate']) ? $_GET['startDate'] : null;
 $endDate = isset($_GET['endDate']) ? $_GET['endDate'] : null;
 $partName = isset($_GET['partName']) ? $_GET['partName'] : null;
 
-// Ensure endDate includes the full day
 if ($endDate) {
     $endDate = date('Y-m-d 23:59:59', strtotime($endDate));
 }
 
-// Query for Ranking & Graph (Overall Cost Center Count)
 $queryRanking = "
 SELECT 
     tc.ccid, 
@@ -62,7 +55,6 @@ if ($resultRanking) {
     }
 }
 
-// Query for Date-Specific Table (Per Date & Cost Center)
 $queryDateSpecific = "
 SELECT 
     tc.ccid, 
@@ -94,7 +86,6 @@ if ($resultDateSpecific) {
     }
 }
 
-// Merge both datasets and return JSON response
 echo json_encode([
     'ranking' => $rankingData,
     'dateSpecific' => $dateSpecificData

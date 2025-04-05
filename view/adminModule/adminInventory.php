@@ -294,7 +294,67 @@ include "navBar.php";
                                 </tr>
                             </thead>
                             <tbody>
+                                <tr>
+                                    <td><input type="text" name="new_part_number" class="form-control  "
+                                            placeholder="Part Number" autocomplete="off" required>
+                                    </td>
+                                    <td><input type="text" name="new_part_desc" class="form-control  "
+                                            placeholder="Part Description" autocomplete="off" required></td>
+                                    <td>
+                                        <select name="new_option" class="form-select  " required>
+                                            <option selected value="">Option</option>
+                                            <option value="Direct">Direct</option>
+                                            <option value="Indirect">Indirect</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select name="new_cost_center" class="form-select  " required>
+                                            <option selected value="">Cost Center</option>
+                                            <?php
+                                            $select_ccid = "SELECT * FROM tbl_ccs";
+                                            $select_ccid_query = mysqli_query($con, $select_ccid);
 
+                                            if (mysqli_num_rows($select_ccid_query) > 0) {
+                                                while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
+                                                    ?>
+                                                    <option value="<?php echo $ccid_row['ccid'] ?>"
+                                                        data-id="<?php echo $ccid_row['id'] ?>">
+                                                        <?php echo $ccid_row['ccid'] ?>
+                                                    </option>
+                                                    <?php
+                                                }
+                                            }
+                                            ?>
+                                        </select>
+                                    </td>
+                                    <td><input type="text" name="new_location" class="form-control  "
+                                            placeholder="Location" autocomplete="off" required></td>
+                                    <td><input type="number" name="new_min_invent_req" class="form-control  "
+                                            placeholder="Min. Invent Requirement" autocomplete="off" required>
+                                    </td>
+                                    <td>
+                                        <select class="form-select" name="new_unit" required>
+                                            <option selected value="">Unit</option>
+                                            <?php
+                                            $select_unit = "SELECT * FROM tbl_unit";
+                                            $select_unit_query = mysqli_query($con, $select_unit);
+
+                                            if (mysqli_num_rows($select_unit_query) > 0) {
+                                                while ($unit_row = mysqli_fetch_assoc($select_unit_query)) {
+                                                    ?>
+                                                    <option value="<?php echo $unit_row['unit']; ?>"
+                                                        data-id="<?php echo $unit_row['id'] ?>">
+                                                        <?php echo strtoupper($unit_row['unit']); ?>
+                                                    </option>
+                                                    <?php
+                                                }
+                                            }
+                                            ?>
+                                        </select>
+                                    </td>
+                                    <td><button class="btn btn-sm btn-danger"
+                                            onclick="this.closest('tr').remove()">Delete</button></td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -527,7 +587,7 @@ include "navBar.php";
         }
 
         fetchInventoryData();
-        setInterval(fetchInventoryData, 10000);
+        setInterval(fetchInventoryData, 5000);
 
         $(document).on('click', '.delete-btn', function () {
             var partId = $(this).data('id');
@@ -584,42 +644,31 @@ include "navBar.php";
             });
         });
 
-
-        // Trigger file input on box click
         $('#uploadBox').on('click', function () {
             $('#excelFile').click();
         });
 
-        // Handle drag over
         $('#uploadBox').on('dragover', function (e) {
             e.preventDefault();
             $(this).addClass('border-primary');
         });
 
-        // Handle drag leave
         $('#uploadBox').on('dragleave', function (e) {
             $(this).removeClass('border-primary');
         });
 
-        // Handle file drop
         $('#uploadBox').on('drop', function (e) {
             e.preventDefault();
             $(this).removeClass('border-primary');
 
             const files = e.originalEvent.dataTransfer.files;
             if (files.length > 0) {
-                // Manually handle file display, can't assign .files directly
                 $('#fileNameText').text(files[0].name);
                 $('#uploadText').text('✅ File Ready');
-
-                // To process it, you may store the file in a variable
-                // Or trigger a custom event with the dropped file
-                // OR if you need to *upload* it directly:
-                $('#excelFile').prop('files', files); // Only works in some browsers
+                $('#excelFile').prop('files', files);
             }
         });
 
-        // Handle file input change
         $('#excelFile').on('change', function () {
             const file = this.files[0];
             if (file) {
@@ -635,8 +684,6 @@ include "navBar.php";
             addRow();
         });
 
-
-        // Upload Excel File
         $("#btnUpload").on("click", function () {
             const fileInput = $("#excelFile");
             const file = $("#excelFile")[0].files[0];
@@ -669,7 +716,6 @@ include "navBar.php";
             reader.readAsArrayBuffer(file);
         });
 
-        // Submit Button
         $("#btnSubmit").on("click", function (e) {
             e.preventDefault();
             let data = [];
@@ -690,7 +736,13 @@ include "navBar.php";
 
             if (!valid) return;
 
-            if (data.length === 0) return Swal.fire('No data to submit.');
+            if (data.length === 0) return Swal.fire(
+                'Error!',
+                'No data to submit.',
+                'error'
+
+
+            );
 
             $.ajax({
                 url: "../submit.php",
@@ -698,32 +750,99 @@ include "navBar.php";
                 contentType: "application/json",
                 data: JSON.stringify({ items: data }),
                 success: res => {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Success',
-                        text: res.message || "Submitted successfully."
-                    });
-                    location.reload();
-                },
-                error: err => Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'An error occurred.'
-                })
+                    if (res.duplicates) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Duplicate Part Number(s)',
+                            text: `The following already exist: ${res.duplicates.join(", ")}`
+                        });
+                    } else if (res.message === "Data inserted successfully") {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: res.message
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: res.message || 'Something went wrong.'
+                        });
+                    }
+                }
+
             });
         });
 
         function addRow(data = {}) {
             const row = $("<tr></tr>");
             row.append(`
-                <td><input type="text" name="new_part_number" class="form-control form-control-sm" value="${data.new_part_number || ''}" placeholder="Part Number" autocomplete="off" required></td>
-                <td><input type="text" name="new_part_desc" class="form-control form-control-sm" value="${data.new_part_desc || ''}" placeholder="Part Description" autocomplete="off" required></td>
-                <td><select name="new_option" class="form-select form-select-sm" required><option>Option 1</option><option>Option 2</option><option>Option 3</option></select></td>
-                <td><select name="new_cost_center" class="form-select form-select-sm" required><option>Cost Center 1</option><option>Cost Center 2</option><option>Cost Center 3</option></select></td>
-                <td><input type="text" name="new_location" class="form-control form-control-sm" value="${data.new_location || ''}" placeholder="Location" autocomplete="off" required></td>
-                <td><input type="number" name="new_min_invent_req" class="form-control form-control-sm" value="${data.new_min_invent_req || ''}" placeholder="Min. Inventory Requirement" autocomplete="off" required></td>
-                <td><input type="text" name="new_unit" class="form-control form-control-sm" value="${data.new_unit || ''}" required></td>
-                <td><button class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">Delete</button></td>
+                <td>
+                    <input type="text" name="new_part_number" class="form-control form-control-sm" value="${data.new_part_number || ''}" placeholder="Part Number" autocomplete="off" required>
+                </td>
+                <td>
+                    <input type="text" name="new_part_desc" class="form-control form-control-sm" value="${data.new_part_desc || ''}" placeholder="Part Description" autocomplete="off" required>
+                </td>
+                <td>
+                    <select name="new_option" class="form-select form-select-sm" required>                                            
+                        <option value="" ${!data.new_option ? 'selected' : ''}>Option</option>
+                        <option value="Direct" ${data.new_option === 'Direct' ? 'selected' : ''}>Direct</option>
+                        <option value="Indirect" ${data.new_option === 'Indirect' ? 'selected' : ''}>Indirect</option>
+                    </select>
+                    </select>
+                </td>
+                <td>
+                    <select name="new_cost_center" class="form-select form-select-sm" required>  
+                        <option selected value="">Cost Center</option>
+                        <option value="" ${!data.new_cost_center ? 'selected' : ''}>Cost Center</option>
+                        <?php
+                        $select_ccid = "SELECT * FROM tbl_ccs";
+                        $select_ccid_query = mysqli_query($con, $select_ccid);
+                        if (mysqli_num_rows($select_ccid_query) > 0) {
+                            while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
+                                ?>
+                                <option value="<?php echo $ccid_row['ccid'] ?>"
+                                    data-id="<?php echo $ccid_row['id'] ?>"
+                                    ${data.new_cost_center === '<?php echo $ccid_row['ccid'] ?>' ? 'selected' : ''}>
+                                    <?php echo $ccid_row['ccid'] ?>
+                                </option>
+                                <?php
+                            }
+                        }
+                        ?>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" name="new_location" class="form-control form-control-sm" value="${data.new_location || ''}" placeholder="Location" autocomplete="off" required>
+                </td>
+                <td>
+                    <input type="number" name="new_min_invent_req" class="form-control form-control-sm" value="${data.new_min_invent_req || ''}" placeholder="Min. Inventory Requirement" autocomplete="off" required>
+                </td>
+                <td>                                        
+                    <select class="form-select" name="new_unit" required>
+                      <option value="" ${!data.new_unit ? 'selected' : ''}>Unit</option>
+                        <?php
+                        $select_unit = "SELECT * FROM tbl_unit";
+                        $select_unit_query = mysqli_query($con, $select_unit);
+                        if (mysqli_num_rows($select_unit_query) > 0) {
+                            while ($unit_row = mysqli_fetch_assoc($select_unit_query)) {
+                                ?>
+                                <option value="<?php echo $unit_row['unit'] ?>"
+                                    data-id="<?php echo $unit_row['id'] ?>"
+                                    ${data.new_unit === '<?php echo $unit_row['unit'] ?>' ? 'selected' : ''}>
+                                    <?php echo strtoupper($unit_row['unit']) ?>
+                                </option>
+                                <?php
+                            }
+                        }
+                        ?>
+                    </select>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">Delete</button>
+                </td>
             `);
             $("#itemTable tbody").append(row);
         }

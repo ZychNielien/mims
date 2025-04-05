@@ -200,8 +200,7 @@ include "navBar.php";
             </div>
         </div>
 
-        <!-- Row for the Date-Specific Table -->
-        <div class="row justify-content-center">
+        <div class="row justify-content-center" style="display:none;">
             <div class="col-lg-8 col-md-12 tableContainer">
                 <div class="table-responsive">
                     <table id="dateSpecificTable" class="table table-bordered">

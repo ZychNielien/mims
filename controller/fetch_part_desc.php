@@ -8,7 +8,6 @@ $response = array();
 if (isset($_GET['part_id']) && !empty($_GET['part_id'])) {
     $part_id = mysqli_real_escape_string($con, $_GET['part_id']);
 
-    // Selecting Part Description and Part Option when selecting Part Name
     $query = "SELECT part_desc, part_option FROM tbl_inventory WHERE id = '$part_id'";
     $result = mysqli_query($con, $query);
 

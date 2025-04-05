@@ -77,7 +77,7 @@ if (isset($_POST['approve_submit'])) {
     }
 }
 
-
+// Admin Withdrawal Requests Rejection 
 if (isset($_POST['reject_submit'])) {
     if (isset($_POST['ids']) && isset($_POST['reasons']) && isset($_POST['part_names']) && isset($_POST['request_bys']) && isset($_POST['quantities']) && isset($_POST['exp_dates'])) {
         $ids = $_POST['ids'];
@@ -125,6 +125,7 @@ if (isset($_POST['reject_submit'])) {
     }
 }
 
+// Admin Withdrawal Requests Return
 if (isset($_POST['submitReturn'])) {
     $lot_id = $_POST['id'];
     $return_qty = $_POST['return_qty'];
@@ -140,13 +141,11 @@ if (isset($_POST['submitReturn'])) {
         exit();
     }
 
-    // Update the status of the request to Returning
     $sql = "UPDATE tbl_requested 
             SET status = 'returning', return_reason = '$return_reason', dts_return = '$dts', return_qty = '$return_qty'
             WHERE id = '$lot_id' AND status = 'Approved'";
 
     if (mysqli_query($con, $sql)) {
-        // Insert Notification to the admin
         $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at,for_who, destination) VALUES ('$req_by', '$mensahe',0,'$dts','$for', 'Scrap')";
         $sql_notif_query = mysqli_query($con, $sql_notif);
 

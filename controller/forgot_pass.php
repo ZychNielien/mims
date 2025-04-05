@@ -1,11 +1,8 @@
 <?php
-// Session Start
+
 session_start();
 
-// Database Connection
 include "../model/dbconnection.php";
-
-
 
 if (isset($_SESSION['username'])) {
     $username = $_SESSION['username'];

@@ -1,11 +1,9 @@
 <?php
 
-// Session Start
 session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-// Database Connection
 include "../model/dbconnection.php";
 
 if ($con->connect_error) {

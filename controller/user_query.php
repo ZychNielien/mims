@@ -1,12 +1,7 @@
 <?php
 
-// Session Start
 session_start();
-
-// Database Connection
 include "../model/dbconnection.php";
-
-// Manila Time Zone
 date_default_timezone_set('Asia/Manila');
 
 // USER REQUEST WITHDRAWAL

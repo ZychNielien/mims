@@ -101,7 +101,6 @@ if (isset($_POST['forgot_pass'])) {
                 $mensahe = $forgot_username . ' has requested a password change.';
                 $for = "adminOnly";
 
-                // Insert notification for the admin
                 $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
                               VALUES ('$forgot_username', '$mensahe', 0, '$dts', '$for', 'Request password change')";
                 $sql_notif_query = mysqli_query($con, $sql_notif);
