@@ -10,6 +10,11 @@
   font-weight: bold;
 }
 
+.input-error {
+  border: 2px solid red;
+  background-color: #ffe6e6;
+}
+
 @media (max-width: 850px) {
   .hatian {
     display: flex;
