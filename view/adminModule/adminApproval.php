@@ -112,7 +112,7 @@ include "navBar.php";
 
     <!-- Approval Modal -->
     <div class="modal fade" id="approvalModal" tabindex="-1" aria-labelledby="approvalModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="approvalModalLabel">Approve Selected Requests</h5>

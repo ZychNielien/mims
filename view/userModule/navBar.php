@@ -115,7 +115,7 @@ if (!isset($_SESSION['username'])) {
                 <!-- Notification Bell -->
                 <div class="btn-group float-end mx-3">
                     <div class="notification-bell" id="notification-bell" data-bs-toggle="dropdown"
-                        aria-expanded="false">
+                        aria-expanded="false" style="z-index: 1000;">
                         <i class="bi bi-bell-fill" style="font-size: 20px; color: #fff;"></i>
                         <span class="badge" id="notification-count" style="display: none;">0</span>
                     </div>

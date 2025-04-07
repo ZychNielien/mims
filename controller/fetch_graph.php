@@ -43,7 +43,7 @@ if (isset($_GET['start_date']) && isset($_GET['end_date'])) {
     if ($select_material_query) {
         while ($selected_row = mysqli_fetch_assoc($select_material_query)) {
             $part_name = $selected_row['part_name'];
-            $part_qty = (int) $selected_row['approved_qty'];
+            $part_qty = (int) $selected_row['approved_qty'] - (int) $selected_row['return_qty'];
             $return_qty = (int) $selected_row['return_qty'];
 
             $raw_data[] = [
