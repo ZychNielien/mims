@@ -10,7 +10,7 @@ $update_expired_sql = "UPDATE tbl_stock SET status = 'Expired' WHERE exp_date <=
 mysqli_query($con, $update_expired_sql);
 
 $sql = "SELECT ti.*, ts.exp_date,
-       IFNULL(MIN(CASE WHEN ts.status = 'Active' THEN ts.exp_date END), '') AS least_exp_date, 
+       IFNULL(MIN(CASE WHEN ts.status = 'Active' AND ts.part_qty > 0 THEN ts.exp_date END), '') AS least_exp_date, 
        IFNULL(SUM(CASE WHEN ts.status = 'Active' THEN ts.part_qty END), 0) AS total_part_qty,
        SUM(CASE WHEN ts.status = 'Expired' THEN ts.part_qty ELSE 0 END) AS expired_qty
         FROM tbl_inventory ti

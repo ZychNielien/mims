@@ -29,7 +29,7 @@ if (!empty($duplicates)) {
     exit;
 }
 
-$sql = "INSERT INTO tbl_inventory (part_name, part_desc, part_option, cost_center, location, min_invenT_req, unit) VALUES ";
+$sql = "INSERT INTO tbl_inventory (part_name, part_desc, part_option, cost_center, location, min_invenT_req, unit, approver) VALUES ";
 $values = [];
 
 foreach ($data['items'] as $item) {
@@ -39,7 +39,8 @@ foreach ($data['items'] as $item) {
                   '" . $con->real_escape_string($item['new_cost_center']) . "',
                   '" . $con->real_escape_string($item['new_location']) . "',
                   " . intval($item['new_min_invent_req']) . ",
-                  '" . $con->real_escape_string($item['new_unit']) . "')";
+                  '" . $con->real_escape_string($item['new_unit']) . "', 
+                  '" . $con->real_escape_string($item['new_approver']) . "')";
 }
 
 $sql .= implode(", ", $values);

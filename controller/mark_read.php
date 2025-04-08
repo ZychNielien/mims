@@ -7,9 +7,7 @@ $username = $_SESSION['username'];
 if ($_SESSION['user'] == 'User') {
 
     $sql = "UPDATE tbl_notif SET is_read = 1 WHERE is_read = 0 AND for_who = '$username'";
-    $stmt = $con->prepare($sql);
-
-    if ($stmt->execute()) {
+    if (mysqli_query($con, $sql)) {
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['success' => false, 'error' => 'Failed to mark notifications as read']);
@@ -25,16 +23,12 @@ if ($_SESSION['user'] == 'User') {
 
     $sql .= ")";
 
-    $stmt = $con->prepare($sql);
-
-    if ($stmt->execute()) {
+    if (mysqli_query($con, $sql)) {
         echo json_encode(['success' => true]);
     } else {
         echo json_encode(['success' => false, 'error' => 'Failed to mark notifications as read']);
     }
 }
 
-
-$stmt->close();
-$con->close();
+mysqli_close($con);
 ?>

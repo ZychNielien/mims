@@ -1,22 +1,19 @@
 <?php
-// Database Connection
 include "../model/dbconnection.php";
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 if (isset($_GET['cost_center_id'])) {
-    $cost_center_id = $_GET['cost_center_id'];
+    $cost_center_id = (int) $_GET['cost_center_id'];
 
-    $query = "SELECT supervisor_one, supervisor_two FROM tbl_ccs WHERE id = ?";
-    $stmt = $con->prepare($query);
-    $stmt->bind_param('i', $cost_center_id);
+    $query = "SELECT supervisor_one, supervisor_two FROM tbl_ccs WHERE id = $cost_center_id";
 
-    if ($stmt->execute()) {
-        $result = $stmt->get_result();
+    $result = mysqli_query($con, $query);
 
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
+    if ($result) {
+        if (mysqli_num_rows($result) > 0) {
+            $row = mysqli_fetch_assoc($result);
             echo json_encode([
                 'supervisor_one' => $row['supervisor_one'],
                 'supervisor_two' => $row['supervisor_two']
@@ -33,4 +30,6 @@ if (isset($_GET['cost_center_id'])) {
 } else {
     echo json_encode(['error' => 'cost_center_id is required']);
 }
+
+mysqli_close($con);
 ?>

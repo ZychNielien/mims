@@ -26,7 +26,7 @@ if (mysqli_num_rows($sql_query) > 0) {
                 <td data-label='Date / Time / Shift'>{$sqlRow['dts_return']}</td>
                 <td data-label='Lot Id'>{$sqlRow['lot_id']}</td>
                 <td data-label='Part Name'>{$sqlRow['part_name']}</td>
-                <td data-label='Part Qty'>{$sqlRow['part_qty']}</td>
+                <td data-label='Approved Qty'>{$sqlRow['approved_qty']}</td>
                 <td data-label='Machine Number'>{$sqlRow['machine_no']}</td>
                 <td data-label='Qithdrawal Reason'>{$sqlRow['with_reason']}</td>
                 <td data-label='Return By'>{$sqlRow['req_by']}</td>

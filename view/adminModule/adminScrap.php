@@ -67,7 +67,7 @@ include "navBar.php";
                                 <th scope="col">Date/Time of Return</th>
                                 <th scope="col">Lot ID</th>
                                 <th scope="col">Part Number</th>
-                                <th scope="col">Qty.</th>
+                                <th scope="col">Approved Qty.</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Returned By</th>
@@ -94,7 +94,7 @@ include "navBar.php";
                                         <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts_return']; ?></td>
                                         <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
                                         <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
-                                        <td data-label="Quantity"><?php echo $sqlRow['part_qty']; ?></td>
+                                        <td data-label="Quantity"><?php echo $sqlRow['approved_qty']; ?></td>
                                         <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
                                         <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                                         <td data-label="Return By"><?php echo $sqlRow['req_by']; ?></td>
@@ -141,7 +141,7 @@ include "navBar.php";
                                 <th scope="col">Date/Time of Received</th>
                                 <th scope="col">Lot ID</th>
                                 <th scope="col">Part Number</th>
-                                <th scope="col">Qty.</th>
+                                <th scope="col">Approved Qty.</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Returned By</th>
@@ -168,7 +168,7 @@ include "navBar.php";
                                         <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts_receive']; ?></td>
                                         <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
                                         <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
-                                        <td data-label="Quantity"><?php echo $sqlRow['part_qty']; ?></td>
+                                        <td data-label="Quantity"><?php echo $sqlRow['approved_qty']; ?></td>
                                         <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
                                         <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                                         <td data-label="Return By"><?php echo $sqlRow['req_by']; ?></td>

@@ -1,33 +1,18 @@
 <?php
 
-// Database Connection
 include "../../model/dbconnection.php";
-
-// Navigation Bar
 include "navBar.php";
 
 ?>
 
 <head>
-
-    <!-- Title -->
     <title>Material Inventory</title>
-
-    <!-- Table Style -->
     <link rel="stylesheet" href="../../public/css/table.css">
-
-    <!-- Sweetalert Style -->
     <link rel="stylesheet" href="../../public/css/sweetalert.min.css">
-
-    <!-- Sweetalert Script -->
     <script src="../../public/js/sweetalert2@11.js"></script>
-
-    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
-
-    <!-- Excel Script -->
     <script src="../../public/js/excel.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="../../public/js/xlsx.js"></script>
 
 </head>
 
@@ -35,13 +20,10 @@ include "navBar.php";
 
     <section class="w-100" style="max-height: 90%;">
 
-        <!-- Main Container -->
         <div class="mx-5 hatian d-flex flex-column justify-content-center align-center ">
 
-            <!-- Title Div -->
             <h2 class="text-center" style="color: #900008; font-weight: bold;">Inventory of Parts
             </h2>
-
 
             <div class="px-3 my-3 d-flex flex-wrap justify-content-between align-items-center">
                 <input type="text" id="search_inventory" class="form-control w-25" placeholder="Search Part Number"
@@ -56,8 +38,6 @@ include "navBar.php";
                 <button id="export-btn" class="btn btn-success my-1">Export to Excel</button>
             </div>
 
-
-            <!-- Inventory Table -->
             <table class="table table-striped" id="data-table" data-username="<?php echo $_SESSION['user']; ?>">
 
                 <thead>
@@ -175,69 +155,39 @@ include "navBar.php";
     <!-- Add to Stock Modal -->
     <div class="modal fade" id="addToStockModal" tabindex="-1" aria-labelledby="addToStockModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addToStockModalLabel">Add to Stock</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form method="POST" action="../../controller/inventory.php">
-                        <?php
-                        $query = "SELECT id, part_name FROM tbl_inventory ORDER BY part_name ASC";
-                        $result = mysqli_query($con, $query);
-                        ?>
+                    <div class="mb-2 d-flex flex-wrap gap-3 align-items-stretch justify-content-start">
+                        <button class="btn btn-success" id="btnAddStockRow">Add Row</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm text-center" id="itemStockTable">
+                            <thead>
+                                <tr class="text-center"
+                                    style="background-color: #900008; color: white; vertical-align: middle;">
+                                    <th>Part Number</th>
+                                    <th>Part Description</th>
+                                    <th>Quantity</th>
+                                    <th>Expiration Date</th>
+                                    <th>Kitting ID</th>
+                                    <th>Lot ID</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
 
-                        <div class="mb-3">
-                            <label for="add_partSelect" class="form-label">Part Number</label>
-                            <select class="form-select" id="add_partSelect" name="part_name">
-                                <option value="">Select a Part</option>
-                                <?php
-                                if (mysqli_num_rows($result) > 0) {
-                                    while ($row = mysqli_fetch_assoc($result)) {
-                                        echo '<option value="' . $row['part_name'] . '"  data-id="' . $row['id'] . '">' . htmlspecialchars($row['part_name']) . '</option>';
-                                    }
-                                } else {
-                                    echo '<option value="">No parts available</option>';
-                                }
-                                ?>
-                            </select>
-                        </div>
-
-                        <div id="itemDetails" style="display: none;">
-                            <div class="mb-1">
-                                <label for="exampleTextarea" class="form-label">Item Description</label>
-                                <textarea class="form-control" id="exampleTextarea" rows="2" name="part_desc"
-                                    readonly></textarea>
-                            </div>
-                            <div class="mb-1">
-                                <label for="part_qty" class="form-label">Quantity</label>
-                                <input type="number" class="form-control" id="part_qty" name="part_qty" min="0"
-                                    placeholder="Enter Quantity" required>
-                            </div>
-                            <div class="mb-1">
-                                <label for="exp_date" class="form-label">Expiration Date</label>
-                                <input type="date" class="form-control" id="exp_date" name="exp_date" required>
-                            </div>
-                            <div class="mb-1">
-                                <label for="kitting_id" class="form-label">Kitting ID</label>
-                                <input type="text" class="form-control" id="kitting_id" name="kitting_id"
-                                    placeholder="Enter Kitting ID" autocomplete="off" required>
-                            </div>
-                            <div class="mb-1">
-                                <label for="lot_id" class="form-label">Lot ID</label>
-                                <input type="text" class="form-control" id="lot_id" name="lot_id"
-                                    placeholder="Enter Lot ID" autocomplete="off" required>
-                            </div>
-                        </div>
-
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-
-                    <button type="submit" class="btn btn-primary" name="update_part_qty">Submit</button>
-
-                    </form>
+                    <button type="button" class="btn btn-primary" id="addtoStockButton">Submit</button>
                 </div>
             </div>
         </div>
@@ -253,10 +203,7 @@ include "navBar.php";
                 </div>
                 <div class="modal-body">
 
-                    <!-- Excel File Upload Input -->
                     <div class="mb-4 d-flex flex-wrap gap-3 align-items-stretch justify-content-evenly">
-
-                        <!-- Excel File Upload Input -->
                         <div class="d-flex flex-row justify-content-end" style="min-width: 200px;">
                             <div id="uploadBox" class="border border-secondary rounded px-3 py-2 text-center"
                                 style="cursor: pointer; background-color: #f8f9fa; height: 38px; display: flex; align-items: center; justify-content: center; flex-grow: 1;">
@@ -267,13 +214,10 @@ include "navBar.php";
                             </div>
                             <input type="file" id="excelFile" accept=".xlsx" hidden>
                         </div>
-
-                        <!-- Upload Button -->
                         <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
                             <button class="btn btn-primary" id="btnUpload">Upload File</button>
                         </div>
 
-                        <!-- Add Row Button -->
                         <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
                             <button class="btn btn-success" id="btnAddRow">Add Row</button>
                         </div>
@@ -281,80 +225,22 @@ include "navBar.php";
 
                     <div class="table-responsive">
                         <table class="table table-bordered table-sm text-center" id="itemTable">
-                            <thead class="table-light">
-                                <tr>
+                            <thead>
+                                <tr class="text-center"
+                                    style="background-color: #900008; color: white; vertical-align: middle;">
                                     <th>Part Number</th>
                                     <th>Part Description</th>
                                     <th>Option</th>
                                     <th>Cost Center</th>
                                     <th>Location</th>
                                     <th>Min Inventory</th>
-                                    <th>Unit of Measure</th>
+                                    <th>Unit</th>
+                                    <th>Approver</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td><input type="text" name="new_part_number" class="form-control  "
-                                            placeholder="Part Number" autocomplete="off" required>
-                                    </td>
-                                    <td><input type="text" name="new_part_desc" class="form-control  "
-                                            placeholder="Part Description" autocomplete="off" required></td>
-                                    <td>
-                                        <select name="new_option" class="form-select  " required>
-                                            <option selected value="">Option</option>
-                                            <option value="Direct">Direct</option>
-                                            <option value="Indirect">Indirect</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <select name="new_cost_center" class="form-select  " required>
-                                            <option selected value="">Cost Center</option>
-                                            <?php
-                                            $select_ccid = "SELECT * FROM tbl_ccs";
-                                            $select_ccid_query = mysqli_query($con, $select_ccid);
 
-                                            if (mysqli_num_rows($select_ccid_query) > 0) {
-                                                while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
-                                                    ?>
-                                                    <option value="<?php echo $ccid_row['ccid'] ?>"
-                                                        data-id="<?php echo $ccid_row['id'] ?>">
-                                                        <?php echo $ccid_row['ccid'] ?>
-                                                    </option>
-                                                    <?php
-                                                }
-                                            }
-                                            ?>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="new_location" class="form-control  "
-                                            placeholder="Location" autocomplete="off" required></td>
-                                    <td><input type="number" name="new_min_invent_req" class="form-control  "
-                                            placeholder="Min. Invent Requirement" autocomplete="off" required>
-                                    </td>
-                                    <td>
-                                        <select class="form-select" name="new_unit" required>
-                                            <option selected value="">Unit</option>
-                                            <?php
-                                            $select_unit = "SELECT * FROM tbl_unit";
-                                            $select_unit_query = mysqli_query($con, $select_unit);
-
-                                            if (mysqli_num_rows($select_unit_query) > 0) {
-                                                while ($unit_row = mysqli_fetch_assoc($select_unit_query)) {
-                                                    ?>
-                                                    <option value="<?php echo $unit_row['unit']; ?>"
-                                                        data-id="<?php echo $unit_row['id'] ?>">
-                                                        <?php echo strtoupper($unit_row['unit']); ?>
-                                                    </option>
-                                                    <?php
-                                                }
-                                            }
-                                            ?>
-                                        </select>
-                                    </td>
-                                    <td><button class="btn btn-sm btn-danger"
-                                            onclick="this.closest('tr').remove()">Delete</button></td>
-                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -412,43 +298,9 @@ include "navBar.php";
             $('#editModal').modal('show');
         });
 
-        // SHOW HIDDEN INPUTS IN ADD TO STOCK MODAL
-        $(document).on('change', '#add_partSelect', function () {
-            var partId = $(this).find('option:selected').data('id');
-
-            if (partId) {
-                $.ajax({
-                    url: '../../controller/fetch_part_desc.php',
-                    type: 'GET',
-                    data: { part_id: partId },
-                    success: function (response) {
-
-                        if (response.error) {
-                            $('#exampleTextarea').val(response.error);
-                            $('#itemDetails').hide();
-                        } else {
-                            if (response.part_desc) {
-                                $('#itemDetails').show();
-                                $('#exampleTextarea').val(response.part_desc);
-                            } else {
-                                $('#exampleTextarea').val('No description available');
-                            }
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('AJAX Error: ' + status + ', ' + error);
-                        $('#exampleTextarea').val('Error fetching data');
-                    }
-                });
-            } else {
-                $('#itemDetails').hide();
-                $('#exampleTextarea').val('');
-            }
-        });
-
         // EXPORT BUTTON
         $('#export-btn').click(function () {
-            var visibleRows = $('#data-table .table-row');
+            var visibleRows = $('#data-table-inventory .table-row');
             var filteredRows = [];
 
             visibleRows.each(function () {
@@ -458,16 +310,14 @@ include "navBar.php";
             });
 
             var table = $('<table></table>');
-            var headerRow = $('table thead').clone(true);
+            var headerRow = $('#data-table thead').clone(true);
             var ths = headerRow.find('th');
-            ths.first().remove();
             ths.last().remove();
             table.append(headerRow);
 
             $(filteredRows).each(function () {
                 var newRow = $(this).clone(true);
                 var tds = newRow.find('td');
-                tds.first().remove();
                 tds.last().remove();
                 table.append(newRow);
             });
@@ -541,21 +391,22 @@ include "navBar.php";
                     <td data-label="Exp Date" class="${rowClass}">${item.least_exp_date}</td>
                     <td data-label="Part Qty" class="${rowClass}">${item.total_part_qty}  ${item.unit}(s)</td>
                     <td data-label="Action">
-                        <a class="btn btn-primary edit-btn" 
-                        data-id="${item.id}" 
-                        data-name="${item.part_name}"
-                        data-desc="${item.part_desc}" 
-                        data-cost_center="${item.cost_center}"
-                        data-part_option="${item.part_option}" 
-                        data-location="${item.location}"
-                        data-min_invent_req="${item.min_invent_req}" 
-                        data-unit="${item.unit}">Edit</a>
-                        <?php if ($_SESSION['user'] !== 'Kitting'): ?>
-                            <a class="btn btn-danger delete-btn" 
+                        <div class="d-flex justify-content-end gap-2">
+                            <a class="btn btn-primary edit-btn" 
                             data-id="${item.id}" 
-                            data-name="${item.part_name}">Delete</a>
-                        <?php endif; ?>
-
+                            data-name="${item.part_name}"
+                            data-desc="${item.part_desc}" 
+                            data-cost_center="${item.cost_center}"
+                            data-part_option="${item.part_option}" 
+                            data-location="${item.location}"
+                            data-min_invent_req="${item.min_invent_req}" 
+                            data-unit="${item.unit}">Edit</a>
+                            <?php if ($_SESSION['user'] !== 'Kitting'): ?>
+                                <a class="btn btn-danger delete-btn" 
+                                data-id="${item.id}" 
+                                data-name="${item.part_name}">Delete</a>
+                            <?php endif; ?>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -684,6 +535,10 @@ include "navBar.php";
             addRow();
         });
 
+        $("#btnAddStockRow").on("click", function () {
+            addStockRow();
+        });
+
         $("#btnUpload").on("click", function () {
             const fileInput = $("#excelFile");
             const file = $("#excelFile")[0].files[0];
@@ -780,21 +635,20 @@ include "navBar.php";
             const row = $("<tr></tr>");
             row.append(`
                 <td>
-                    <input type="text" name="new_part_number" class="form-control form-control-sm" value="${data.new_part_number || ''}" placeholder="Part Number" autocomplete="off" required>
+                    <input type="text" name="new_part_number" class="form-control" value="${data.new_part_number || ''}" placeholder="Part Number" autocomplete="off" required>
                 </td>
                 <td>
-                    <input type="text" name="new_part_desc" class="form-control form-control-sm" value="${data.new_part_desc || ''}" placeholder="Part Description" autocomplete="off" required>
+                    <input type="text" name="new_part_desc" class="form-control" value="${data.new_part_desc || ''}" placeholder="Part Description" autocomplete="off" required>
                 </td>
                 <td>
-                    <select name="new_option" class="form-select form-select-sm" required>                                            
+                    <select name="new_option" class="form-select" required>                                            
                         <option value="" ${!data.new_option ? 'selected' : ''}>Option</option>
                         <option value="Direct" ${data.new_option === 'Direct' ? 'selected' : ''}>Direct</option>
                         <option value="Indirect" ${data.new_option === 'Indirect' ? 'selected' : ''}>Indirect</option>
                     </select>
-                    </select>
                 </td>
                 <td>
-                    <select name="new_cost_center" class="form-select form-select-sm" required>  
+                    <select name="new_cost_center" class="form-select" required>  
                         <option selected value="">Cost Center</option>
                         <option value="" ${!data.new_cost_center ? 'selected' : ''}>Cost Center</option>
                         <?php
@@ -815,10 +669,10 @@ include "navBar.php";
                     </select>
                 </td>
                 <td>
-                    <input type="text" name="new_location" class="form-control form-control-sm" value="${data.new_location || ''}" placeholder="Location" autocomplete="off" required>
+                    <input type="text" name="new_location" class="form-control" value="${data.new_location || ''}" placeholder="Location" autocomplete="off" required>
                 </td>
                 <td>
-                    <input type="number" name="new_min_invent_req" class="form-control form-control-sm" value="${data.new_min_invent_req || ''}" placeholder="Min. Inventory Requirement" autocomplete="off" required>
+                    <input type="number" name="new_min_invent_req" class="form-control" value="${data.new_min_invent_req || ''}" placeholder="Min. Inventory Requirement" autocomplete="off" required>
                 </td>
                 <td>                                        
                     <select class="form-select" name="new_unit" required>
@@ -841,11 +695,166 @@ include "navBar.php";
                     </select>
                 </td>
                 <td>
+                    <select name="new_approver" class="form-select" required>                                            
+                        <option value="" ${!data.new_approver ? 'selected' : ''}>Option</option>
+                        <option value="Supervisor" ${data.new_approver === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
+                        <option value="Kitting" ${data.new_approver === 'Kitting' ? 'selected' : ''}>Kitting</option>
+                    </select>
+                </td>
+                <td>
                     <button class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">Delete</button>
                 </td>
             `);
             $("#itemTable tbody").append(row);
         }
+
+        let rowCounter = 0;
+        function addStockRow() {
+            rowCounter++;
+            const rowId = 'row_' + rowCounter;
+            const row = $("<tr></tr>").attr("id", rowId);
+            row.append(`
+                <td>
+                    <select name="new_approver" class="form-select partSelect" data-row-id="${rowId}" required>          
+                        <option value="">Part Number</option>                                  
+                        <?php
+                        $select_ccid = "SELECT id, part_name FROM tbl_inventory";
+                        $select_ccid_query = mysqli_query($con, $select_ccid);
+                        if (mysqli_num_rows($select_ccid_query) > 0) {
+                            while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
+                                ?>
+                                <option value="<?php echo $ccid_row['part_name'] ?>"
+                                data-id="<?php echo $ccid_row['id'] ?>">
+                                    <?php echo $ccid_row['part_name'] ?>
+                                </option>
+                                <?php
+                            }
+                        }
+                        ?>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="form-control partDescription" placeholder="Part Description" readonly>
+                </td>
+                <td>
+                    <input type="number" class="form-control" placeholder="Part Quantity" min="0" step="1">
+                </td>
+                <td>
+                    <input type="date" class="form-control">
+                </td>
+                <td>
+                    <input type="text" class="form-control" placeholder="Kitting ID">
+                </td>
+                <td>
+                    <input type="text" class="form-control" placeholder="Lot ID">
+                </td>
+                <td>
+                    <button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button>
+                </td>
+            `);
+            $("#itemStockTable tbody").append(row);
+        }
+
+        $(document).on('change', '.partSelect', function () {
+            var partId = $(this).find('option:selected').data('id');
+            var rowId = $(this).data('row-id');
+
+            if (partId) {
+                $.ajax({
+                    url: '../../controller/fetch_part.php',
+                    type: 'GET',
+                    data: { part_id: partId },
+                    success: function (response) {
+                        var partDescriptionField = $('#' + rowId).find('.partDescription');
+
+                        if (response.error) {
+                            partDescriptionField.val(response.error);
+                        } else {
+                            if (response.part_desc) {
+                                partDescriptionField.val(response.part_desc);
+                            } else {
+                                partDescriptionField.val('No description available');
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('AJAX Error: ' + status + ', ' + error);
+                        $('#' + rowId).find('.partDescription').val('Error fetching data');
+                    }
+                });
+            } else {
+                $('#' + rowId).find('.partDescription').val('');
+            }
+        });
+
+        $('#addtoStockButton').click(function () {
+            let data = [];
+            $("#itemStockTable tbody tr").each(function () {
+                let row = $(this);
+                let partName = row.find('.partSelect').val();
+                let partDesc = row.find('.partDescription').val();
+                let partQty = row.find('input[placeholder="Part Quantity"]').val();
+                let partDate = row.find('input[type="date"]').val();
+                let kittingId = row.find('input[placeholder="Kitting ID"]').val();
+                let lotId = row.find('input[placeholder="Lot ID"]').val();
+
+                data.push({
+                    part_name: partName,
+                    part_desc: partDesc,
+                    part_qty: partQty,
+                    part_date: partDate,
+                    kitting_id: kittingId,
+                    lot_id: lotId
+                });
+            });
+
+            if (data.length > 0) {
+                $.ajax({
+                    url: '../../controller/addtoStock.php',
+                    type: 'POST',
+                    data: { stock_data: JSON.stringify(data) },
+                    success: function (response) {
+                        try {
+                            let jsonResponse = JSON.parse(response);
+
+                            if (jsonResponse.success) {
+                                Swal.fire({
+                                    title: 'Success!',
+                                    text: jsonResponse.message || 'Data submitted successfully!',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Error!',
+                                    text: jsonResponse.error || 'There was an error processing your request.',
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        } catch (error) {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: 'Something went wrong while processing your request.',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    },
+
+                });
+            } else {
+                Swal.fire({
+                    title: 'Warning!',
+                    text: 'No rows to submit.',
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+
 
     });
 

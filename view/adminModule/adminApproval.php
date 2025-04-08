@@ -70,7 +70,8 @@ include "navBar.php";
             <tbody>
                 <?php
                 $userName = $_SESSION['username'];
-                $sql = "SELECT * FROM tbl_requested WHERE status = 'Pending' ORDER BY dts DESC";
+                $approver = $_SESSION['user'];
+                $sql = "SELECT tr.*, ti.approver FROM tbl_requested tr LEFT JOIN tbl_inventory ti ON tr.part_name = ti.part_name WHERE status = 'Pending' AND ti.approver = '$approver' ORDER BY dts DESC";
                 $sql_query = mysqli_query($con, $sql);
 
                 if (mysqli_num_rows($sql_query) > 0) {
@@ -192,11 +193,9 @@ include "navBar.php";
         });
 
 
-        // When Approve button is clicked
         $("#approve-btn").click(function () {
-            $("#modalItemList").empty(); // Clear previous data
+            $("#modalItemList").empty();
 
-            // Get all checked checkboxes
             let selectedItems = $(".select-row:checked");
 
             if (selectedItems.length === 0) {
@@ -209,7 +208,6 @@ include "navBar.php";
                 return;
             }
 
-            // Populate modal with selected items
             selectedItems.each(function () {
                 let id = $(this).data("id");
                 let reqBy = $(this).data("req_by");
@@ -235,18 +233,15 @@ include "navBar.php";
                 $("#modalItemList").append(row);
             });
 
-            // Show modal
             $("#approvalModal").modal("show");
         });
 
-        // Handle form submission using AJAX
         $("#approvalForm").submit(function (e) {
             e.preventDefault();
 
             let formData = $(this).serialize();
-            formData += "&approve_submit=1"; // Add to identify approve
+            formData += "&approve_submit=1";
 
-            console.log(formData);  // Check what is being sent
 
             $.ajax({
                 url: '../../controller/update_status.php',
@@ -254,19 +249,17 @@ include "navBar.php";
                 data: formData,
                 dataType: "json",
                 success: function (response) {
-                    console.log(response);  // Log the response to see the structure
+
                     if (response.success) {
-                        // SweetAlert2 success notification
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
                             text: 'Requests approved successfully!',
                             confirmButtonText: 'Ok'
                         }).then(() => {
-                            location.reload(); // Reload the page after closing the SweetAlert
+                            location.reload();
                         });
                     } else {
-                        // SweetAlert2 error notification
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
@@ -276,10 +269,7 @@ include "navBar.php";
                     }
                 },
                 error: function (xhr, status, error) {
-                    console.log("AJAX Error: ", status, error);  // Log the error details
-                    console.log(xhr.responseText);  // Log the raw response from the server
 
-                    // SweetAlert2 error notification for AJAX error
                     Swal.fire({
                         icon: 'error',
                         title: 'Failed to process approval',
@@ -293,9 +283,8 @@ include "navBar.php";
 
 
         $("#reject-btn").click(function () {
-            $("#modalRejectItemList").empty(); // Clear previous data
+            $("#modalRejectItemList").empty();
 
-            // Get all checked checkboxes
             let selectedItems = $(".select-row:checked");
 
             if (selectedItems.length === 0) {
@@ -308,7 +297,6 @@ include "navBar.php";
                 return;
             }
 
-            // Populate modal with selected items
             selectedItems.each(function () {
                 let id = $(this).data("id");
                 let reqBy = $(this).data("req_by");
@@ -335,7 +323,6 @@ include "navBar.php";
                 $("#modalRejectItemList").append(row);
             });
 
-            // Show modal
             $("#rejectModal").modal("show");
         });
 
@@ -344,7 +331,7 @@ include "navBar.php";
             e.preventDefault();
 
             let formData = $(this).serialize();
-            formData += "&reject_submit=1"; // Add to identify reject
+            formData += "&reject_submit=1";
 
             $.ajax({
                 url: '../../controller/update_status.php',
@@ -353,17 +340,15 @@ include "navBar.php";
                 dataType: "json",
                 success: function (response) {
                     if (response.success) {
-                        // SweetAlert2 success notification
                         Swal.fire({
                             icon: 'success',
                             title: 'Rejected!',
                             text: 'Requests have been rejected successfully.',
                             confirmButtonText: 'Ok'
                         }).then(() => {
-                            location.reload(); // Reload the page after closing the SweetAlert
+                            location.reload();
                         });
                     } else {
-                        // SweetAlert2 error notification
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
@@ -372,15 +357,6 @@ include "navBar.php";
                         });
                     }
                 },
-                error: function () {
-                    // SweetAlert2 error notification for AJAX error
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Failed to process rejection',
-                        text: 'See console for details.',
-                        confirmButtonText: 'Ok'
-                    });
-                }
             });
         });
 

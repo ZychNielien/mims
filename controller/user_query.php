@@ -108,86 +108,136 @@ if (isset($_POST['req_part'])) {
 }
 
 // USER DELETE WITHDRAWAL REQUEST
-if (isset($_POST['selected_ids']) && isset($_POST['part_quantities']) && isset($_POST['part_names']) && isset($_POST['exp_dates'])) {
-    $selectedIds = $_POST['selected_ids'];
-    $partQuantities = $_POST['part_quantities'];
-    $partNames = $_POST['part_names'];
-    $expDates = $_POST['exp_dates'];
-    $username = $_SESSION['username'];
-    $dts = date('Y-m-d H:i:s');
-    $total_quantity_to_add = 0;
+if (isset($_POST['delete_submit'])) {
+    if (isset($_POST['ids']) && isset($_POST['part_names']) && isset($_POST['quantities']) && isset($_POST['exp_dates'])) {
+        $ids = $_POST['ids'];
+        $part_names = $_POST['part_names'];
+        $quantities = $_POST['quantities'];
+        $exp_dates = $_POST['exp_dates'];
+        $username = $_SESSION['username'];
+        $success = true;
 
-    for ($i = 0; $i < count($selectedIds); $i++) {
-        $id = $selectedIds[$i];
-        $quantity = $partQuantities[$i];
-        $part_name = $partNames[$i];
-        $expDate = $expDates[$i];
-        $total_quantity_to_add += $quantity;
+        for ($i = 0; $i < count($ids); $i++) {
+            $id = intval($ids[$i]);
+            $quantity = intval($quantities[$i]);
+            $current_part_name = $part_names[$i];
+            $exp_date = $exp_dates[$i];
+            $dts = date('Y-m-d H:i:s');
+            $mensahe = $username . " has canceled the withdrawal request for the " . $current_part_name . " with a quantity of " . $quantity . ".";
 
-        $sql = "DELETE FROM tbl_requested WHERE id = $id";
-        $delete_result = mysqli_query($con, $sql);
+            $delete_req = "DELETE FROM `tbl_requested` WHERE id = '$id'";
+            if (mysqli_query($con, $delete_req)) {
 
-        if (!$delete_result) {
-            echo "Error deleting record with ID: $id";
-            exit;
-        }
+                $update_Stock = "UPDATE `tbl_stock` SET part_qty = part_qty + '$quantity' WHERE part_name = '$current_part_name' AND exp_date = '$exp_date'";
+                if (!mysqli_query($con, $update_Stock)) {
+                    $success = false;
+                    break;
 
-        $update_inventory_sql = "UPDATE tbl_stock SET part_qty = part_qty + $quantity WHERE part_name = '$part_name' AND exp_date = '$expDate' ";
-        $update_result = mysqli_query($con, $update_inventory_sql);
+                }
+                $update_admin_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
+                VALUES ('$username', '$mensahe', 0, '$dts', 'admin', 'Inventory')";
+                if (!mysqli_query($con, $update_admin_notif)) {
+                    $success = false;
+                    break;
 
-        if ($update_result) {
-            $mensahe = $username . " has canceled the withdrawal request for the " . $part_name . " with a quantity of " . $quantity . ".";
-            $update_admin_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
-            VALUES ('$username', '$mensahe', 0, '$dts', 'admin', 'Inventory')";
-            if (mysqli_query($con, $update_admin_notif)) {
-                $_SESSION['status'] = "Your material withdrawal request has been successfully deleted.";
-                $_SESSION['status_code'] = "success";
-                header("location: ../view/userModule/userDashboard.php");
-                exit();
+                }
             }
         }
 
-        if (!$update_result) {
-            echo "Error updating inventory for part: $part_name";
-            exit;
-        }
-    }
-
-
-}
-
-// USER RETURNING ITEM WITHDREW
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $lot_id = $_POST['lot_id'];
-    $return_qty = $_POST['return_qty'];
-    $return_reason = $_POST['return_reason'];
-    $dts = date('Y-m-d H:i:s');
-    $req_by = $_POST['req_by'];
-    $part_name = $_POST['part_name'];
-    $mensahe = $req_by . ' is returning ' . $return_qty . ' of ' . $part_name . '. Click here for more details.';
-    $for = "admin";
-
-    if ($return_qty <= 0) {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid quantity.']);
-        exit();
-    }
-
-    $sql = "UPDATE tbl_requested 
-            SET status = 'returning', return_reason = '$return_reason', dts_return = '$dts', return_qty = '$return_qty'
-            WHERE id = '$lot_id' AND status = 'approved'";
-
-    if (mysqli_query($con, $sql)) {
-        $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at,for_who, destination) VALUES ('$req_by', '$mensahe',0,'$dts','$for', 'Scrap')";
-        $sql_notif_query = mysqli_query($con, $sql_notif);
-
-        if ($sql_notif_query) {
-            echo json_encode(['status' => 'success', 'message' => 'You are now authorized to return the ' . $part_name . ' with a quantity of ' . $return_qty]);
-        }
-
+        echo json_encode(["success" => $success]);
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'Error updating item: ' . mysqli_error($con)]);
+        echo json_encode(["success" => false, "error" => "Missing data"]);
     }
-} else {
-    echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
 }
+
+
+if (isset($_POST['update_submit'])) {
+    if (isset($_POST['ids']) && isset($_POST['part_names']) && isset($_POST['quantities']) && isset($_POST['exp_dates']) && isset($_POST['machines']) && isset($_POST['with_reasons'])) {
+        $ids = $_POST['ids'];
+        $part_names = $_POST['part_names'];
+        $quantities = $_POST['quantities'];
+        $exp_dates = $_POST['exp_dates'];
+        $machines = $_POST['machines'];
+        $with_reasons = $_POST['with_reasons'];
+        $success = true;
+
+        for ($i = 0; $i < count($ids); $i++) {
+            $id = intval($ids[$i]);
+            $quantity = intval($quantities[$i]);
+            $part_name = $part_names[$i];
+            $exp_date = $exp_dates[$i];
+            $machine = $machines[$i];
+            $with_reason = $with_reasons[$i];
+
+            $selectedID = "SELECT * FROM `tbl_requested` WHERE id = '$id'";
+            $selectedID_query = mysqli_query($con, $selectedID);
+            if ($selectedID_query) {
+                while ($selectedRow = mysqli_fetch_assoc($selectedID_query)) {
+                    $selectQty = $selectedRow['part_qty'];
+
+
+                    if ($selectQty > $quantity) {
+                        $totalQty = $selectQty - $quantity;
+
+                        $update_request = "UPDATE `tbl_requested` SET part_qty = '$quantity' , machine_no = '$machine' , with_reason = '$with_reason' WHERE id = '$id'";
+                        if (!mysqli_query($con, $update_request)) {
+                            echo json_encode(["success" => false, "error" => "Failed to update stock"]);
+                            exit;
+                        }
+                        $update_stock = "UPDATE `tbl_stock` SET part_qty = part_qty + $totalQty WHERE part_name = '$part_name' AND exp_date = '$exp_date'";
+                        if (!mysqli_query($con, $update_stock)) {
+                            echo json_encode(["success" => false, "error" => "Failed to update stock"]);
+                            exit;
+                        }
+                    } else if ($selectQty < $quantity) {
+                        $totalQty = $quantity - $selectQty;
+
+                        $select_stock = "SELECT part_qty FROM `tbl_stock` WHERE part_name = '$part_name' AND exp_date = '$exp_date'";
+                        $select_Stock_Query = mysqli_query($con, $select_stock);
+                        $stockQTYRow = mysqli_fetch_assoc($select_Stock_Query);
+                        $stockQTY = $stockQTYRow['part_qty'];
+
+                        if ($stockQTY >= $totalQty) {
+
+                            $update_request = "UPDATE `tbl_requested` SET part_qty = '$quantity' , machine_no = '$machine' , with_reason = '$with_reason' WHERE id = '$id'";
+                            if (!mysqli_query($con, $update_request)) {
+                                echo json_encode(["success" => false, "error" => "Failed to update stock"]);
+                                exit;
+                            }
+
+                            $update_stock = "UPDATE `tbl_stock` SET part_qty = part_qty - $totalQty WHERE part_name = '$part_name' AND exp_date = '$exp_date'";
+                            if (!mysqli_query($con, $update_stock)) {
+                                echo json_encode(["success" => false, "error" => "Failed to update stock"]);
+                                exit;
+                            }
+                        } else {
+                            if ($stockQTY > 0) {
+                                echo json_encode([
+                                    "success" => false,
+                                    "error" => "Apologies, but the quantity of this " . $part_name . " is " . $stockQTY . " for the expiration date " . $exp_date . ". If you prefer, you may request a new batch or select a different expiration date."
+                                ]);
+
+                                exit;
+                            } else {
+
+                                echo json_encode(["success" => false, "error" => "Insufficient Stock"]);
+                                exit;
+                            }
+
+
+
+                        }
+                    }
+
+                }
+            }
+        }
+
+        echo json_encode(["success" => true]);
+    } else {
+        echo json_encode(["success" => false, "error" => "Missing data"]);
+    }
+}
+
+
 ?>
