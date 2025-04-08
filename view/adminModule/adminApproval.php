@@ -57,7 +57,7 @@ include "navBar.php";
                     </th>
                     <th scope="col">Date / Time / Shift</th>
                     <th scope="col">Lot ID</th>
-                    <th scope="col">Part Name</th>
+                    <th scope="col">Part Number</th>
                     <th scope="col">Item Description</th>
                     <th scope="col">Qty.</th>
                     <th scope="col">Machine No.</th>
@@ -83,7 +83,8 @@ include "navBar.php";
                                     data-qty="<?php echo $sqlRow['part_qty']; ?>"
                                     data-part_name="<?php echo $sqlRow['part_name']; ?>"
                                     data-req_by="<?php echo $sqlRow['req_by']; ?>"
-                                    data-exp_date="<?php echo $sqlRow['exp_date']; ?>">
+                                    data-exp_date="<?php echo $sqlRow['exp_date']; ?>"
+                                    data-batch_number="<?php echo $sqlRow['batch_number']; ?>">
                             </td>
                             <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts']; ?></td>
                             <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
@@ -123,11 +124,13 @@ include "navBar.php";
                         <div class="table-responsive">
                             <table class="table table-bordered">
                                 <thead class="text-center text-white" style="background-color: #900008;">
-                                    <tr>
+                                    <tr style="vertical-align: middle;">
                                         <th>Requested By</th>
                                         <th>Part Number</th>
                                         <th>Requested Quantity</th>
                                         <th>Approved Quantity</th>
+                                        <th>Batch Number</th>
+                                        <th>Actual Batch Number</th>
                                         <th>Reason</th>
                                     </tr>
                                 </thead>
@@ -213,6 +216,7 @@ include "navBar.php";
                 let reqBy = $(this).data("req_by");
                 let partName = $(this).data("part_name");
                 let qty = $(this).data("qty");
+                let batch_number = $(this).data("batch_number");
 
                 let row = `
             <tr class=" text-center" style="vertical-align: middle;">
@@ -224,6 +228,11 @@ include "navBar.php";
                 </td>
                 <td>${qty}</td>
                 <td><input type="number" name="quantities[]" value="${qty}" max="${qty}" class="form-control" min="1" required></td>
+                <td>${batch_number}</td>
+                <td>
+                    <input type="text" name="batch_numbers[]" class="form-control" placeholder="Actual Batch Number">
+
+                </td>
                 <td>
                 <input type="text" name="reasons[]" class="form-control" placeholder="Reason (Optional)">
 

@@ -13,6 +13,7 @@ if (isset($_POST['stock_data'])) {
         $part_name = mysqli_real_escape_string($con, $item['part_name']);
         $part_desc = mysqli_real_escape_string($con, $item['part_desc']);
         $part_qty = mysqli_real_escape_string($con, $item['part_qty']);
+        $batch_number = mysqli_real_escape_string($con, $item['batch_number']);
         $exp_date = mysqli_real_escape_string($con, $item['part_date']);
         $kitting_id = mysqli_real_escape_string($con, $item['kitting_id']);
         $lot_id = mysqli_real_escape_string($con, $item['lot_id']);
@@ -35,7 +36,7 @@ if (isset($_POST['stock_data'])) {
 
             $update_sql = "UPDATE `tbl_stock` 
                            SET part_qty = '$new_part_qty', updated_by = '$username', dts = '$dts'
-                           WHERE part_name = '$part_name' AND exp_date = '$exp_date' AND status = 'Active'";
+                           WHERE part_name = '$part_name' AND exp_date = '$exp_date' AND status = 'Active' AND batch_number = '$batch_number'";
 
             if (!mysqli_query($con, $update_sql)) {
                 echo json_encode(['error' => 'Error in UPDATE query: ' . mysqli_error($con)]);
@@ -64,8 +65,8 @@ if (isset($_POST['stock_data'])) {
                 }
             }
         } else {
-            $sql = "INSERT INTO `tbl_stock` (part_name, part_qty, exp_date, kitting_id, lot_id, dts, updated_by, status) 
-                    VALUES ('$part_name', '$part_qty', '$exp_date', '$kitting_id', '$lot_id', '$dts', '$username', 'Active')";
+            $sql = "INSERT INTO `tbl_stock` (part_name, part_qty, exp_date, kitting_id, lot_id, dts, updated_by, status, batch_number) 
+                    VALUES ('$part_name', '$part_qty', '$exp_date', '$kitting_id', '$lot_id', '$dts', '$username', 'Active','$batch_number')";
 
             if (!mysqli_query($con, $sql)) {
                 echo json_encode(['error' => 'Error in INSERT stock query: ' . mysqli_error($con)]);

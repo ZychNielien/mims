@@ -172,7 +172,7 @@ if (isset($_POST['mat_req_part'])) {
     $cost_center = $_POST['cost_center'];
     $part_option = $_POST['part_option'];
 
-    $check_sql = "SELECT ts.part_name, ts.part_qty, ts.exp_date, ti.min_invent_req
+    $check_sql = "SELECT ts.part_name, ts.part_qty, ts.exp_date, ti.min_invent_req, ts.batch_number
                     FROM tbl_stock ts
                     LEFT JOIN tbl_inventory ti ON ts.part_name = ti.part_name
                     WHERE ts.part_name = '$part_id' AND status = 'Active'
@@ -186,7 +186,9 @@ if (isset($_POST['mat_req_part'])) {
     while ($checkedRow = mysqli_fetch_assoc($check_sql_query)) {
         $expiration_data[] = [
             'part_qty' => $checkedRow['part_qty'],
-            'exp_date' => $checkedRow['exp_date']
+            'exp_date' => $checkedRow['exp_date'],
+            'batch_number' => $checkedRow['batch_number'],
+
         ];
     }
 
@@ -196,6 +198,7 @@ if (isset($_POST['mat_req_part'])) {
         foreach ($expiration_data as $data) {
             $part_qty_in_stock = $data['part_qty'];
             $expiration_date = $data['exp_date'];
+            $batch_number = $data['batch_number'];
 
             if ($part_qty_remaining > 0 && $part_qty_in_stock > 0) {
                 $quantity_to_deduct = min($part_qty_remaining, $part_qty_in_stock);
@@ -210,8 +213,8 @@ if (isset($_POST['mat_req_part'])) {
                     echo "Error updating stock: " . mysqli_error($con) . "<br>";
                 }
 
-                $sql = "INSERT INTO `tbl_requested` (dts, part_name, lot_id, part_desc, station_code, part_qty, machine_no, with_reason, req_by, status, cost_center, part_option, exp_date) 
-                        VALUES ('$dts', '$part_id', '$lot_id', '$part_desc', '$station_code', '$quantity_to_deduct', '$machine_no', '$with_reason', '$req_by', '$status', '$cost_center', '$part_option', '$expiration_date')";
+                $sql = "INSERT INTO `tbl_requested` (dts, part_name, lot_id, part_desc, station_code, part_qty, machine_no, with_reason, req_by, status, cost_center, part_option, exp_date, batch_number) 
+                        VALUES ('$dts', '$part_id', '$lot_id', '$part_desc', '$station_code', '$quantity_to_deduct', '$machine_no', '$with_reason', '$req_by', '$status', '$cost_center', '$part_option', '$expiration_date','$batch_number')";
 
                 if (!mysqli_query($con, $sql)) {
                     echo "Error inserting request: " . mysqli_error($con) . "<br>";

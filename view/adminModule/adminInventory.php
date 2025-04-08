@@ -155,7 +155,7 @@ include "navBar.php";
     <!-- Add to Stock Modal -->
     <div class="modal fade" id="addToStockModal" tabindex="-1" aria-labelledby="addToStockModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-dialog modal-dialog-centered " style="max-width: 1500px;">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="addToStockModalLabel">Add to Stock</h5>
@@ -173,6 +173,7 @@ include "navBar.php";
                                     <th>Part Number</th>
                                     <th>Part Description</th>
                                     <th>Quantity</th>
+                                    <th>Batch Number</th>
                                     <th>Expiration Date</th>
                                     <th>Kitting ID</th>
                                     <th>Lot ID</th>
@@ -196,7 +197,7 @@ include "navBar.php";
     <!-- Material Registration Modal -->
     <div class="modal fade" id="materialRegistrationModal" tabindex="-1"
         aria-labelledby="materialRegistrationModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 1400px;">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 1500px;">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="materialRegistrationModalLabel">Material Registration</h5>
@@ -230,7 +231,8 @@ include "navBar.php";
                                     style="background-color: #900008; color: white; vertical-align: middle;">
                                     <th>Part Number</th>
                                     <th>Part Description</th>
-                                    <th>Option</th>
+                                    <th>Material Type</th>
+                                    <th>Material Category</th>
                                     <th>Cost Center</th>
                                     <th>Location</th>
                                     <th>Min Inventory</th>
@@ -366,10 +368,10 @@ include "navBar.php";
 
             if (data.length === 0) {
                 var noDataRow = `
-            <tr>
-                <td colspan="7" class="text-center">No parts found</td>
-            </tr>
-        `;
+                    <tr>
+                        <td colspan="7" class="text-center">No parts found</td>
+                    </tr>
+                `;
                 $('#data-table-inventory').append(noDataRow);
             } else {
                 $.each(data, function (index, item) {
@@ -642,14 +644,21 @@ include "navBar.php";
                 </td>
                 <td>
                     <select name="new_option" class="form-select" required>                                            
-                        <option value="" ${!data.new_option ? 'selected' : ''}>Option</option>
+                        <option value="" ${!data.new_option ? 'selected' : ''}>Material Type</option>
                         <option value="Direct" ${data.new_option === 'Direct' ? 'selected' : ''}>Direct</option>
                         <option value="Indirect" ${data.new_option === 'Indirect' ? 'selected' : ''}>Indirect</option>
                     </select>
                 </td>
                 <td>
+                    <select name="new_category" class="form-select" required>                                            
+                        <option value="" ${!data.new_category ? 'selected' : ''}>Material Category</option>
+                        <option value="Critical" ${data.new_category === 'Critical' ? 'selected' : ''}>Critical</option>
+                        <option value="Non-critical" ${data.new_category === 'Non-critical' ? 'selected' : ''}>Non-critical</option>
+                        <option value="General Supply Material" ${data.new_category === 'General Supply Material' ? 'selected' : ''}>General Supply Material</option>
+                    </select>
+                </td>
+                <td>
                     <select name="new_cost_center" class="form-select" required>  
-                        <option selected value="">Cost Center</option>
                         <option value="" ${!data.new_cost_center ? 'selected' : ''}>Cost Center</option>
                         <?php
                         $select_ccid = "SELECT * FROM tbl_ccs";
@@ -696,13 +705,13 @@ include "navBar.php";
                 </td>
                 <td>
                     <select name="new_approver" class="form-select" required>                                            
-                        <option value="" ${!data.new_approver ? 'selected' : ''}>Option</option>
+                        <option value="" ${!data.new_approver ? 'selected' : ''}>Approver</option>
                         <option value="Supervisor" ${data.new_approver === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
                         <option value="Kitting" ${data.new_approver === 'Kitting' ? 'selected' : ''}>Kitting</option>
                     </select>
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-danger" onclick="this.closest('tr').remove()">Delete</button>
+                    <button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button>
                 </td>
             `);
             $("#itemTable tbody").append(row);
@@ -715,7 +724,7 @@ include "navBar.php";
             const row = $("<tr></tr>").attr("id", rowId);
             row.append(`
                 <td>
-                    <select name="new_approver" class="form-select partSelect" data-row-id="${rowId}" required>          
+                    <select class="form-select partSelect" name="addPartNumber" data-row-id="${rowId}" required>          
                         <option value="">Part Number</option>                                  
                         <?php
                         $select_ccid = "SELECT id, part_name FROM tbl_inventory";
@@ -734,19 +743,22 @@ include "navBar.php";
                     </select>
                 </td>
                 <td>
-                    <input type="text" class="form-control partDescription" placeholder="Part Description" readonly>
+                    <input type="text" class="form-control partDescription" name="addPartDesc" placeholder="Part Description" readonly>
                 </td>
                 <td>
-                    <input type="number" class="form-control" placeholder="Part Quantity" min="0" step="1">
+                    <input type="number" class="form-control" name="addPartQty" placeholder="Part Quantity" min="0" step="1">
                 </td>
                 <td>
-                    <input type="date" class="form-control">
+                    <input type="text" class="form-control" name="addBatchNumber" placeholder="Batch Number">
                 </td>
                 <td>
-                    <input type="text" class="form-control" placeholder="Kitting ID">
+                    <input type="date" class="form-control" name="addExpDate">
                 </td>
                 <td>
-                    <input type="text" class="form-control" placeholder="Lot ID">
+                    <input type="text" class="form-control" name="addKittingID" placeholder="Kitting ID" >
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="addLotID" placeholder="Lot ID">
                 </td>
                 <td>
                     <button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button>
@@ -791,17 +803,19 @@ include "navBar.php";
             let data = [];
             $("#itemStockTable tbody tr").each(function () {
                 let row = $(this);
-                let partName = row.find('.partSelect').val();
-                let partDesc = row.find('.partDescription').val();
-                let partQty = row.find('input[placeholder="Part Quantity"]').val();
-                let partDate = row.find('input[type="date"]').val();
-                let kittingId = row.find('input[placeholder="Kitting ID"]').val();
-                let lotId = row.find('input[placeholder="Lot ID"]').val();
+                let partName = row.find('select[name="addPartNumber"]').val();
+                let partDesc = row.find('input[name="addPartDesc"]').val();
+                let partQty = row.find('input[name="addPartQty"]').val();
+                let batchNumber = row.find('input[name="addBatchNumber"]').val();
+                let partDate = row.find('input[name="addExpDate"]').val();
+                let kittingId = row.find('input[name="addKittingID"]').val();
+                let lotId = row.find('input[name="addLotID"]').val();
 
                 data.push({
                     part_name: partName,
                     part_desc: partDesc,
                     part_qty: partQty,
+                    batch_number: batchNumber,
                     part_date: partDate,
                     kitting_id: kittingId,
                     lot_id: lotId

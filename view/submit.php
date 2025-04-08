@@ -29,13 +29,14 @@ if (!empty($duplicates)) {
     exit;
 }
 
-$sql = "INSERT INTO tbl_inventory (part_name, part_desc, part_option, cost_center, location, min_invenT_req, unit, approver) VALUES ";
+$sql = "INSERT INTO tbl_inventory (part_name, part_desc, part_option, part_category, cost_center, location, min_invenT_req, unit, approver) VALUES ";
 $values = [];
 
 foreach ($data['items'] as $item) {
     $values[] = "('" . $con->real_escape_string($item['new_part_number']) . "',
                   '" . $con->real_escape_string($item['new_part_desc']) . "',
                   '" . $con->real_escape_string($item['new_option']) . "',
+                  '" . $con->real_escape_string($item['new_category']) . "',
                   '" . $con->real_escape_string($item['new_cost_center']) . "',
                   '" . $con->real_escape_string($item['new_location']) . "',
                   " . intval($item['new_min_invent_req']) . ",
