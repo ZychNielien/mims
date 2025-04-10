@@ -255,6 +255,10 @@ ob_end_flush();
                     <div class="text-center my-3 w-50">
                         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#accCreation">Register
                             Account</button>
+
+                        <button class="btn btn-primary" id="update_acc-btn">Update Accounts</button>
+                
+                        <button class="btn btn-danger" id="delete_acc-btn">Delete Accounts</button>
                     </div>
                 </div>
 
@@ -290,6 +294,7 @@ ob_end_flush();
                                         <input type="checkbox" class="select-acc" 
                                                 data-id="<?php echo $sqlRow['id']; ?>"
                                                 data-employee_name="<?php echo $sqlRow['employee_name']; ?>"
+                                                data-username="<?php echo $sqlRow['username']; ?>"
                                                 data-badge_number="<?php echo $sqlRow['badge_number']; ?>"
                                                 data-cost_center="<?php echo $sqlRow['cost_center']; ?>"
                                                 data-designation="<?php echo $sqlRow['designation']; ?>"
@@ -502,12 +507,12 @@ ob_end_flush();
         </div>
     </div>
 
-     <!-- Account Deletion Modal -->
-     <div class="modal fade" id="accDeleteModal" tabindex="-1" aria-labelledby="accDeleteModalLabel" aria-hidden="true">
+    <!-- Account Deletion Modal -->
+    <div class="modal fade" id="accDeletionModal" tabindex="-1" aria-labelledby="accDeletionModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="accDeleteModalLabel">Rejection of Selected Accounts</h5>
+                    <h5 class="modal-title" id="accDeletionModalLabel">Deletion of Selected Accounts</h5>
                 </div>
                 <div class="modal-body">
                     <form id="deleteAccForm">
@@ -538,6 +543,40 @@ ob_end_flush();
         </div>
     </div>
 
+    <!-- Account Modification Modal -->
+    <div class="modal fade" id="accUpdateModal" tabindex="-1" aria-labelledby="accUpdateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 1400px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="accUpdateModalLabel">Modification of Selected Accounts</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="updateAccForm">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="text-center text-white" style="background-color: #900008;">
+                                    <tr style="vertical-align: middle;">
+                                        <th>Employee Name</th>
+                                        <th>Badge Number</th>
+                                        <th>Designation</th>
+                                        <th>Account Type</th>
+                                        <th>Cost Center</th>
+                                        <th>Supervisors</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalAccountUpdateList">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" name="updateacc_submit">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL FOR CHANGE PASSWORD -->
     <div class="modal fade" id="change_pass_modal" tabindex="-1" aria-labelledby="change_pass_modalLabel"
@@ -1389,7 +1428,269 @@ ob_end_flush();
             });
         });
 
+        $("#delete_acc-btn").click(function () {
+            $("#modalAccountDeletionList").empty();
 
+            let selectedItems = $(".select-acc:checked");
+
+            if (selectedItems.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No items selected',
+                    text: 'Please select at least one request to delete.',
+                    confirmButtonText: 'Ok'
+                });
+                return;
+            }
+
+            selectedItems.each(function () {
+                let id = $(this).data("id");
+                let employeeName = $(this).data("employee_name");
+                let username = $(this).data("username");
+                let badgeNumber = $(this).data("badge_number");
+                let costCenter = $(this).data("cost_center");
+                let designation = $(this).data("designation");
+                let accType = $(this).data("account_type");
+
+                let row = `
+                    <tr class=" text-center" style="vertical-align: middle;">
+                        <td>
+                            ${employeeName}
+                        </td>
+                        <td>
+                            ${username}
+                        </td>
+                        <td>
+                            ${badgeNumber}
+                        </td>
+                        <td>
+                            ${costCenter}
+                        </td>
+                        <td>
+                            ${designation}
+                        </td>
+                        <td>
+                            ${accType}
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="reasons[]" placeholder="Reason for Account Deletion" autocomplete="OFF">
+                        </td>
+                        <td style="display:none;"> 
+                            <input type="hidden" name="employeenames[]" value="${employeeName}">
+                            <input type="hidden" name="ids[]" value="${id}">
+                        </td>
+                    </tr>
+                `;
+                $("#modalAccountDeletionList").append(row);
+            });
+
+            $("#accDeletionModal").modal("show");
+        });
+
+        $("#deleteAccForm").submit(function (e) {
+            e.preventDefault();
+
+            let formData = $(this).serialize();
+
+            formData += "&deleteacc_submit=1";
+
+            $.ajax({
+                url: '../../controller/accounts.php',
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Requests rejected successfully!',
+                            confirmButtonText: 'Ok'
+                        }).then(() => {
+                            window.location.href = 'accReg.php?tab=account';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error || 'An unexpected error occurred.',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                }
+            });
+        });
+
+        let rowCounter = 0;
+
+        $("#update_acc-btn").click(function () {
+            $("#modalAccountUpdateList").empty();
+
+            let selectedItems = $(".select-acc:checked");
+
+            if (selectedItems.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No items selected',
+                    text: 'Please select at least one request to delete.',
+                    confirmButtonText: 'Ok'
+                });
+                return;
+            }
+
+            selectedItems.each(function () {
+                let id = $(this).data("id");
+                let employeeName = $(this).data("employee_name");
+                let username = $(this).data("username");
+                let badgeNumber = $(this).data("badge_number");
+                let costCenter = $(this).data("cost_center");
+                let designation = $(this).data("designation");
+                let accType = $(this).data("account_type");
+
+                rowCounter++;
+            const rowId = 'row_' + rowCounter;
+
+                let row = `
+                    <tr class=" text-center" style="vertical-align: middle;" id="${rowId}">
+                        <td>
+                            <input type="text" name="employeenames[]" value="${employeeName}" class="form-control" autocomplete="OFF">
+                        </td>
+                        <td>
+                            ${badgeNumber}
+                        </td>
+                        <td>
+                            <select class="form-select" name="designations[]" required>
+                                <option value="${!designation ? 'selected' : ''}">Select Designation</option>
+                                <option value="Supervisor" ${designation === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
+                                <option value="Kitting" ${designation === 'Kitting' ? 'selected' : ''}>Kitting</option>
+                                <option value="Inspector" ${designation === 'Inspector' ? 'selected' : ''}>Inspector</option>
+                                <option value="Operator" ${designation === 'Operator' ? 'selected' : ''}>Operator</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-select" name="accounttypes[]" required>
+                                <option value="${!accType ? 'selected' : ''}">Select Account Type</option>
+                                <option value="User" ${accType === 'User' ? 'selected' : ''}>User</option>
+                                <option value="Kitting" ${accType === 'Kitting' ? 'selected' : ''}>Kitting</option>
+                                <option value="Supervisor" ${accType === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="costcenters[]" class="form-select costSelect w-100" required data-row-id="${rowId}">  
+                                <option value="${!costCenter ? 'selected' : ''}">Cost Center</option>
+                                <?php
+                                $select_ccid = "SELECT * FROM tbl_ccs";
+                                $select_ccid_query = mysqli_query($con, $select_ccid);
+                                if (mysqli_num_rows($select_ccid_query) > 0) {
+                                    while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
+                                        ?>
+                                        <option value="<?php echo $ccid_row['ccid'] ?>"
+                                            data-id="<?php echo $ccid_row['id'] ?>"
+                                            ${costCenter === '<?php echo $ccid_row['ccid'] ?>' ? 'selected' : ''}>
+                                            <?php echo $ccid_row['ccid'] ?>
+                                        </option>
+                                        <?php
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control supervisorBoth" readonly autocomplete="OFF" style="min-width: max-content;">
+                        </td>
+                        <td style="display:none;"> 
+                            <input type="hidden" class="form-control supervisorOne" name="supervisorOnes[]" readonly autocomplete="OFF">
+                            <input type="hidden" class="form-control supervisorTwo" name="supervisorTwos[]" readonly autocomplete="OFF">
+                            
+                            <input type="hidden" name="ids[]" value="${id}">
+                        </td>
+                    </tr>
+                `;
+                $("#modalAccountUpdateList").append(row);
+                $(`select.costSelect[data-row-id="${rowId}"]`).trigger('change');
+            });
+
+            $("#accUpdateModal").modal("show");
+        });
+
+        $("#updateAccForm").submit(function (e) {
+            e.preventDefault();
+
+            let formData = $(this).serialize();
+
+            formData += "&updateacc_submit=1";
+
+            $.ajax({
+                url: '../../controller/accounts.php',
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Account updated successfully!',
+                            confirmButtonText: 'Ok'
+                        }).then(() => {
+                            window.location.href = 'accReg.php?tab=account';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error || 'An unexpected error occurred.',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                }
+            });
+        });
+
+
+        $(document).on('change', '.costSelect', function () {
+            var costCenterId = $(this).find('option:selected').data('id');
+            var rowId = $(this).data('row-id');
+            var supervisorOne = $('#' + rowId).find('.supervisorOne');
+            var supervisorTwo = $('#' + rowId).find('.supervisorTwo');
+            var supervisorBoth = $('#' + rowId).find('.supervisorBoth');
+
+            if (costCenterId) {
+                $.ajax({
+                    url: '../../controller/fetch_supervisors.php',
+                    method: 'GET',
+                    data: { cost_center_id: costCenterId },
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.supervisor_one) {
+                            supervisorOne.val(response.supervisor_one);
+                        } else {
+                            supervisorOne.val('');
+                        }
+
+                        if (response.supervisor_two) {
+                            supervisorTwo.val(response.supervisor_two);
+                        } else {
+                            supervisorTwo.val('');
+                        }
+
+                        var sup1 = response.supervisor_one || '';
+                        var sup2 = response.supervisor_two || '';
+                        supervisorBoth.val(`${sup1} / ${sup2}`);
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.log('AJAX Error: ' + status + ' - ' + error);
+                    }
+                });
+            } else {
+                supervisorOne.val('');
+                supervisorTwo.val('');
+                supervisorBoth.val('');
+            }
+        });
 
     });
 </script>
