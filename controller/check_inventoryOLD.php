@@ -1,27 +1,22 @@
 <?php
 
-// Database Connection
 include "../model/dbconnection.php";
-
-// Manila Time Zone
 date_default_timezone_set('Asia/Manila');
 $inventoryData = [];
 
 $today = date('Y-m-d');
 
-// Updating Expired Stocks
 $update_expired_sql = "UPDATE tbl_stock SET status = 'Expired' WHERE exp_date <= '$today' AND status != 'Expired'";
 mysqli_query($con, $update_expired_sql);
 
-// Selecting All Active Stocks
-$sql = "SELECT ti.*, 
-       IFNULL(MIN(CASE WHEN ts.status = 'Active' THEN ts.exp_date END), '') AS least_exp_date, 
+$sql = "SELECT ti.*, ts.exp_date,
+       IFNULL(MIN(CASE WHEN ts.status = 'Active' AND ts.part_qty > 0 THEN ts.exp_date END), '') AS least_exp_date, 
        IFNULL(SUM(CASE WHEN ts.status = 'Active' THEN ts.part_qty END), 0) AS total_part_qty,
        SUM(CASE WHEN ts.status = 'Expired' THEN ts.part_qty ELSE 0 END) AS expired_qty
         FROM tbl_inventory ti
         LEFT JOIN tbl_stock ts ON ti.part_name = ts.part_name
         GROUP BY ti.part_name, ti.part_desc, ti.min_invent_req
-        ORDER BY ti.id ASC";
+        ORDER BY ti.part_name ASC";
 $sql_query = mysqli_query($con, $sql);
 
 if ($sql_query) {
@@ -49,27 +44,43 @@ if ($sql_query) {
                 'expired_qty' => $expired_qty
             ];
 
-            if ($expired_qty > 0) {
+            $check_stock = "SELECT part_name, exp_date, SUM(part_qty) AS total_part_qty
+            FROM tbl_stock
+            WHERE exp_date = '$today'
+            GROUP BY part_name, exp_date";
 
-                // Selecting Expired Notif
-                $check_notification_sql = "SELECT * FROM tbl_notif WHERE message LIKE '%$part_name%' AND for_who = 'admin' AND destination = 'Expired' AND DATE(created_at) = '$today'";
-                $check_notification_query = mysqli_query($con, $check_notification_sql);
+            $check_stock_query = mysqli_query($con, $check_stock);
 
-                if (mysqli_num_rows($check_notification_query) == 0) {
-                    $dts = date('Y-m-d H:i:s');
-                    $message = htmlspecialchars($part_name, ENT_QUOTES, 'UTF-8') . ' has expired. Total expired quantity: ' . $expired_qty;
-                    $for = "admin";
+            if ($check_stock_query) {
+                while ($check_row = mysqli_fetch_assoc($check_stock_query)) {
+                    $part_name = $check_row['part_name'];
+                    $total_qty = $check_row['total_part_qty'];
+                    $exp_date = $check_row['exp_date'];
 
-                    // Inserting Expired Notification
-                    $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
-                                  VALUES ('System', '$message', 0, '$dts', '$for', 'Expired')";
-                    $sql_notif_query = mysqli_query($con, $sql_notif);
+                    if ($exp_date == $today && $total_qty > 0) {
+                        $part_name_safe = mysqli_real_escape_string($con, $part_name);
+                        $check_notification_sql = "SELECT * FROM tbl_notif WHERE message LIKE '%$part_name_safe%' AND for_who = 'admin' AND destination = 'Expired' AND DATE(created_at) = '$today'";
+                        $check_notification_query = mysqli_query($con, $check_notification_sql);
 
-                    if (!$sql_notif_query) {
-                        echo "Error creating notification: " . mysqli_error($con);
+                        if (mysqli_num_rows($check_notification_query) == 0) {
+                            $dts = date('Y-m-d H:i:s');
+                            $message = htmlspecialchars($part_name, ENT_QUOTES, 'UTF-8') . ' has expired. Total expired quantity: ' . $total_qty;
+                            $for = "admin";
+
+                            $sql_notif = "INSERT INTO tbl_notif (username, message, is_read, created_at, for_who, destination) 
+                          VALUES ('System', '$message', 0, '$dts', '$for', 'Expired')";
+                            $sql_notif_query = mysqli_query($con, $sql_notif);
+
+                            if (!$sql_notif_query) {
+                                echo "Error creating notification: " . mysqli_error($con);
+                            }
+                        }
                     }
                 }
             }
+
+
+
         }
     }
 }

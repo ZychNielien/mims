@@ -81,9 +81,6 @@ ob_end_flush();
             <!-- ACCOUNT APPROVAL -->
             <div class="tab-pane fade" id="approval-tab-pane" role="tabpanel" aria-labelledby="approval-tab">
 
-                <!-- Approval Form -->
-                <form action="../../controller/user.php" method="post">
-
                     <div class="d-flex justify-between-evenly w-100">
 
                         <!-- Approval Button -->
@@ -92,10 +89,11 @@ ob_end_flush();
                                 autocomplete="off" />
                         </div>
                         <div class="text-center my-3 w-50">
-                            <button type="submit" name="action" value="approve" class="btn btn-success">Approve
-                                Selected</button>
-                            <button type="submit" name="action" value="reject" class="btn btn-danger">Reject
-                                Selected</button>
+                     
+                            <button class="btn btn-success" id="approve_acc-btn">Approve Accounts</button>
+                
+                            <button class="btn btn-danger" id="reject_acc-btn">Reject Accounts</button>
+         
                         </div>
 
                     </div>
@@ -105,7 +103,7 @@ ob_end_flush();
 
                         <thead>
                             <tr class="text-center" style="background-color: #900008; color: white;">
-                                <th scope="col"><input type="checkbox" id="select_all"></th>
+                                <th scope="col"><input type="checkbox" id="select-all"></th>
                                 <th scope="col">Employee Name</th>
                                 <th scope="col">Username</th>
                                 <th scope="col">Badge No.</th>
@@ -128,8 +126,14 @@ ob_end_flush();
                                     ?>
                                     <tr class="table-row text-center" style="vertical-align:middle;">
                                         <td data-label="Select">
-                                            <input type="checkbox" class="row-checkbox" name="selected_ids[]"
-                                                value="<?php echo $sqlRow['id']; ?>">
+                                        <input type="checkbox" class="select-row" 
+                                                data-id="<?php echo $sqlRow['id']; ?>"
+                                                data-employee_name="<?php echo $sqlRow['employee_name']; ?>"
+                                                data-badge_number="<?php echo $sqlRow['badge_number']; ?>"
+                                                data-cost_center="<?php echo $sqlRow['cost_center']; ?>"
+                                                data-designation="<?php echo $sqlRow['designation']; ?>"
+                                                data-account_type="<?php echo $sqlRow['account_type']; ?>"
+                                                >
                                         </td>
                                         <td data-label="Employee Name"><?php echo $sqlRow['employee_name']; ?></td>
                                         <td data-label="Username"><?php echo $sqlRow['username']; ?></td>
@@ -160,7 +164,6 @@ ob_end_flush();
                         </tbody>
                     </table>
 
-                </form>
 
             </div>
 
@@ -260,6 +263,7 @@ ob_end_flush();
 
                     <thead>
                         <tr class="text-center" style="background-color: #900008; color: white;">
+                            <th scope="col"><input type="checkbox" id="select-all-account"></th>
                             <th scope="col">Employee Name</th>
                             <th scope="col">Username</th>
                             <th scope="col">Badge No.</th>
@@ -282,6 +286,16 @@ ob_end_flush();
                             while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
                                 ?>
                                 <tr class="table-row text-center" style="vertical-align:middle;">
+                                    <td data-label="Select">
+                                        <input type="checkbox" class="select-acc" 
+                                                data-id="<?php echo $sqlRow['id']; ?>"
+                                                data-employee_name="<?php echo $sqlRow['employee_name']; ?>"
+                                                data-badge_number="<?php echo $sqlRow['badge_number']; ?>"
+                                                data-cost_center="<?php echo $sqlRow['cost_center']; ?>"
+                                                data-designation="<?php echo $sqlRow['designation']; ?>"
+                                                data-account_type="<?php echo $sqlRow['account_type']; ?>"
+                                                >
+                                        </td>
                                     <td data-label="Employee Name"><?php echo $sqlRow['employee_name']; ?></td>
                                     <td data-label="Username"><?php echo $sqlRow['username']; ?></td>
                                     <td data-label="Badge No."><?php echo $sqlRow['badge_number']; ?></td>
@@ -418,6 +432,112 @@ ob_end_flush();
         </div>
 
     </div>
+
+     <!-- Account Approval Modal -->
+     <div class="modal fade" id="accountApprovalModal" tabindex="-1" aria-labelledby="accountApprovalModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="accountApprovalModalLabel">Approval of Selected Accounts</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="approveAccForm">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="text-center text-white" style="background-color: #900008;">
+                                    <tr style="vertical-align: middle;">
+                                        <th>Employee Name</th>
+                                        <th>Badge Number</th>
+                                        <th>Cost Center</th>
+                                        <th>Designation</th>
+                                        <th>Account Type</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalAccountApprovalList">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success" name="approveacc_submit">Approve</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Rejection Modal -->
+    <div class="modal fade" id="accRejectModal" tabindex="-1" aria-labelledby="accRejectModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="accRejectModalLabel">Rejection of Selected Accounts</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="rejectAccForm">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="text-center text-white" style="background-color: #900008;">
+                                    <tr style="vertical-align: middle;">
+                                        <th>Employee Name</th>
+                                        <th>Badge Number</th>
+                                        <th>Cost Center</th>
+                                        <th>Designation</th>
+                                        <th>Account Type</th>
+                                        <th>Reasons</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalAccountRejectionList">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger" name="rejectacc_submit">Reject</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <!-- Account Deletion Modal -->
+     <div class="modal fade" id="accDeleteModal" tabindex="-1" aria-labelledby="accDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="accDeleteModalLabel">Rejection of Selected Accounts</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="deleteAccForm">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="text-center text-white" style="background-color: #900008;">
+                                    <tr style="vertical-align: middle;">
+                                        <th>Employee Name</th>
+                                        <th>Username</th>
+                                        <th>Badge Number</th>
+                                        <th>Cost Center</th>
+                                        <th>Designation</th>
+                                        <th>Account Type</th>
+                                        <th>Reasons</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalAccountDeletionList">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger" name="deleteacc_submit">Reject</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- MODAL FOR CHANGE PASSWORD -->
     <div class="modal fade" id="change_pass_modal" tabindex="-1" aria-labelledby="change_pass_modalLabel"
@@ -793,10 +913,15 @@ ob_end_flush();
         });
 
         // Select all for Approval Tab
-        $('#select_all').change(function () {
-            var isChecked = $(this).prop('checked');
-            $('#data-table tr:visible').find('.row-checkbox').prop('checked', isChecked);
+        $('#select-all').on('change', function () {
+            $('.select-row').prop('checked', $(this).prop('checked'));
         });
+
+        // Select all for Accounts Tab
+        $('#select-all-account').on('change', function () {
+            $('.select-acc').prop('checked', $(this).prop('checked'));
+        });
+
 
         $('#data-table').on('change', '.row-checkbox', function () {
             var totalRows = $('#data-table tr:visible').length;
@@ -841,10 +966,6 @@ ob_end_flush();
                 }
             });
         });
-
-
-
-
 
         // Search Input for Cost Center Tab
         $('#search_cost').on('input', function () {
@@ -1075,5 +1196,200 @@ ob_end_flush();
                 icon.removeClass('bi-eye').addClass('bi-eye-slash');
             }
         });
+    
+        // Account Approval Button
+        $("#approve_acc-btn").click(function () {
+            $("#modalAccountApprovalList").empty();
+
+            let selectedItems = $(".select-row:checked");
+
+            if (selectedItems.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No accounts selected',
+                    text: 'Please select at least one request to approve.',
+                    confirmButtonText: 'Ok'
+                });
+                return;
+            }
+
+            selectedItems.each(function () {
+                let id = $(this).data("id");
+                let employeeName = $(this).data("employee_name");
+                let badgeNumber = $(this).data("badge_number");
+                let costCenter = $(this).data("cost_center");
+                let designation = $(this).data("designation");
+                let accType = $(this).data("account_type");
+
+                let row = `
+                    <tr class=" text-center" style="vertical-align: middle;">
+                        <td>
+                            ${employeeName}
+                        </td>
+                        <td>
+                            ${badgeNumber}
+                        </td>
+                        <td>
+                            ${costCenter}
+                        </td>
+                        <td>
+                            <select class="form-select" name="designations[]" required>
+                                <option value="${!designation ? 'selected' : ''}">Select Designation</option>
+                                <option value="Supervisor" ${designation === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
+                                <option value="Kitting" ${designation === 'Kitting' ? 'selected' : ''}>Kitting</option>
+                                <option value="Inspector" ${designation === 'Inspector' ? 'selected' : ''}>Inspector</option>
+                                <option value="Operator" ${designation === 'Operator' ? 'selected' : ''}>Operator</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-select" name="accounttypes[]" required>
+                                <option value="${!accType ? 'selected' : ''}">Select Account Type</option>
+                                <option value="User" ${accType === 'User' ? 'selected' : ''}>User</option>
+                                <option value="Kitting" ${accType === 'Kitting' ? 'selected' : ''}>Kitting</option>
+                                <option value="Supervisor" ${accType === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
+                            </select>
+                        </td>
+                        <td style="display:none;"> 
+                            <input type="hidden" name="employeenames[]" value="${employeeName}">
+                            <input type="hidden" name="ids[]" value="${id}">
+                        </td>
+                    </tr>
+                    `;
+                $("#modalAccountApprovalList").append(row);
+            });
+
+            $("#accountApprovalModal").modal("show");
+        });
+
+        // Account Approval Submit
+        $("#approveAccForm").submit(function (e) {
+            e.preventDefault();
+
+            let formData = $(this).serialize();
+
+            formData += "&approveacc_submit=1";
+
+            $.ajax({
+                url: '../../controller/accounts.php',
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Requests approved successfully!',
+                            confirmButtonText: 'Ok'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error || 'An unexpected error occurred.',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                }
+            });
+        });
+    
+        // Account Rejection Button
+        $("#reject_acc-btn").click(function () {
+            $("#modalAccountRejectionList").empty();
+
+            let selectedItems = $(".select-row:checked");
+
+            if (selectedItems.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No items selected',
+                    text: 'Please select at least one request to reject.',
+                    confirmButtonText: 'Ok'
+                });
+                return;
+            }
+
+            selectedItems.each(function () {
+                let id = $(this).data("id");
+                let employeeName = $(this).data("employee_name");
+                let badgeNumber = $(this).data("badge_number");
+                let costCenter = $(this).data("cost_center");
+                let designation = $(this).data("designation");
+                let accType = $(this).data("account_type");
+
+                let row = `
+                    <tr class=" text-center" style="vertical-align: middle;">
+                        <td>
+                            ${employeeName}
+                        </td>
+                        <td>
+                            ${badgeNumber}
+                        </td>
+                        <td>
+                            ${costCenter}
+                        </td>
+                        <td>
+                            ${designation}
+                        </td>
+                        <td>
+                            ${accType}
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="reasons[]" placeholder="Reason for Account Rejection" autocomplete="OFF">
+                        </td>
+                        <td style="display:none;"> 
+                            <input type="hidden" name="employeenames[]" value="${employeeName}">
+                            <input type="hidden" name="ids[]" value="${id}">
+                        </td>
+                    </tr>
+                `;
+                $("#modalAccountRejectionList").append(row);
+            });
+
+            $("#accRejectModal").modal("show");
+        });
+
+        // Account Rejection Submit
+        $("#rejectAccForm").submit(function (e) {
+            e.preventDefault();
+
+            let formData = $(this).serialize();
+
+            formData += "&rejectacc_submit=1";
+
+            $.ajax({
+                url: '../../controller/accounts.php',
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Requests rejected successfully!',
+                            confirmButtonText: 'Ok'
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error || 'An unexpected error occurred.',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                }
+            });
+        });
+
+
+
     });
 </script>

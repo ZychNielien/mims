@@ -264,89 +264,91 @@ if (isset($_POST['mat_req_part'])) {
     }
 }
 
+// UPDATE MATERIALS
+if (isset($_POST['update_submit'])) {
+    if (isset($_POST['ids']) && isset($_POST['partnumbers']) && isset($_POST['partdescs']) && isset($_POST['partypes']) && isset($_POST['partcategories']) && isset($_POST['costcenters']) && isset($_POST['locations']) && isset($_POST['inventreqs']) && isset($_POST['units']) && isset($_POST['approvers'])) {
+        $ids = $_POST['ids'];
+        $partnumbers = $_POST['partnumbers'];
+        $partdescs = $_POST['partdescs'];
+        $partypes = $_POST['partypes'];
+        $partcategories = $_POST['partcategories'];
+        $costcenters = $_POST['costcenters'];
+        $locations = $_POST['locations'];
+        $inventreqs = $_POST['inventreqs'];
+        $units = $_POST['units'];
+        $approvers = $_POST['approvers'];
+        $success = true;
 
-// Update Part Number Details
-if (isset($_POST['update_namedesc'])) {
-    $part_id = $_POST['id'];
-    $part_name = $_POST['part_name'];
-    $part_desc = $_POST['part_desc'];
-    $part_cost_center = $_POST['cost_center'];
-    $part_location = $_POST['location'];
-    $part_min_invent_req = $_POST['min_invent_req'];
-    $part_unit = $_POST['unit'];
-    $part_option = $_POST['part_option'];
-
-    $sql = "UPDATE `tbl_inventory` SET part_name = '$part_name' , part_desc = '$part_desc' , cost_center = '$part_cost_center' , location = '$part_location' , min_invent_req = '$part_min_invent_req' , unit = '$part_unit' , part_option = '$part_option' WHERE id = '$part_id'";
-    $sql_query = mysqli_query($con, $sql);
-    if ($sql_query) {
-
-        $account_username = $_SESSION['username'];
-        $desciption = $account_username . " has updated the details of material " . $part_name;
-        $dts = date('Y-m-d H:i:s');
-
-        $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', 'Edit Material Details','$desciption' , '$dts')";
-        $sql_log_query = mysqli_query($con, $sql_log);
-
-        if ($sql_log_query) {
-            $_SESSION['status'] = "Updated successfully!";
-            $_SESSION['status_code'] = "success";
-            header("location: ../view/adminModule/adminInventory.php");
-            exit();
-        }
-    } else {
-        echo "Error: " . mysqli_error($con);
-    }
-}
-
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id'])) {
-    $partId = intval($_POST['id']);
-
-    $sql_part = "SELECT part_name FROM `tbl_inventory` WHERE id = $partId";
-    $sql_part_query = mysqli_query($con, $sql_part);
-
-    if ($sql_part_query) {
-        $partRow = mysqli_fetch_assoc($sql_part_query);
-
-        if ($partRow) {
-            $part_name = $partRow['part_name'];
-
-            $account_username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Unknown User';
-            $description = $account_username . " has deleted " . $part_name;
+        for ($i = 0; $i < count($ids); $i++) {
+            $id = intval($ids[$i]);
+            $partnumber = $partnumbers[$i];
+            $partdesc = $partdescs[$i];
+            $partype = $partypes[$i];
+            $partcategory = $partcategories[$i];
+            $costcenter = $costcenters[$i];
+            $location = $locations[$i];
+            $inventreq = $inventreqs[$i];
+            $unit = $units[$i];
+            $approver = $approvers[$i];
+            $account_username = $_SESSION['username'];
+            $desciption = $account_username . " has updated the details of material " . $partnumber;
             $dts = date('Y-m-d H:i:s');
 
-            $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) 
-                        VALUES ('$account_username', 'Material Deletion', '$description', '$dts')";
-
-            if (!mysqli_query($con, $sql_log)) {
-                error_log("Failed to insert log: " . mysqli_error($con) . " SQL: $sql_log");
-                echo json_encode(['success' => false, 'message' => 'Error logging the deletion.']);
-                exit;
-            }
-
-            $sql = "DELETE FROM tbl_inventory WHERE id = $partId";
+            $sql = "UPDATE `tbl_inventory` SET part_name = '$partnumber' , part_desc = '$partdesc' , cost_center = '$costcenter' , location = '$location' , min_invent_req = '$inventreq' , unit = '$unit' , part_option = '$partype' ,part_category = '$partcategory', approver = '$approver' WHERE id = '$id '";
 
             if (mysqli_query($con, $sql)) {
 
-                $delete_stock = "DELETE FROM tbl_stock WHERE part_name = '$part_name'";
+                $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', 'Edit Material Details','$desciption' , '$dts')";
+                if (!mysqli_query($con, $sql_log)) {
+                    $success = false;
+                    break;
+                }
+            }
+        }
+        echo json_encode(["success" => true]);
+    } else {
+        echo json_encode(["success" => false, "error" => "Missing data"]);
+    }
 
-                if (mysqli_query($con, $delete_stock)) {
+}
 
-                    echo json_encode(['success' => true]);
+// DELETE MATERIALS
+if (isset($_POST['delete_submit'])) {
+    if (isset($_POST['ids']) && isset($_POST['part_names']) && isset($_POST['reasons'])) {
+        $ids = $_POST['ids'];
+        $partnumbers = $_POST['part_names'];
+        $reasons = $_POST['reasons'];
+        $success = true;
+        for ($i = 0; $i < count($ids); $i++) {
+            $id = intval($ids[$i]);
+            $partnumber = $partnumbers[$i];
+            $reason = $reasons[$i];
+            $account_username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Unknown User';
+            $description = $account_username . " has deleted " . $partnumber;
+            $dts = date('Y-m-d H:i:s');
+
+            $sql = "DELETE FROM tbl_inventory WHERE id = $id";
+            if (mysqli_query($con, $sql)) {
+
+                $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts, reasons) 
+                VALUES ('$account_username', 'Material Deletion', '$description', '$dts', '$reason')";
+                if (!mysqli_query($con, $sql_log)) {
+                    $success = false;
+                    break;
                 }
 
-
-            } else {
-                error_log("Failed to delete part: " . mysqli_error($con) . " SQL: $sql");
-                echo json_encode(['success' => false, 'message' => 'Error executing delete query']);
+                $delete_stock = "DELETE FROM tbl_stock WHERE part_name = '$partnumber'";
+                if (!mysqli_query($con, $delete_stock)) {
+                    $success = false;
+                    break;
+                }
             }
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Part not found']);
         }
+        echo json_encode(["success" => true]);
     } else {
-
-        error_log("Failed to select part: " . mysqli_error($con) . " SQL: $sql_part");
-        echo json_encode(['success' => false, 'message' => 'Error fetching part details']);
+        echo json_encode(["success" => false, "error" => "Missing data"]);
     }
+
 }
 
 ?>

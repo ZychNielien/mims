@@ -47,6 +47,7 @@ include "navBar.php";
                     <th scope="col">Username</th>
                     <th scope="col">Action</th>
                     <th scope="col">Description</th>
+                    <th scope="col">Reasons</th>
                 </tr>
             </thead>
 
@@ -64,6 +65,7 @@ include "navBar.php";
                             <td data-label="Username"><?php echo $sqlRow['username']; ?></td>
                             <td data-label="Action"><?php echo $sqlRow['action']; ?></td>
                             <td data-label="Description"><?php echo $sqlRow['description']; ?></td>
+                            <td data-label="Reason"><?php echo $sqlRow['reasons']; ?></td>
                         </tr>
                         <?php
                     }
