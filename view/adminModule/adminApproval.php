@@ -60,6 +60,7 @@ include "navBar.php";
                     <th scope="col">Part Number</th>
                     <th scope="col">Item Description</th>
                     <th scope="col">Qty.</th>
+                    <th scope="col">Batch Number</th>
                     <th scope="col">Machine No.</th>
                     <th scope="col">Withdrawal Reason</th>
                     <th scope="col">Requested By</th>
@@ -91,6 +92,7 @@ include "navBar.php";
                             <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
                             <td data-label="Part Desc"><?php echo $sqlRow['part_desc']; ?></td>
                             <td data-label="Quantity"><?php echo $sqlRow['part_qty']; ?></td>
+                            <td data-label="Quantity"><?php echo $sqlRow['batch_number']; ?></td>
                             <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
                             <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                             <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>

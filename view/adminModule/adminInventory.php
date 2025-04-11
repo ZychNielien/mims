@@ -131,6 +131,7 @@ include "navBar.php";
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="materialRegistrationModalLabel">Material Registration</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
 
@@ -193,7 +194,8 @@ include "navBar.php";
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editMaterialModalLabel">Edit Selected Materials</h5>
+                    <h5 class="modal-title" id="editMaterialModalLabel">Update Selected Materials</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="updateForm">
@@ -218,7 +220,7 @@ include "navBar.php";
                         </div>
                         <div class="d-flex justify-content-end mt-3">
                             <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-success" name="update_submit">Approve</button>
+                            <button type="submit" class="btn btn-primary" name="update_submit">Update</button>
                         </div>
                     </form>
                 </div>
@@ -231,7 +233,8 @@ include "navBar.php";
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Delete Selected Materials</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">Deletion of Selected Materials</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="deleteForm">
@@ -296,13 +299,13 @@ include "navBar.php";
             var table = $('<table></table>');
             var headerRow = $('#data-table thead').clone(true);
             var ths = headerRow.find('th');
-            ths.last().remove();
+            ths.first().remove();
             table.append(headerRow);
 
             $(filteredRows).each(function () {
                 var newRow = $(this).clone(true);
                 var tds = newRow.find('td');
-                tds.last().remove();
+                tds.first().remove();
                 table.append(newRow);
             });
 
@@ -322,9 +325,7 @@ include "navBar.php";
             });
         });
 
-        // Table Body for Material Table
         function updateTable(data) {
-            // ✅ Store checked part names (or IDs, if better)
             let checkedItems = {};
             $('#data-table-inventory input[type="checkbox"]:checked').each(function () {
                 const partName = $(this).closest('tr').find('td[data-label="Part Name"]').text().trim();
@@ -521,7 +522,7 @@ include "navBar.php";
                             title: 'Duplicate Part Number(s)',
                             text: `The following already exist: ${res.duplicates.join(", ")}`
                         });
-                    } else if (res.message === "Data inserted successfully") {
+                    } else if (res.message === "Material added successfully") {
                         Swal.fire({
                             icon: 'success',
                             title: 'Success',
@@ -683,11 +684,9 @@ include "navBar.php";
         </td>
     `);
 
-            // Append the row to the table body
             $("#itemStockTable tbody").append(row);
         }
 
-        // Event delegation for dynamically added rows
         $(document).on('change', 'select[name="addExpDateOption"]', function () {
             toggleExpDateInput(this);
         });
@@ -700,7 +699,7 @@ include "navBar.php";
                 expInput.prop('type', 'date');
                 expInput.prop('readonly', false);
                 expInput.prop('disabled', false);
-                expInput.val(''); // Clear previous value just in case
+                expInput.val('');
             } else if ($(select).val() === 'no') {
                 expInput.prop('type', 'text');
                 expInput.val('NA');
@@ -747,10 +746,9 @@ include "navBar.php";
         $('#addtoStockButton').on("click", function (e) {
             e.preventDefault();
 
-            let data = []; // ✅ define data array
+            let data = [];
             let valid = true;
 
-            // Loop through each row
             $("#itemStockTable tbody tr").each(function () {
                 let item = {};
                 let validRow = true;
@@ -766,7 +764,6 @@ include "navBar.php";
                         $(this).removeClass("is-invalid");
                     }
 
-                    // Map to keys expected by PHP
                     switch (name) {
                         case 'addPartNumber':
                             item['part_name'] = value;
@@ -792,7 +789,7 @@ include "navBar.php";
                     }
                 });
 
-                data.push(item); // ✅ now this works because `data` exists
+                data.push(item);
             });
 
             if (!valid) {
@@ -800,14 +797,13 @@ include "navBar.php";
             }
 
             if (data.length === 0) {
-                return Swal.fire('Error!', 'No data to submit.', 'error');
+                return Swal.fire('Error!', 'No stock to submit.', 'error');
             }
 
-            // Send data via AJAX
             $.ajax({
                 url: '../../controller/addtoStock.php',
                 type: 'POST',
-                data: { stock_data: JSON.stringify(data) }, // ✅ send the full array, not just one item
+                data: { stock_data: JSON.stringify(data) },
                 success: function (response) {
                     try {
                         let jsonResponse = JSON.parse(response);
@@ -815,7 +811,7 @@ include "navBar.php";
                         if (jsonResponse.success) {
                             Swal.fire({
                                 title: 'Success!',
-                                text: jsonResponse.message || 'Data submitted successfully!',
+                                text: jsonResponse.message || 'Stocks added successfully!',
                                 icon: 'success',
                                 confirmButtonText: 'OK'
                             }).then(() => {
@@ -850,7 +846,7 @@ include "navBar.php";
                 Swal.fire({
                     icon: 'warning',
                     title: 'No items selected',
-                    text: 'Please select at least one request to approve.',
+                    text: 'Please select at least one material to update.',
                     confirmButtonText: 'Ok'
                 });
                 return;
@@ -973,8 +969,8 @@ include "navBar.php";
                     if (response.success) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Success!',
-                            text: 'Requests approved successfully!',
+                            title: 'Material Updated',
+                            text: 'Materials have been updated successfully.',
                             confirmButtonText: 'Ok'
                         }).then(() => {
                             location.reload();
@@ -1001,7 +997,7 @@ include "navBar.php";
                 Swal.fire({
                     icon: 'warning',
                     title: 'No items selected',
-                    text: 'Please select at least one request to reject.',
+                    text: 'Please select at least one material to delete.',
                     confirmButtonText: 'Ok'
                 });
                 return;
@@ -1055,8 +1051,8 @@ include "navBar.php";
                     if (response.success) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Rejected!',
-                            text: 'Requests have been rejected successfully.',
+                            title: 'Materials Deletion!',
+                            text: 'Materials have been deleted successfully.',
                             confirmButtonText: 'Ok'
                         }).then(() => {
                             location.reload();

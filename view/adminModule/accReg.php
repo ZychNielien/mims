@@ -275,7 +275,6 @@ ob_end_flush();
                             <th scope="col">Designation</th>
                             <th scope="col">Supervisor</th>
                             <th scope="col">Account Type</th>
-                            <th scope="col">Action</th>
                         </tr>
                     </thead>
 
@@ -315,20 +314,6 @@ ob_end_flush();
                                         ?>
                                     </td>
                                     <td data-label="Account Type"><?php echo $sqlRow['account_type']; ?></td>
-                                    <td data-label="Action">
-                                        <button class="btn btn-primary btn-edit" data-bs-toggle="modal"
-                                            data-bs-target="#editUserModal" data-id="<?php echo $sqlRow['id']; ?>"
-                                            data-employee_name="<?php echo $sqlRow['employee_name']; ?>"
-                                            data-badge_number="<?php echo $sqlRow['badge_number']; ?>"
-                                            data-ccid="<?php echo $sqlRow['cost_center']; ?>"
-                                            data-designation="<?php echo $sqlRow['designation']; ?>"
-                                            data-supervisor_one="<?php echo $sqlRow['supervisor_one']; ?>"
-                                            data-supervisor_two="<?php echo $sqlRow['supervisor_two']; ?>"
-                                            data-account_type="<?php echo $sqlRow['account_type']; ?>"
-                                            data-username="<?php echo $sqlRow['username']; ?>">Edit</button>
-                                        <button class="btn btn-danger btn-delete"
-                                            data-id="<?php echo $sqlRow['id']; ?>">Delete</button>
-                                    </td>
                                 </tr>
                                 <?php
                             }
@@ -535,7 +520,7 @@ ob_end_flush();
                         </div>
                         <div class="d-flex justify-content-end mt-3">
                             <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-danger" name="deleteacc_submit">Reject</button>
+                            <button type="submit" class="btn btn-danger" name="deleteacc_submit">Delete</button>
                         </div>
                     </form>
                 </div>
@@ -841,90 +826,6 @@ ob_end_flush();
         </div>
     </div>
 
-    <!-- MODAL FOR EDIT ACCOUNT -->
-    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="editUserModalLabel">Edit User</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="../../controller/user.php">
-                        <input type="hidden" id="edit-user-id" name="user_id">
-                        <div class="mb-3 mx-1">
-                            <label for="edit_employee_name" class="form-label">Employee Name</label>
-                            <input type="text" class="form-control" id="edit_employee_name" name="employee_name"
-                                placeholder="Enter Employee Name" required autocomplete="off">
-                        </div>
-                        <div class="mb-3 position-relative d-flex justify-content-evenly">
-                            <div class="w-50 mx-1">
-                                <label for="edit_badge_number" class="form-label">Badge Number</label>
-                                <input type="text" class="form-control " id="edit_badge_number" name="badge_number"
-                                    placeholder="Enter Badge Number" required autocomplete="off">
-                            </div>
-                            <div class="w-50  mx-1">
-                                <label for="edit_designation" class="form-label">Designation</label>
-                                <select class="form-select" id="edit_designation" name="designation" required>
-                                    <option selected value="">Select Designation</option>
-                                    <option value="Supervisor">Supervisor</option>
-                                    <option value="Kitting">Kitting</option>
-                                    <option value="Inspector">Inspector</option>
-                                    <option value="Operator">Operator</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mb-3 position-relative d-flex justify-content-evenly">
-                            <div class="w-50 mx-1">
-                                <label for="edit_account_type" class="form-label">Account Type</label>
-                                <select class="form-select" id="edit_account_type" name="account_type" required>
-                                    <option selected value="">Select Account Type</option>
-                                    <option value="User">User</option>
-                                    <option value="Kitting">Kitting</option>
-                                    <option value="Supervisor">Supervisor</option>
-                                </select>
-                            </div>
-                            <div class="w-50 mx-1">
-                                <label for="edit_cost_center" class="form-label">Cost Center</label>
-                                <select class="form-select" id="edit_cost_center" name="cost_center" required>
-                                    <option selected value="">Select Cost Center</option>
-                                    <?php
-                                    $select_ccid = "SELECT * FROM tbl_ccs";
-                                    $select_ccid_query = mysqli_query($con, $select_ccid);
-
-                                    if (mysqli_num_rows($select_ccid_query) > 0) {
-                                        while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
-                                            ?>
-                                            <option value="<?php echo $ccid_row['ccid'] ?>"
-                                                data-id="<?php echo $ccid_row['id'] ?>"><?php echo $ccid_row['ccid'] ?>
-                                            </option>
-                                            <?php
-                                        }
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-
-                        </div>
-
-                        <div class="mb-3 position-relative">
-                            <label for="create_edit_supervisor_one" class="form-label">Supervisor</label>
-                            <div class="d-flex justify-content-between">
-                                <input type="text" class="form-control mx-1" id="create_edit_supervisor_one"
-                                    placeholder="Enter Supervisor" name="supervisor_one" required readonly>
-                                <input type="text" class="form-control mx-1" id="create_edit_supervisor_two"
-                                    placeholder="Enter Supervisor" name="supervisor_two" readonly>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary" name="editUser">Save Changes</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 </section>
 
 
@@ -959,13 +860,6 @@ ob_end_flush();
         // Select all for Accounts Tab
         $('#select-all-account').on('change', function () {
             $('.select-acc').prop('checked', $(this).prop('checked'));
-        });
-
-
-        $('#data-table').on('change', '.row-checkbox', function () {
-            var totalRows = $('#data-table tr:visible').length;
-            var checkedRows = $('#data-table tr:visible').find('.row-checkbox:checked').length;
-            $('#select_all').prop('checked', totalRows === checkedRows);
         });
 
         // Search Input for Change Pass Tab
@@ -1146,46 +1040,6 @@ ob_end_flush();
             $('#forgot_pass_username').val(forgot_pass_username);
         });
 
-        // Edit Accounts Data
-        $('.btn-edit').on('click', function () {
-            var userId = $(this).data('id');
-            var user_employee_name = $(this).data('employee_name');
-            var user_badge_number = $(this).data('badge_number');
-            var user_cost_center = $(this).data('ccid');
-            var user_designation = $(this).data('designation');
-            var user_supervisor_one = $(this).data('supervisor_one');
-            var user_supervisor_two = $(this).data('supervisor_two');
-            var user_account_type = $(this).data('account_type');
-
-            $('#edit-user-id').val(userId);
-            $('#edit_employee_name').val(user_employee_name);
-            $('#edit_badge_number').val(user_badge_number);
-            $('#edit_cost_center').val(user_cost_center);
-            $('#edit_designation').val(user_designation);
-            $('#edit_account_type').val(user_account_type);
-            $('#create_edit_supervisor_one').val(user_supervisor_one);
-            $('#create_edit_supervisor_two').val(user_supervisor_two);
-        });
-
-        // Delete Accounts Data
-        $('.btn-delete').on('click', function () {
-            var userId = $(this).data('id');
-
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this action!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "../../controller/user.php?id=" + userId;
-                }
-            });
-        });
-
         // Show Password Script
         $('#toggle-password').on('click', function () {
             var passwordField = $('#passwordred');
@@ -1246,7 +1100,7 @@ ob_end_flush();
                 Swal.fire({
                     icon: 'warning',
                     title: 'No accounts selected',
-                    text: 'Please select at least one request to approve.',
+                    text: 'Please select at least one account to approve.',
                     confirmButtonText: 'Ok'
                 });
                 return;
@@ -1319,7 +1173,7 @@ ob_end_flush();
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
-                            text: 'Requests approved successfully!',
+                            text: 'Accounts approved successfully!',
                             confirmButtonText: 'Ok'
                         }).then(() => {
                             location.reload();
@@ -1346,7 +1200,7 @@ ob_end_flush();
                 Swal.fire({
                     icon: 'warning',
                     title: 'No items selected',
-                    text: 'Please select at least one request to reject.',
+                    text: 'Please select at least one account to reject.',
                     confirmButtonText: 'Ok'
                 });
                 return;
@@ -1411,7 +1265,7 @@ ob_end_flush();
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
-                            text: 'Requests rejected successfully!',
+                            text: 'Account rejected successfully!',
                             confirmButtonText: 'Ok'
                         }).then(() => {
                             location.reload();
@@ -1437,7 +1291,7 @@ ob_end_flush();
                 Swal.fire({
                     icon: 'warning',
                     title: 'No items selected',
-                    text: 'Please select at least one request to delete.',
+                    text: 'Please select at least one account to delete.',
                     confirmButtonText: 'Ok'
                 });
                 return;
@@ -1505,7 +1359,7 @@ ob_end_flush();
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
-                            text: 'Requests rejected successfully!',
+                            text: 'Accounts deleted successfully!',
                             confirmButtonText: 'Ok'
                         }).then(() => {
                             window.location.href = 'accReg.php?tab=account';
@@ -1533,7 +1387,7 @@ ob_end_flush();
                 Swal.fire({
                     icon: 'warning',
                     title: 'No items selected',
-                    text: 'Please select at least one request to delete.',
+                    text: 'Please select at least one account to update.',
                     confirmButtonText: 'Ok'
                 });
                 return;

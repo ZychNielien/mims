@@ -134,7 +134,7 @@ if (isset($_POST['deleteacc_submit'])) {
     }
 }
 
-
+// UPDATE ACCOUNTS
 if (isset($_POST['updateacc_submit'])) {
     if (isset($_POST['ids']) && isset($_POST['employeenames']) && isset($_POST['accounttypes']) && isset($_POST['designations']) && isset($_POST['costcenters']) && isset($_POST['supervisorOnes']) && isset($_POST['supervisorTwos']) ) {
         $ids = $_POST['ids'];
