@@ -95,7 +95,7 @@ include "navBar.php";
                         <button class="btn btn-success" id="btnAddStockRow">Add Row</button>
                     </div>
                     <div class="table-responsive overflow-x-auto">
-                        <table class=" table table-bordered table-sm text-center" id="itemStockTable">
+                        <table class=" table table-bordered table-striped text-center" id="itemStockTable">
                             <thead>
                                 <tr class="text-center"
                                     style="background-color: #900008; color: white; vertical-align: middle;">
@@ -156,7 +156,7 @@ include "navBar.php";
                     </div>
 
                     <div class="table-responsive overflow-x-auto">
-                        <table class="table table-bordered table-sm text-center w-100" id="itemTable">
+                        <table class="table table-striped table-bordered text-center w-100" id="itemTable">
                             <thead>
                                 <tr class="text-center"
                                     style="background-color: #900008; color: white; vertical-align: middle;">
@@ -200,7 +200,7 @@ include "navBar.php";
                 <div class="modal-body">
                     <form id="updateForm">
                         <div class="table-responsive">
-                            <table class="table table-bordered">
+                            <table class="table table-striped table-bordered">
                                 <thead class="text-center text-white" style="background-color: #900008;">
                                     <tr style="vertical-align: middle;">
                                         <th>Part Number</th>
@@ -230,7 +230,7 @@ include "navBar.php";
 
     <!-- Delete Material Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="deleteModalLabel">Deletion of Selected Materials</h5>
@@ -239,7 +239,7 @@ include "navBar.php";
                 <div class="modal-body">
                     <form id="deleteForm">
                         <div class="table-responsive">
-                            <table class="table table-bordered">
+                            <table class="table table-striped table-bordered">
                                 <thead class="text-center text-white" style="background-color: #900008;">
                                     <tr style="vertical-align: middle;">
                                         <th>Part Number</th>
@@ -568,7 +568,7 @@ include "navBar.php";
                 </td>
                 <td>
                     <select name="new_cost_center" class="form-select w-100" required>  
-                        <option value="${!data.new_cost_center ? 'selected' : ''}">Cost Center</option>
+                        <option value="" ${!data.new_cost_center ? 'selected' : ''}>Cost Center</option>
                         <?php
                         $select_ccid = "SELECT * FROM tbl_ccs";
                         $select_ccid_query = mysqli_query($con, $select_ccid);
@@ -635,54 +635,54 @@ include "navBar.php";
             const row = $("<tr></tr>").attr("id", rowId);
 
             row.append(`
-        <td>
-            <select class="form-select partSelect" name="addPartNumber" data-row-id="${rowId}" required>
-                <option value="">Part Number</option> 
-                <?php
-                $select_ccid = "SELECT id, part_name FROM tbl_inventory";
-                $select_ccid_query = mysqli_query($con, $select_ccid);
-                if (mysqli_num_rows($select_ccid_query) > 0) {
-                    while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
-                        ?>
-                        <option value="<?php echo $ccid_row['part_name'] ?>" data-id="<?php echo $ccid_row['id'] ?>">
-                            <?php echo $ccid_row['part_name'] ?>
-                        </option>
+                <td>
+                    <select class="form-select partSelect" name="addPartNumber" data-row-id="${rowId}" required>
+                        <option value="">Part Number</option> 
                         <?php
-                    }
-                }
-                ?>
-            </select>
-        </td>
-        <td>
-            <input type="text" class="form-control partDescription" name="addPartDesc" placeholder="Part Description" readonly>
-        </td>
-        <td>
-            <input type="number" class="form-control" name="addPartQty" placeholder="Part Quantity" min="0" step="1" >
-        </td>
-        <td>
-            <input type="text" class="form-control" name="addBatchNumber" placeholder="Batch Number">
-        </td>
-        <td>
-            <select class="form-select" name="addExpDateOption">
-                <option value="">Has Expiration Date?</option>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-            </select>
-        </td>
-        <td>
- <input type="date" class="form-control expDateInput" name="addExpDate" placeholder="Expiration Date">
-</td>
-        </td>
-        <td>
-            <input type="text" class="form-control" name="addKittingID" placeholder="Kitting ID" >
-        </td>
-        <td>
-            <input type="text" class="form-control" name="addLotID" placeholder="Lot ID" >
-        </td>
-        <td>
-            <button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button>
-        </td>
-    `);
+                        $select_ccid = "SELECT id, part_name FROM tbl_inventory";
+                        $select_ccid_query = mysqli_query($con, $select_ccid);
+                        if (mysqli_num_rows($select_ccid_query) > 0) {
+                            while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
+                                ?>
+                                <option value="<?php echo $ccid_row['part_name'] ?>" data-id="<?php echo $ccid_row['id'] ?>">
+                                    <?php echo $ccid_row['part_name'] ?>
+                                </option>
+                                <?php
+                            }
+                        }
+                        ?>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="form-control partDescription" name="addPartDesc" placeholder="Part Description" readonly>
+                </td>
+                <td>
+                    <input type="number" class="form-control" name="addPartQty" placeholder="Part Quantity" min="0" step="1" >
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="addBatchNumber" placeholder="Batch Number">
+                </td>
+                <td>
+                    <select class="form-select" name="addExpDateOption">
+                        <option value="">Has Expiration Date?</option>
+                        <option value="yes">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </td>
+                <td>
+                     <input type="text" class="form-control expDateInput" name="addExpDate" placeholder="Expiration Date" readonly disabled>
+                </td>
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="addKittingID" placeholder="Kitting ID" >
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="addLotID" placeholder="Lot ID" >
+                </td>
+                <td>
+                    <button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button>
+                </td>
+            `);
 
             $("#itemStockTable tbody").append(row);
         }
@@ -707,6 +707,8 @@ include "navBar.php";
                 expInput.prop('disabled', false);
             } else {
                 expInput.val('');
+                expInput.prop('type', 'text');
+                expInput.prop('readonly', true);
                 expInput.prop('disabled', true);
             }
         }

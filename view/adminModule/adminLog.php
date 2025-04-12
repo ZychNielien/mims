@@ -1,22 +1,14 @@
 <?php
 
-// Database Connection
 include "../../model/dbconnection.php";
-
-// Navigation Bar
 include "navBar.php";
 
 ?>
 
 <head>
 
-    <!-- Title -->
     <title>Issuance History</title>
-
-    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
-
-    <!-- Table Style -->
     <link rel="stylesheet" href="../../public/css/table.css">
 
 </head>

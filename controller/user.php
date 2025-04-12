@@ -3,53 +3,6 @@ include "../model/dbconnection.php";
 session_start();
 date_default_timezone_set('Asia/Manila');
 
-// ADMIN ACCOUNT CREATION
-if (isset($_POST['register'])) {
-
-    $employee_name = mysqli_real_escape_string($con, $_POST['employee_name']);
-    $username = mysqli_real_escape_string($con, $_POST['username']);
-    $password = mysqli_real_escape_string($con, $_POST['password']);
-    $badge_number = mysqli_real_escape_string($con, $_POST['badge_number']);
-    $designation = mysqli_real_escape_string($con, $_POST['designation']);
-    $account_type = mysqli_real_escape_string($con, $_POST['account_type']);
-    $cost_center = mysqli_real_escape_string($con, $_POST['cost_center']);
-    $supervisor_one = mysqli_real_escape_string($con, $_POST['supervisor_one']);
-    $supervisor_two = mysqli_real_escape_string($con, $_POST['supervisor_two']);
-
-    $checkUsernameSQL = "SELECT * FROM tbl_users WHERE username = '$username'";
-    $checkUsernameQuery = mysqli_query($con, $checkUsernameSQL);
-
-    if (mysqli_num_rows($checkUsernameQuery) > 0) {
-
-        $_SESSION['status'] = "Username is already taken, please choose another one.";
-        $_SESSION['status_code'] = "error";
-        header("Location: ../view/adminModule/accReg.php?tab=account");
-    } else {
-
-        $account_username = $_SESSION['username'];
-        $desciption = $account_username . " has created an account for " . $employee_name;
-        $dts = date('Y-m-d H:i:s');
-
-        $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', 'Account Registration','$desciption' , '$dts')";
-        $sql_log_query = mysqli_query($con, $sql_log);
-
-        if ($sql_log_query) {
-            $sql = "INSERT INTO tbl_users (employee_name, username, password, badge_number, designation, account_type,cost_center,supervisor_one,supervisor_two ,usertype) VALUES ('$employee_name', '$username','$password', '$badge_number','$designation', '$account_type','$cost_center', '$supervisor_one','$supervisor_two',  2)";
-            if (mysqli_query($con, $sql)) {
-                $_SESSION['status'] = "User registered successfully!";
-                $_SESSION['status_code'] = "success";
-                header("Location: ../view/adminModule/accReg.php?tab=account");
-            } else {
-                $_SESSION['status'] = "Error registering user.";
-                $_SESSION['status_code'] = "error";
-                header("Location: ../view/adminModule/accReg.php?tab=account");
-            }
-        }
-
-
-    }
-}
-
 // USER ACCOUNT CREATION
 if (isset($_POST['account_submit'])) {
     $employee_name = mysqli_real_escape_string($con, $_POST['employee_name']);
@@ -97,38 +50,6 @@ if (isset($_POST['account_submit'])) {
             header("Location: ../view/index.php");
         }
 
-    }
-}
-
-
-// DELETE USER
-if (isset($_GET['id'])) {
-    $user_id = $_GET['id'];
-
-    $sql = "DELETE FROM tbl_users WHERE id = '$user_id'";
-
-    $sql_user = "SELECT employee_name FROM `tbl_users` WHERE id = '$user_id'";
-    $sql_user_query = mysqli_query($con, $sql_user);
-    $userRow = mysqli_fetch_assoc($sql_user_query);
-    $employee_name = $userRow['employee_name'];
-
-    if (mysqli_query($con, $sql)) {
-        $account_username = $_SESSION['username'];
-        $desciption = $account_username . " has deleted the account of " . $employee_name;
-        $dts = date('Y-m-d H:i:s');
-
-        $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', 'Account Deletion','$desciption' , '$dts')";
-        $sql_log_query = mysqli_query($con, $sql_log);
-
-        if ($sql_log_query) {
-            $_SESSION['status'] = "User deleted successfully!";
-            $_SESSION['status_code'] = "success";
-            header("Location: ../view/adminModule/accReg.php?tab=account");
-        }
-    } else {
-        $_SESSION['status'] = "Error deleting user.";
-        $_SESSION['status_code'] = "error";
-        header("Location: ../view/adminModule/accReg.php?tab=account");
     }
 }
 

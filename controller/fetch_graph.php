@@ -16,7 +16,7 @@ if (isset($_GET['start_date']) && isset($_GET['end_date'])) {
     $station_code = mysqli_real_escape_string($con, $station_code);
 
     $select_material = "
-    SELECT part_name, approved_qty, part_option, return_qty, dts_approve, cost_center, station_code 
+    SELECT part_name, approved_qty, part_option, return_qty, dts_approve, cost_center, station_code, batch_number 
     FROM tbl_requested 
     WHERE status IN ('approved', 'returned')
 ";
@@ -52,7 +52,9 @@ if (isset($_GET['start_date']) && isset($_GET['end_date'])) {
                 'part_qty' => $part_qty,
                 'return_qty' => $return_qty,
                 'cost_center' => $selected_row['cost_center'],
+                'batch_number' => $selected_row['batch_number'],
                 'station_code' => $selected_row['station_code']
+
             ];
 
             if (!isset($grouped_data[$part_name])) {

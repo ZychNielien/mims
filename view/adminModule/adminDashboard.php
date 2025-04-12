@@ -1,31 +1,17 @@
 <?php
 
-// Database Connection
 include "../../model/dbconnection.php";
-
-// Navigation Bar
 include "navBar.php";
 
 ?>
 
 <head>
 
-    <!-- Title -->
     <title>Admin Dashboard</title>
-
-    <!-- Sweetalert Style -->
     <link rel="stylesheet" href="../../public/css/sweetalert.min.css">
-
-    <!-- Graph Style -->
     <link rel="stylesheet" href="../../public/css/graph.css">
-
-    <!-- Sweetalert Script -->
     <script src="../../public/js/sweetalert2@11.js"></script>
-
-    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
-
-    <!-- Chart Script -->
     <script src="../../public/js/chart.js"></script>
 
 </head>
@@ -213,7 +199,6 @@ include "navBar.php";
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- Data will be inserted here dynamically -->
                         </tbody>
                     </table>
                 </div>
@@ -374,7 +359,6 @@ include "navBar.php";
                         tableBody.append(row);
                     });
 
-                    // Sorting dailyData based on date
                     dailyData.sort(function (a, b) {
                         return new Date(a.date) - new Date(b.date);
                     });
@@ -457,7 +441,6 @@ include "navBar.php";
             fetchData(startDate, endDate, partName);
         });
 
-
         // Top Material Consumption / Withdrawal Export to Excel
         $('#with_export_btn').click(function () {
             var wb = XLSX.utils.book_new();
@@ -475,9 +458,8 @@ include "navBar.php";
             var wsChartData = XLSX.utils.aoa_to_sheet(chartData);
             XLSX.utils.book_append_sheet(wb, wsChartData, "ChartData");
 
-            // **Sheet 2: FilteredData**
             var filteredData = [
-                ["Date Approved", "Part Number", "Withdrawn Quantity", "Return Quantity", "Cost Center", "Station Code"]
+                ["Date Approved", "Part Number", "Withdrawn Quantity", "Return Quantity", "Cost Center", "Station Code", "Batch Number"]
             ];
 
             for (var i = 0; i < rawData.length; i++) {
@@ -488,7 +470,9 @@ include "navBar.php";
                         rawData[i].part_qty,
                         rawData[i].return_qty,
                         rawData[i].cost_center,
-                        rawData[i].station_code
+                        rawData[i].station_code,
+                        rawData[i].batch_number
+
                     ]);
                 }
             }
@@ -498,9 +482,6 @@ include "navBar.php";
 
             XLSX.writeFile(wb, "Top_Material_Consumption.xlsx");
         });
-
-
-
 
         // Cost Center Export to Excel
         $('#export-btn').click(function () {

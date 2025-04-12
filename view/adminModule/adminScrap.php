@@ -1,28 +1,16 @@
 <?php
 
-// Database Connection
 include "../../model/dbconnection.php";
-
-// Navigation Bar
 include "navBar.php";
 
 ?>
 
 <head>
 
-    <!-- Title -->
     <title>Scrap Material</title>
-
-    <!-- Table Style -->
     <link rel="stylesheet" href="../../public/css/table.css">
-
-    <!-- Sweetalert Style -->
     <link rel="stylesheet" href="../../public/css/sweetalert.min.css">
-
-    <!-- Sweetalert Script -->
     <script src="../../public/js/sweetalert2@11.js"></script>
-
-    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
 
 </head>
@@ -68,10 +56,11 @@ include "navBar.php";
                                 <th scope="col">Lot ID</th>
                                 <th scope="col">Part Number</th>
                                 <th scope="col">Approved Qty.</th>
+                                <th scope="col">Batch Number</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Returned By</th>
-                                <th scope="col">Status</th>
+
                                 <th scope="col">Return Qty</th>
                                 <th scope="col">Return Reason</th>
                                 <th scope="col">Action</th>
@@ -95,15 +84,17 @@ include "navBar.php";
                                         <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
                                         <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
                                         <td data-label="Quantity"><?php echo $sqlRow['approved_qty']; ?></td>
+                                        <td data-label="Batch Number"><?php echo $sqlRow['batch_number']; ?></td>
                                         <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
                                         <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                                         <td data-label="Return By"><?php echo $sqlRow['req_by']; ?></td>
-                                        <td data-label="Status"><?php echo $sqlRow['status']; ?></td>
+
                                         <td data-label="Return Qty"><?php echo $sqlRow['return_qty']; ?></td>
                                         <td data-label="Return Reason"><?php echo $sqlRow['return_reason']; ?></td>
                                         <td data-label="Receive">
                                             <button class="btn btn-success receive-btn" data-id="<?php echo $sqlRow['id']; ?>"
                                                 data-part_name="<?php echo $sqlRow['part_name']; ?>"
+                                                data-exp_date="<?php echo $sqlRow['exp_date']; ?>"
                                                 data-part_qty="<?php echo $sqlRow['return_qty']; ?>"
                                                 data-req_by="<?php echo $sqlRow['req_by']; ?>">Receive</button>
 
@@ -142,10 +133,11 @@ include "navBar.php";
                                 <th scope="col">Lot ID</th>
                                 <th scope="col">Part Number</th>
                                 <th scope="col">Approved Qty.</th>
+                                <th scope="col">Batch Number</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Returned By</th>
-                                <th scope="col">Status</th>
+
                                 <th scope="col">Return Qty</th>
                                 <th scope="col">Return Reason</th>
                                 <th scope="col">Received By</th>
@@ -169,10 +161,10 @@ include "navBar.php";
                                         <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
                                         <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
                                         <td data-label="Quantity"><?php echo $sqlRow['approved_qty']; ?></td>
+                                        <td data-label="Batch Number"><?php echo $sqlRow['batch_number']; ?></td>
                                         <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
                                         <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                                         <td data-label="Return By"><?php echo $sqlRow['req_by']; ?></td>
-                                        <td data-label="Status"><?php echo $sqlRow['status']; ?></td>
                                         <td data-label="Return Qty"><?php echo $sqlRow['return_qty']; ?></td>
                                         <td data-label="Return Reason"><?php echo $sqlRow['return_reason']; ?></td>
                                         <td data-label="Received By"><?php echo $sqlRow['received_by']; ?></td>
@@ -209,6 +201,7 @@ include "navBar.php";
         var item_part_name = $(this).data('part_name');
         var item_part_qty = $(this).data('part_qty');
         var item_req_by = $(this).data('req_by');
+        var item_exp_date = $(this).data('exp_date');
 
         Swal.fire({
             title: 'Are you sure?',
@@ -226,6 +219,7 @@ include "navBar.php";
                     data: {
                         id: itemId,
                         part_name: item_part_name,
+                        exp_date: item_exp_date,
                         part_qty: item_part_qty,
                         req_by: item_req_by
                     },

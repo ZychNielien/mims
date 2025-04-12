@@ -1,9 +1,6 @@
 <?php
 
-// Database Connection
 include "../../model/dbconnection.php";
-
-// Navigation Bar
 include "navBar.php";
 
 $sql_withreason = "SELECT reason FROM tbl_withdrawal_reason";
@@ -30,13 +27,8 @@ if ($sql_machine_query) {
 
 <head>
 
-    <!-- Title -->
     <title>Material Withdrawal</title>
-
-    <!-- Withdrawal Style -->
     <link rel="stylesheet" href="../../public/css/responsiveWithdrawal.css">
-
-    <!-- Jquery -->
     <script src="../../public/js/jquery.js"></script>
 
 </head>
@@ -243,8 +235,6 @@ if ($sql_machine_query) {
                         <th scope="col">Qty.</th>
                         <th scope="col">Machine No.</th>
                         <th scope="col">Withdrawal Reason</th>
-                        <th scope="col">Requested By</th>
-                        <th scope="col">Status</th>
                     </tr>
                 </thead>
 
@@ -275,8 +265,6 @@ if ($sql_machine_query) {
                                 <td data-label="Quantity"><?php echo $sqlRow['part_qty'] ?></td>
                                 <td data-label="Machine No"><?php echo $sqlRow['machine_no'] ?></td>
                                 <td data-label="Reason"><?php echo $sqlRow['with_reason'] ?></td>
-                                <td data-label="Requested By"><?php echo $sqlRow['req_by'] ?></td>
-                                <td data-label="Status"><?php echo $sqlRow['status'] ?></td>
                             </tr>
                             <?php
                         }

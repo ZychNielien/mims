@@ -1,24 +1,14 @@
 <?php
-// PH Time
 date_default_timezone_set('Asia/Manila');
-
-// Database Connection
 include "../../model/dbconnection.php";
-
-// Navigation Bar
 include "navBar.php";
 
 ?>
 
 <head>
 
-    <!-- Title -->
     <title>Withdrawal History</title>
-
-    <!-- Table Style -->
     <link rel="stylesheet" href="../../public/css/table.css">
-
-    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
 
 </head>
@@ -125,11 +115,10 @@ include "navBar.php";
                                 <th scope="col">Qty.</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
-                                <th scope="col">Requested By</th>
                                 <th scope="col">Approved Qty</th>
+                                <th scope="col">Batch Number</th>
                                 <th scope="col">Approved Reason</th>
                                 <th scope="col">Approved By</th>
-                                <th scope="col">Status</th>
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>
@@ -170,12 +159,11 @@ include "navBar.php";
                                 <th scope="col">Part Number</th>
                                 <th scope="col">Item Description</th>
                                 <th scope="col">Qty.</th>
+                                <th scope="col">Batch Number</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
-                                <th scope="col">Requested By</th>
                                 <th scope="col">Rejected Reason</th>
                                 <th scope="col">Rejected By</th>
-                                <th scope="col">Status</th>
                             </tr>
                         </thead>
                         <tbody id="data-table-reject">
@@ -214,14 +202,13 @@ include "navBar.php";
                                 <th scope="col">Returned Date/Time</th>
                                 <th scope="col">Lot ID</th>
                                 <th scope="col">Part Number</th>
-                                <th scope="col">Qty.</th>
+                                <th scope="col">Approved Qty.</th>
+                                <th scope="col">Batch Number</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
-                                <th scope="col">Returned By</th>
                                 <th scope="col">Return Qty</th>
                                 <th scope="col">Return Reason</th>
                                 <th scope="col">Received By</th>
-                                <th scope="col">Status</th>
                             </tr>
                         </thead>
                         <tbody id="data-table-return">

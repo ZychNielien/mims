@@ -152,7 +152,7 @@ if (isset($_POST['delete_submit'])) {
     }
 }
 
-
+// USER UPDATE WITHDRAWAL REQUEST
 if (isset($_POST['update_submit'])) {
     if (isset($_POST['ids']) && isset($_POST['part_names']) && isset($_POST['quantities']) && isset($_POST['exp_dates']) && isset($_POST['machines']) && isset($_POST['with_reasons'])) {
         $ids = $_POST['ids'];
@@ -228,6 +228,12 @@ if (isset($_POST['update_submit'])) {
 
 
 
+                        }
+                    } else {
+                        $update_request = "UPDATE `tbl_requested` SET machine_no = '$machine' , with_reason = '$with_reason' WHERE id = '$id'";
+                        if (!mysqli_query($con, $update_request)) {
+                            echo json_encode(["success" => false, "error" => "Failed to update machine or reason"]);
+                            exit;
                         }
                     }
 

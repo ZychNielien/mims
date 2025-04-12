@@ -1,28 +1,16 @@
 <?php
 
-// Database Connection
 include "../../model/dbconnection.php";
-
-// Navigation Bar
 include "navBar.php";
 
 ?>
 
 <head>
 
-    <!-- Title -->
     <title>Material Approval</title>
-
-    <!-- Table Style -->
     <link rel="stylesheet" href="../../public/css/table.css">
-
-    <!-- Sweetalert Style -->
     <link rel="stylesheet" href="../../public/css/sweetalert.min.css">
-
-    <!-- Sweetalert Script -->
     <script src="../../public/js/sweetalert2@11.js"></script>
-
-    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
 
 </head>
@@ -64,7 +52,6 @@ include "navBar.php";
                     <th scope="col">Machine No.</th>
                     <th scope="col">Withdrawal Reason</th>
                     <th scope="col">Requested By</th>
-                    <th scope="col">Status</th>
                 </tr>
             </thead>
 
@@ -96,7 +83,6 @@ include "navBar.php";
                             <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
                             <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                             <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>
-                            <td data-label="Status"><?php echo $sqlRow['status']; ?></td>
                         </tr>
                         <?php
                     }
@@ -120,11 +106,12 @@ include "navBar.php";
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="approvalModalLabel">Approve Selected Requests</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="approvalForm">
                         <div class="table-responsive">
-                            <table class="table table-bordered">
+                            <table class="table table-striped table-bordered">
                                 <thead class="text-center text-white" style="background-color: #900008;">
                                     <tr style="vertical-align: middle;">
                                         <th>Requested By</th>
@@ -137,7 +124,6 @@ include "navBar.php";
                                     </tr>
                                 </thead>
                                 <tbody id="modalItemList">
-                                    <!-- Selected items will be injected here -->
                                 </tbody>
                             </table>
                         </div>
@@ -153,15 +139,16 @@ include "navBar.php";
 
     <!-- Rejection Modal -->
     <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="rejectModalLabel">Reject Selected Requests</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="rejectForm">
                         <div class="table-responsive">
-                            <table class="table table-bordered">
+                            <table class="table table-striped table-bordered">
                                 <thead class="text-center text-white" style="background-color: #900008;">
                                     <tr>
                                         <th>Requested By</th>
@@ -171,7 +158,6 @@ include "navBar.php";
                                     </tr>
                                 </thead>
                                 <tbody id="modalRejectItemList">
-                                    <!-- Selected items for rejection will be injected here -->
                                 </tbody>
                             </table>
                         </div>
@@ -192,12 +178,12 @@ include "navBar.php";
 
     $(document).ready(function () {
 
-        // Select All Approval Request SCript
+        // Select All Approval Request 
         $('#select-all').on('change', function () {
             $('.select-row').prop('checked', $(this).prop('checked'));
         });
 
-
+        // Approve Account Button
         $("#approve-btn").click(function () {
             $("#modalItemList").empty();
 
@@ -221,38 +207,38 @@ include "navBar.php";
                 let batch_number = $(this).data("batch_number");
 
                 let row = `
-            <tr class=" text-center" style="vertical-align: middle;">
-                <td>${reqBy}</td>
-                <td>${partName} <input type="hidden" name="ids[]" value="${id}"></td>
-                <td style="display:none;"> 
-                <input type="hidden" name="part_names[]" value="${partName}">
-                <input type="hidden" name="request_bys[]" value="${reqBy}">
-                </td>
-                <td>${qty}</td>
-                <td><input type="number" name="quantities[]" value="${qty}" max="${qty}" class="form-control" min="1" required></td>
-                <td>${batch_number}</td>
-                <td>
-                    <input type="text" name="batch_numbers[]" class="form-control" placeholder="Actual Batch Number">
+                    <tr class=" text-center" style="vertical-align: middle;">
+                        <td>${reqBy}</td>
+                        <td>${partName} <input type="hidden" name="ids[]" value="${id}"></td>
+                        <td style="display:none;"> 
+                        <input type="hidden" name="part_names[]" value="${partName}">
+                        <input type="hidden" name="request_bys[]" value="${reqBy}">
+                        </td>
+                        <td>${qty}</td>
+                        <td><input type="number" name="quantities[]" value="${qty}" max="${qty}" class="form-control" min="1" required></td>
+                        <td>${batch_number}</td>
+                        <td>
+                            <input type="text" name="batch_numbers[]" class="form-control" placeholder="Actual Batch Number">
 
-                </td>
-                <td>
-                <input type="text" name="reasons[]" class="form-control" placeholder="Reason (Optional)">
+                        </td>
+                        <td>
+                        <input type="text" name="reasons[]" class="form-control" placeholder="Reason (Optional)">
 
-                </td>
-            </tr>
-            `;
+                        </td>
+                    </tr>
+                `;
                 $("#modalItemList").append(row);
             });
 
             $("#approvalModal").modal("show");
         });
 
+        // Approve Account Submit
         $("#approvalForm").submit(function (e) {
             e.preventDefault();
 
             let formData = $(this).serialize();
             formData += "&approve_submit=1";
-
 
             $.ajax({
                 url: '../../controller/update_status.php',
@@ -291,8 +277,7 @@ include "navBar.php";
             });
         });
 
-
-
+        // Reject Account Button
         $("#reject-btn").click(function () {
             $("#modalRejectItemList").empty();
 
@@ -316,28 +301,28 @@ include "navBar.php";
                 let exp_date = $(this).data("exp_date");
 
                 let row = `
-            <tr class=" text-center" style="vertical-align: middle;">
-                <td>${reqBy}</td>
-                <td>${partName} <input type="hidden" name="ids[]" value="${id}"></td>
-                <td>${qty}</td>
-                <td style="display:none;"> 
-                    <input type="hidden" name="part_names[]" value="${partName}">
-                    <input type="hidden" name="request_bys[]" value="${reqBy}">
-                    <input type="hidden" name="quantities[]" value="${qty}">
-                    <input type="hidden" name="exp_dates[]" value="${exp_date}">
-                </td>
-                <td>
-                    <input type="text" name="reasons[]" class="form-control" placeholder="Reason for rejection">
-                </td>
-            </tr>
-        `;
+                    <tr class=" text-center" style="vertical-align: middle;">
+                        <td>${reqBy}</td>
+                        <td>${partName} <input type="hidden" name="ids[]" value="${id}"></td>
+                        <td>${qty}</td>
+                        <td style="display:none;"> 
+                            <input type="hidden" name="part_names[]" value="${partName}">
+                            <input type="hidden" name="request_bys[]" value="${reqBy}">
+                            <input type="hidden" name="quantities[]" value="${qty}">
+                            <input type="hidden" name="exp_dates[]" value="${exp_date}">
+                        </td>
+                        <td>
+                            <input type="text" name="reasons[]" class="form-control" placeholder="Reason for rejection">
+                        </td>
+                    </tr>
+                `;
                 $("#modalRejectItemList").append(row);
             });
 
             $("#rejectModal").modal("show");
         });
 
-
+        // Reject Accounts Submit
         $("#rejectForm").submit(function (e) {
             e.preventDefault();
 

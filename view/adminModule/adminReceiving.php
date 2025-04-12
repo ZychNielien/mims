@@ -1,22 +1,14 @@
 <?php
 
-// Database Connection
 include "../../model/dbconnection.php";
-
-// Navigation Bar
 include "navBar.php";
 
 ?>
 
 <head>
 
-    <!-- Title -->
     <title>Issuance History</title>
-
-    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
-
-    <!-- Table Style -->
     <link rel="stylesheet" href="../../public/css/table.css">
 
 </head>
@@ -48,9 +40,9 @@ include "navBar.php";
                     <th scope="col">Part Desc</th>
                     <th scope="col">Quantity</th>
                     <th scope="col">Expiration Date</th>
+                    <th scope="col">Batch Number</th>
                     <th scope="col">Kitting ID</th>
                     <th scope="col">Received By</th>
-                    <th scope="col">Status</th>
                 </tr>
             </thead>
 
@@ -70,9 +62,10 @@ include "navBar.php";
                             <td data-label="Part Desc"><?php echo $sqlRow['part_desc']; ?></td>
                             <td data-label="Quantity"><?php echo $sqlRow['part_qty']; ?></td>
                             <td data-label="Expiration Date"><?php echo $sqlRow['exp_date']; ?></td>
+                            <td data-label="Batch Number"><?php echo $sqlRow['batch_number']; ?></td>
                             <td data-label="Kitting ID"><?php echo $sqlRow['kitting_id']; ?></td>
                             <td data-label="Received By"><?php echo $sqlRow['updated_by']; ?></td>
-                            <td data-label="Status"><?php echo $sqlRow['status']; ?></td>
+
                         </tr>
                         <?php
                     }

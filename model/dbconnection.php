@@ -1,6 +1,6 @@
 <?php
 
-$con = new mysqli("localhost", "root", "", "MIMS");
+$con = new mysqli("localhost", "root", "", "mims");
 
 if (!$con) {
 

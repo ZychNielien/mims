@@ -1,41 +1,13 @@
 <?php
 
-// Database Connection
 include "../../model/dbconnection.php";
-
-// Navigation Bar
 include "navBar.php";
-
-
-$sql_withreason = "SELECT reason FROM tbl_withdrawal_reason";
-$sql_withreason_query = mysqli_query($con, $sql_withreason);
-$withdraw_option = "";
-
-if ($sql_withreason_query) {
-    while ($withreasonRow = mysqli_fetch_assoc($sql_withreason_query)) {
-        $withdraw_option .= '<option value="' . $withreasonRow['reason'] . '">' . $withreasonRow['reason'] . '</option>';
-    }
-}
-
-$sql_machine = "SELECT machine_number FROM tbl_machine";
-$sql_machine_query = mysqli_query($con, $sql_machine);
-$machine_option = "";
-
-if ($sql_machine_query) {
-    while ($machineRow = mysqli_fetch_assoc($sql_machine_query)) {
-        $machine_option .= '<option value="' . $machineRow['machine_number'] . '">' . $machineRow['machine_number'] . '</option>';
-    }
-}
-
 
 ?>
 
 <head>
 
-    <!-- Title -->
     <title>Material Withdrawal</title>
-
-    <!-- Withdrawal Style -->
     <link rel="stylesheet" href="../../public/css/responsiveWithdrawal.css">
 
 </head>
@@ -219,10 +191,9 @@ if ($sql_machine_query) {
                                 <th scope="col">Part Number</th>
                                 <th scope="col">Item Description</th>
                                 <th scope="col">Qty.</th>
+                                <th scope="col">Batch Number</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
-                                <th scope="col">Requested By</th>
-                                <th scope="col">Status</th>
                             </tr>
                         </thead>
 
@@ -231,20 +202,20 @@ if ($sql_machine_query) {
                             <?php
                             $userName = $_SESSION['username'];
                             $sql = "SELECT 
-    tr.*, 
-    ts.part_qty AS total_qty 
-FROM 
-    tbl_requested tr 
-LEFT JOIN 
-    tbl_stock ts 
-    ON tr.part_name = ts.part_name 
-    AND tr.exp_date = ts.exp_date 
-WHERE 
-    tr.req_by = '$userName' 
-    AND tr.status = 'Pending'  
-ORDER BY 
-    tr.dts DESC
-";
+                                tr.*, 
+                                ts.part_qty AS total_qty 
+                            FROM 
+                                tbl_requested tr 
+                            LEFT JOIN 
+                                tbl_stock ts 
+                                ON tr.part_name = ts.part_name 
+                                AND tr.exp_date = ts.exp_date 
+                            WHERE 
+                                tr.req_by = '$userName' 
+                                AND tr.status = 'Pending'  
+                            ORDER BY 
+                                tr.dts DESC
+                            ";
                             $sql_query = mysqli_query($con, $sql);
 
                             if (mysqli_num_rows($sql_query) > 0) {
@@ -267,10 +238,9 @@ ORDER BY
                                         <td data-label="Part Name"><?php echo $sqlRow['part_name'] ?></td>
                                         <td data-label="Part Desc"><?php echo $sqlRow['part_desc'] ?></td>
                                         <td data-label="Quantity"><?php echo $sqlRow['part_qty'] ?></td>
+                                        <td data-label="Batch Number"><?php echo $sqlRow['batch_number'] ?></td>
                                         <td data-label="Machine No"><?php echo $sqlRow['machine_no'] ?></td>
                                         <td data-label="Reason"><?php echo $sqlRow['with_reason'] ?></td>
-                                        <td data-label="Requested By"><?php echo $sqlRow['req_by'] ?></td>
-                                        <td data-label="Status"><?php echo $sqlRow['status'] ?></td>
                                     </tr>
                                     <?php
                                 }
@@ -366,11 +336,10 @@ ORDER BY
                             <th scope="col">Qty.</th>
                             <th scope="col">Machine No.</th>
                             <th scope="col">Withdrawal Reason</th>
-                            <th scope="col">Requested By</th>
                             <th scope="col">Approved Qty</th>
+                            <th scope="col">Batch Number</th>
                             <th scope="col">Approved Reason</th>
                             <th scope="col">Approved By</th>
-                            <th scope="col">Status</th>
                             <th scope="col">Action</th>
                         </tr>
                     </thead>
@@ -416,12 +385,11 @@ ORDER BY
                             <th scope="col">Part Number</th>
                             <th scope="col">Item Description</th>
                             <th scope="col">Qty.</th>
+                            <th scope="col">Batch Number</th>
                             <th scope="col">Machine No.</th>
                             <th scope="col">Withdrawal Reason</th>
-                            <th scope="col">Requested By</th>
                             <th scope="col">Rejected Reason</th>
                             <th scope="col">Rejected By</th>
-                            <th scope="col">Status</th>
                         </tr>
                     </thead>
 
@@ -465,13 +433,12 @@ ORDER BY
                             <th scope="col">Lot ID</th>
                             <th scope="col">Part Number</th>
                             <th scope="col">Approved Qty.</th>
+                            <th scope="col">Batch Number</th>
                             <th scope="col">Machine No.</th>
                             <th scope="col">Withdrawal Reason</th>
-                            <th scope="col">Returned By</th>
                             <th scope="col">Return Qty</th>
                             <th scope="col">Return Reason</th>
                             <th scope="col">Received By</th>
-                            <th scope="col">Status</th>
                         </tr>
                     </thead>
 
@@ -494,11 +461,12 @@ ORDER BY
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="updateModalLabel">Update Selected Requests</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="updateForm">
                     <div class="table-responsive">
-                        <table class="table table-bordered">
+                        <table class="table table-striped table-bordered">
                             <thead class="text-center text-white" style="background-color: #900008;">
                                 <tr>
                                     <th>Date / Time / Shift</th>
@@ -526,15 +494,16 @@ ORDER BY
 
 
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteModalLabel">Deletion of Selected Requests</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="deleteForm">
                     <div class="table-responsive">
-                        <table class="table table-bordered">
+                        <table class="table table-striped table-bordered">
                             <thead class="text-center text-white" style="background-color: #900008;">
                                 <tr>
                                     <th>Date / Time / Shift</th>
@@ -627,7 +596,7 @@ ORDER BY
                 Swal.fire({
                     icon: 'warning',
                     title: 'No items selected',
-                    text: 'Please select at least one request to approve.',
+                    text: 'Please select at least one request to update.',
                     confirmButtonText: 'Ok'
                 });
                 return;
@@ -642,61 +611,63 @@ ORDER BY
                 let machine = $(this).data("machine");
                 let withdrawal = $(this).data("withdrawal");
                 let dts = $(this).data("dts");
-                let withdraw_options = '<?php echo $withdraw_option; ?>';
-                let machine_options = '<?php echo $machine_option; ?>';
                 let total_qty = $(this).data("total_qty");
+                console.log(machine);
 
                 let row = `
-            <tr class="text-center" style="vertical-align: middle;">
-                <td>${dts}</td>
-                <td>${lot_id}</td>
-                <td>${partName}</td>
-                <td><input type="number" name="quantities[]" value="${qty}" class="form-control" min="1" max="${total_qty + qty}" required></td>
-                <td>                    
-                    <select class="form-select" name="machines[]" required>
-                        <option value="">Select Machine</option>
-                        <?php
-                        $sql_machine = "SELECT machine_number FROM tbl_machine";
-                        $sql_machine_query = mysqli_query($con, $sql_machine);
-                        $machine_option = "";
-                        if ($sql_machine_query) {
-                            while ($machineRow = mysqli_fetch_assoc($sql_machine_query)) {
-                                $machine_option .= '<option value="' . $machineRow['machine_number'] . '">' . $machineRow['machine_number'] . '</option>';
-                            }
-                        }
-                        echo $machine_option;
-                        ?>
-                    </select>
-                </td>
-                <td> 
-                    <select class="form-select" name="with_reasons[]" required>
-                        <option value="">Select Withdrawal Reason</option>
-                        <?php
-                        $sql_withreason = "SELECT reason FROM tbl_withdrawal_reason";
-                        $sql_withreason_query = mysqli_query($con, $sql_withreason);
-                        $withdraw_option = "";
+                    <tr class="text-center" style="vertical-align: middle;">
+                        <td>${dts}</td>
+                        <td>${lot_id}</td>
+                        <td>${partName}</td>
+                        <td><input type="number" name="quantities[]" value="${qty}" class="form-control" min="1" max="${total_qty + qty}" required></td>
+                        <td>                    
+                            <select class="form-select" name="machines[]" required>
+                                <option value="">Select Machine</option>
+                                <?php
+                                $select_machine = "SELECT * FROM tbl_machine";
+                                $select_machine_query = mysqli_query($con, $select_machine);
+                                if (mysqli_num_rows($select_machine_query) > 0) {
+                                    while ($machine_row = mysqli_fetch_assoc($select_machine_query)) {
+                                        ?>
+                                        <option value="<?php echo $machine_row['machine_number'] ?>"
+                                            data-id="<?php echo $machine_row['id'] ?>"
+                                            ${machine === '<?php echo $machine_row['machine_number'] ?>' ? 'selected' : ''}>
+                                            <?php echo $machine_row['machine_number'] ?>
+                                        </option>
+                                        <?php
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </td>
+                        <td> 
+                            <select class="form-select" name="with_reasons[]" required>
+                                 <option value="" ${!withdrawal ? 'selected' : ''}>Select Withdrawal Reason</option>
+                                <?php
+                                $select_reason = "SELECT * FROM tbl_withdrawal_reason";
+                                $select_reason_query = mysqli_query($con, $select_reason);
+                                if (mysqli_num_rows($select_reason_query) > 0) {
+                                    while ($reason_row = mysqli_fetch_assoc($select_reason_query)) {
+                                        ?>
+                                        <option value="<?php echo $reason_row['reason'] ?>"
+                                            ${withdrawal === '<?php echo $reason_row['reason'] ?>' ? 'selected' : ''}>
+                                            <?php echo $reason_row['reason'] ?>
+                                        </option>
+                                        <?php
+                                    }
+                                }
+                                ?>
+                            </select>
+                        </td>
+                        <td style="display:none;"> 
+                            <input type="hidden" name="ids[]" value="${id}">
+                            <input type="hidden" name="part_names[]" value="${partName}">
+                            <input type="hidden" name="exp_dates[]" value="${exp_date}">
+                        </td>
+                    </tr>
 
-                        if ($sql_withreason_query) {
-                            while ($withreasonRow = mysqli_fetch_assoc($sql_withreason_query)) {
-                                $withdraw_option .= '<option value="' . $withreasonRow['reason'] . '">' . $withreasonRow['reason'] . '</option>';
-                            }
-                        }
-                        echo $withdraw_option;
-                        ?>
-                    </select>
-                </td>
-                <td style="display:none;"> 
-                    <input type="hidden" name="ids[]" value="${id}">
-                    <input type="hidden" name="part_names[]" value="${partName}">
-                    <input type="hidden" name="exp_dates[]" value="${exp_date}">
-                </td>
-            </tr>
-
-            `;
+                `;
                 $("#modalItemList").append(row);
-                let lastRow = $("#modalItemList tr:last-child");
-                lastRow.find('select[name="machines[]"]').val(machine);
-                lastRow.find('select[name="with_reasons[]"]').val(withdrawal);
             });
             $("#updateModal").modal("show");
         });
@@ -717,7 +688,7 @@ ORDER BY
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
-                            text: 'Requests approved successfully!',
+                            text: 'Requests updated successfully!',
                             confirmButtonText: 'Ok'
                         }).then(() => {
                             location.reload();
@@ -823,6 +794,7 @@ ORDER BY
             var partQty = $(this).data('part-qty');
             var reqBy = $(this).data('req-by');
             var partName = $(this).data('part-name');
+
             $('#part_namereturn').val(partName);
             $('#returnId').val(Id);
             $('#reqBy').val(reqBy);

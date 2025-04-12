@@ -1,7 +1,9 @@
 <?php
 header("Content-Type: application/json");
+session_start();
 
 include "../model/dbconnection.php";
+date_default_timezone_set('Asia/Manila');
 
 $data = json_decode(file_get_contents("php://input"), true);
 
@@ -11,12 +13,17 @@ if (!$data || empty($data['items'])) {
 }
 
 $duplicates = [];
-foreach ($data['items'] as $item) {
-    $part_number = $con->real_escape_string($item['new_part_number']);
-    $check_sql = "SELECT 1 FROM tbl_inventory WHERE part_name = '$part_number' LIMIT 1";
-    $check_result = $con->query($check_sql);
 
-    if ($check_result && $check_result->num_rows > 0) {
+foreach ($data['items'] as $item) {
+    $part_number = mysqli_real_escape_string($con, $item['new_part_number'] ?? '');
+
+    if (!$part_number)
+        continue;
+
+    $check_sql = "SELECT 1 FROM tbl_inventory WHERE part_name = '$part_number' LIMIT 1";
+    $check_result = mysqli_query($con, $check_sql);
+
+    if ($check_result && mysqli_num_rows($check_result) > 0) {
         $duplicates[] = $part_number;
     }
 }
@@ -29,32 +36,59 @@ if (!empty($duplicates)) {
     exit;
 }
 
-$sql = "INSERT INTO tbl_inventory (part_name, part_desc, part_option, part_category, cost_center, location, min_invenT_req, unit, approver) VALUES ";
 $values = [];
+$logValues = [];
+
+$account_username = $_SESSION['username'] ?? 'unknown';
+$action = "Material Registration";
+$dts = date('Y-m-d H:i:s');
 
 foreach ($data['items'] as $item) {
-    $values[] = "('" . $con->real_escape_string($item['new_part_number']) . "',
-                  '" . $con->real_escape_string($item['new_part_desc']) . "',
-                  '" . $con->real_escape_string($item['new_option']) . "',
-                  '" . $con->real_escape_string($item['new_category']) . "',
-                  '" . $con->real_escape_string($item['new_cost_center']) . "',
-                  '" . $con->real_escape_string($item['new_location']) . "',
-                  " . intval($item['new_min_invent_req']) . ",
-                  '" . $con->real_escape_string($item['new_unit']) . "', 
-                  '" . $con->real_escape_string($item['new_approver']) . "')";
+    $partNumber = mysqli_real_escape_string($con, $item['new_part_number'] ?? '');
+    $partDesc = mysqli_real_escape_string($con, $item['new_part_desc'] ?? '');
+    $partOption = mysqli_real_escape_string($con, $item['new_option'] ?? '');
+    $partCategory = mysqli_real_escape_string($con, $item['new_category'] ?? '');
+    $partCostCenter = mysqli_real_escape_string($con, $item['new_cost_center'] ?? '');
+    $partLocation = mysqli_real_escape_string($con, $item['new_location'] ?? '');
+    $partInventReq = mysqli_real_escape_string($con, $item['new_min_invent_req'] ?? '');
+    $partUnit = mysqli_real_escape_string($con, $item['new_unit'] ?? '');
+    $partApprover = mysqli_real_escape_string($con, $item['new_approver'] ?? '');
+
+    $values[] = "(
+        '$partNumber',
+        '$partDesc',
+        '$partOption',
+        '$partCategory',
+        '$partCostCenter',
+        '$partLocation',
+        '$partInventReq',
+        '$partUnit',
+        '$partApprover'
+    )";
+
+    $description = mysqli_real_escape_string($con, "$account_username has registered a new material $partNumber.");
+    $logValues[] = "('$account_username', '$action', '$description', '$dts')";
 }
 
-$sql .= implode(", ", $values);
+$sql = "INSERT INTO tbl_inventory 
+    (part_name, part_desc, part_option, part_category, cost_center, location, min_invenT_req, unit, approver) 
+    VALUES " . implode(", ", $values);
 
-if ($con->query($sql) === TRUE) {
-    echo json_encode(["message" => "Data inserted successfully"]);
+$sql_log = "INSERT INTO tbl_log 
+    (username, action, description, dts) 
+    VALUES " . implode(", ", $logValues);
+
+$result1 = mysqli_query($con, $sql);
+$result2 = mysqli_query($con, $sql_log);
+
+if ($result1 && $result2) {
+    echo json_encode(["message" => "Material added successfully"]);
 } else {
     echo json_encode([
         "message" => "Insert failed",
-        "error" => $con->error,
-        "sql" => $sql
+        "error" => mysqli_error($con)
     ]);
 }
 
-$con->close();
+mysqli_close($con);
 ?>

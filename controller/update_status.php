@@ -1,12 +1,7 @@
 <?php
 
-// Database Connection
 include "../model/dbconnection.php";
-
-// Manila Time Zone
 date_default_timezone_set('Asia/Manila');
-
-// Session Start
 session_start();
 
 $dts = date('Y-m-d H:i:s');
@@ -133,6 +128,7 @@ if (isset($_POST['submitReturn'])) {
     $dts = date('Y-m-d H:i:s');
     $req_by = $_POST['req_by'];
     $part_name = $_POST['part_name'];
+    $exp_date = $_POST['exp_date_return'];
     $mensahe = $req_by . ' is returning ' . $return_qty . ' of ' . $part_name . '. Click here for more details.';
     $for = "admin";
 
@@ -146,10 +142,12 @@ if (isset($_POST['submitReturn'])) {
             WHERE id = '$lot_id' AND status = 'Approved'";
 
     if (mysqli_query($con, $sql)) {
-        $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at,for_who, destination) VALUES ('$req_by', '$mensahe',0,'$dts','$for', 'Scrap')";
-        $sql_notif_query = mysqli_query($con, $sql_notif);
 
-        if ($sql_notif_query) {
+
+
+        $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at,for_who, destination) VALUES ('$req_by', '$mensahe',0,'$dts','$for', 'Scrap')";
+
+        if (mysqli_query($con, $sql_notif)) {
             if ($_SESSION['user'] == "Supervisor" || $_SESSION['user'] == "Kitting") {
                 $_SESSION['status'] = 'You are now authorized to return the ' . $part_name . ' with a quantity of ' . $return_qty;
                 $_SESSION['status_code'] = "success";
@@ -164,6 +162,7 @@ if (isset($_POST['submitReturn'])) {
 
 
         }
+
 
     }
 }

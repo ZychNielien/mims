@@ -1,25 +1,15 @@
 <?php
 
-// Database Connection
 include "../../model/dbconnection.php";
-
-// Navigation Bar
 include "navBar.php";
 
 ?>
 
 <head>
 
-    <!-- Title -->
     <title>Expired Part History</title>
-
-    <!-- Table Style -->
     <link rel="stylesheet" href="../../public/css/table.css">
-
-    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
-
-    <!-- Excel Script -->
     <script src="../../public/js/excel.js"></script>
 
 </head>

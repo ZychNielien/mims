@@ -1,9 +1,6 @@
 <?php
 
-// Session Start
 session_start();
-
-// Database Connection
 include "../model/dbconnection.php";
 
 ?>
@@ -16,29 +13,13 @@ include "../model/dbconnection.php";
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Favicon -->
     <link rel="icon" href="../public/img/favicon.ico" type="image/x-icon">
-
-    <!-- Title -->
     <title>AIMS</title>
-
-    <!-- Bootstrap Style -->
     <link rel="stylesheet" href="../bootstrap/css/bootstrap.min.css">
-
-    <!-- Fontawesome Style -->
     <link rel="stylesheet" href="../fontawesome/css/all.min.css">
-
-    <!-- Login Style -->
     <link rel="stylesheet" href="../public/css/index.css">
-
-    <!-- Sweetalert Style -->
     <link rel="stylesheet" href="../public/css/sweetalert.min.css">
-
-    <!-- Sweetalert Script -->
     <script src="../public/js/sweetalert2@11.js"></script>
-
-    <!-- Jquery Script -->
     <script src="../public/js/jquery.js"></script>
 
 </head>

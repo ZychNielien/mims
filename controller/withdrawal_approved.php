@@ -31,11 +31,10 @@ if (mysqli_num_rows($sql_query) > 0) {
             <td data-label='Part Qty'><?php echo $sqlRow['part_qty']; ?></td>
             <td data-label='Machine Number'><?php echo $sqlRow['machine_no']; ?></td>
             <td data-label='Withdrawal Reason'><?php echo $sqlRow['with_reason']; ?></td>
-            <td data-label='Return By'><?php echo $sqlRow['req_by']; ?></td>
             <td data-label='Approved Qty'><?php echo $sqlRow['approved_qty']; ?></td>
+            <td data-label='Batch Number'><?php echo $sqlRow['batch_number']; ?></td>
             <td data-label='Approved Reason'><?php echo $sqlRow['approved_reason']; ?></td>
             <td data-label='Return Qty'><?php echo $sqlRow['approved_by']; ?></td>
-            <td data-label='Status'><?php echo $sqlRow['status']; ?></td>
             <td data-label='Receieved By'> <button class="btn btn-primary return-btn" data-bs-toggle="modal"
                     data-bs-target="#returnModal" data-id="<?php echo $sqlRow['id']; ?>"
                     data-part-qty="<?php echo $sqlRow['approved_qty']; ?>" data-req-by="<?php echo $sqlRow['req_by']; ?>"

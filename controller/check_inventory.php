@@ -18,7 +18,6 @@ while (true) {
     $inventoryData = [];
     $today = date('Y-m-d');
 
-    // Update expired stocks
     $update_expired_sql = "UPDATE tbl_stock SET status = 'Expired' WHERE exp_date <= '$today' AND status != 'Expired'";
     mysqli_query($con, $update_expired_sql);
 
@@ -65,7 +64,7 @@ while (true) {
         }
     }
 
-    sendSSEData($inventoryData); // 🔁 stream to client
+    sendSSEData($inventoryData);
 
-    sleep(5); // You can lower this if needed (e.g. 2s)
+    sleep(5);
 }

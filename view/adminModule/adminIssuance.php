@@ -1,22 +1,14 @@
 <?php
 
-// Database Connection
 include "../../model/dbconnection.php";
-
-// Navigation Bar
 include "navBar.php";
 
 ?>
 
 <head>
 
-    <!-- Title -->
     <title>Issuance History</title>
-
-    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
-
-    <!-- Table Style -->
     <link rel="stylesheet" href="../../public/css/table.css">
 
 </head>
@@ -52,9 +44,9 @@ include "navBar.php";
                     <th scope="col">Withdrawal Reason</th>
                     <th scope="col">Requested By</th>
                     <th scope="col">Approved Qty</th>
+                    <th scope="col">Batch Number</th>
                     <th scope="col">Approved Reason</th>
                     <th scope="col">Approved By</th>
-                    <th scope="col">Status</th>
                 </tr>
             </thead>
 
@@ -78,10 +70,9 @@ include "navBar.php";
                             <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                             <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>
                             <td data-label='Approved Qty'><?php echo $sqlRow['approved_qty']; ?></td>
+                            <td data-label="Batch Number"><?php echo $sqlRow['batch_number']; ?></td>
                             <td data-label='Approved Reason'><?php echo $sqlRow['approved_reason']; ?></td>
-
                             <td data-label="Approved By"><?php echo $sqlRow['approved_by']; ?></td>
-                            <td data-label="Status"><?php echo $sqlRow['status']; ?></td>
                         </tr>
                         <?php
                     }

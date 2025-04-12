@@ -1,25 +1,15 @@
 <?php
 
-// Database Connection
 include "../../model/dbconnection.php";
-
-// Navigation Bar
 include "navBar.php";
 
 ?>
 
 <head>
 
-    <!-- Title -->
     <title>Expired Part History</title>
-
-    <!-- Table Style -->
     <link rel="stylesheet" href="../../public/css/table.css">
-
-    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
-
-    <!-- Excel Script -->
     <script src="../../public/js/excel.js"></script>
 
 </head>
@@ -49,9 +39,10 @@ include "navBar.php";
                     <th scope="col">Part Number</th>
                     <th scope="col">Part Quantity</th>
                     <th scope="col">Expiration Date</th>
+                    <th scope="col">Batch Number</th>
                     <th scope="col">Kitting ID</th>
                     <th scope="col">Added By</th>
-                    <th scope="col">Status</th>
+
                 </tr>
             </thead>
 
@@ -71,10 +62,10 @@ include "navBar.php";
 
                             <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
                             <td data-label="Quantity"><?php echo $sqlRow['total_part_qty']; ?></td>
-                            <td data-label="Machine No"><?php echo $sqlRow['exp_date']; ?></td>
-                            <td data-label="Reason"><?php echo $sqlRow['kitting_id']; ?></td>
-                            <td data-label="Requested By"><?php echo $sqlRow['updated_by']; ?></td>
-                            <td data-label="Status"><?php echo $sqlRow['status']; ?></td>
+                            <td data-label="Expiration Date"><?php echo $sqlRow['exp_date']; ?></td>
+                            <td data-label="Batch Number"><?php echo $sqlRow['batch_number']; ?></td>
+                            <td data-label="Kitting ID"><?php echo $sqlRow['kitting_id']; ?></td>
+                            <td data-label="Added By"><?php echo $sqlRow['updated_by']; ?></td>
                         </tr>
                         <?php
                     }

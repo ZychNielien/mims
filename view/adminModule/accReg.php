@@ -1,19 +1,14 @@
 <?php
 ob_start();
 
-// Database Connection
 include "../../model/dbconnection.php";
-
-// Navigation Bar
 include "navBar.php";
 
-// Navigation Page Active
 $directoryURI = $_SERVER['REQUEST_URI'];
 $path = parse_url($directoryURI, PHP_URL_PATH);
 $components = explode("/", $path);
 $page = $components[4];
 
-// Restrict access to the Kitting sections from the Supervisor Page.
 if ($_SESSION['user'] == 'Kitting') {
     $_SESSION['status'] = "The link is for admin only.";
     $_SESSION['status_code'] = "error";
@@ -22,25 +17,25 @@ if ($_SESSION['user'] == 'Kitting') {
 }
 
 ob_end_flush();
+
 ?>
 
 
 <head>
 
-    <!-- Title -->
     <title>Acoount Registration</title>
-
-    <!-- Table Style -->
     <link rel="stylesheet" href="../../public/css/table.css">
-
-    <!-- Sweetaler Style -->
     <link rel="stylesheet" href="../../public/css/sweetalert.min.css">
-
-    <!-- Sweetalert Script -->
     <script src="../../public/js/sweetalert2@11.js"></script>
-
-    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
+
+    <style>
+        #accountTable tr td input,
+        #accountTable tr td select,
+        #accountTable tr td span {
+            min-width: max-content;
+        }
+    </style>
 
 </head>
 
@@ -57,8 +52,9 @@ ob_end_flush();
         <!-- Navitaion Tab -->
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="approval-tab" data-bs-toggle="tab" data-bs-target="#approval-tab-pane" type="button"
-                    role="tab" aria-controls="approval-tab-pane" aria-selected="true">Account Approval</button>
+                <button class="nav-link active" id="approval-tab" data-bs-toggle="tab"
+                    data-bs-target="#approval-tab-pane" type="button" role="tab" aria-controls="approval-tab-pane"
+                    aria-selected="true">Account Approval</button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link " id="password-tab" data-bs-toggle="tab" data-bs-target="#password-tab-pane"
@@ -67,11 +63,13 @@ ob_end_flush();
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link " id="account-tab" data-bs-toggle="tab" data-bs-target="#account-tab-pane"
-                    type="button" role="tab" aria-controls="account-tab-pane" aria-selected="true">Account Records</button>
+                    type="button" role="tab" aria-controls="account-tab-pane" aria-selected="true">Account
+                    Records</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link" id="costcenter-tab" data-bs-toggle="tab" data-bs-target="#costcenter-tab-pane" type="button"
-                    role="tab" aria-controls="costcenter-tab-pane" aria-selected="false">Cost Center / Supervisor</button>
+                <button class="nav-link" id="costcenter-tab" data-bs-toggle="tab" data-bs-target="#costcenter-tab-pane"
+                    type="button" role="tab" aria-controls="costcenter-tab-pane" aria-selected="false">Cost Center /
+                    Supervisor</button>
             </li>
         </ul>
 
@@ -81,88 +79,84 @@ ob_end_flush();
             <!-- ACCOUNT APPROVAL -->
             <div class="tab-pane fade" id="approval-tab-pane" role="tabpanel" aria-labelledby="approval-tab">
 
-                    <div class="d-flex justify-between-evenly w-100">
+                <div class="d-flex justify-content-evenly  align-items-center w-100 p-3">
 
-                        <!-- Approval Button -->
-                        <div class="text-center my-3 w-50">
-                            <input type="text" id="search" class="form-control w-50 mx-auto" placeholder="Search here"
-                                autocomplete="off" />
-                        </div>
-                        <div class="text-center my-3 w-50">
-                     
-                            <button class="btn btn-success" id="approve_acc-btn">Approve Accounts</button>
-                
-                            <button class="btn btn-danger" id="reject_acc-btn">Reject Accounts</button>
-         
-                        </div>
 
-                    </div>
+                    <input type="text" id="search" class="form-control w-25 me-2" placeholder="Search here"
+                        autocomplete="off" />
 
-                    <!-- Approval Table -->
-                    <table class="table table-striped w-100">
 
-                        <thead>
-                            <tr class="text-center" style="background-color: #900008; color: white;">
-                                <th scope="col"><input type="checkbox" id="select-all"></th>
-                                <th scope="col">Employee Name</th>
-                                <th scope="col">Username</th>
-                                <th scope="col">Badge No.</th>
-                                <th scope="col">Cost Center</th>
-                                <th scope="col">Designation</th>
-                                <th scope="col">Supervisor</th>
-                                <th scope="col">Account Type</th>
+                    <button class="btn btn-success w-auto " id="approve_acc-btn">Approve Accounts</button>
 
-                            </tr>
-                        </thead>
+                    <button class="btn btn-danger w-auto" id="reject_acc-btn">Reject Accounts</button>
 
-                        <tbody id="data-table">
-                            <?php
-                            $userName = $_SESSION['username'];
-                            $sql = "SELECT * FROM tbl_users WHERE usertype = '1'";
-                            $sql_query = mysqli_query($con, $sql);
 
-                            if (mysqli_num_rows($sql_query) > 0) {
-                                while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
-                                    ?>
-                                    <tr class="table-row text-center" style="vertical-align:middle;">
-                                        <td data-label="Select">
-                                        <input type="checkbox" class="select-row" 
-                                                data-id="<?php echo $sqlRow['id']; ?>"
-                                                data-employee_name="<?php echo $sqlRow['employee_name']; ?>"
-                                                data-badge_number="<?php echo $sqlRow['badge_number']; ?>"
-                                                data-cost_center="<?php echo $sqlRow['cost_center']; ?>"
-                                                data-designation="<?php echo $sqlRow['designation']; ?>"
-                                                data-account_type="<?php echo $sqlRow['account_type']; ?>"
-                                                >
-                                        </td>
-                                        <td data-label="Employee Name"><?php echo $sqlRow['employee_name']; ?></td>
-                                        <td data-label="Username"><?php echo $sqlRow['username']; ?></td>
-                                        <td data-label="Badge No."><?php echo $sqlRow['badge_number']; ?></td>
-                                        <td data-label="Cost Center"><?php echo $sqlRow['cost_center']; ?></td>
-                                        <td data-label="Designation"><?php echo $sqlRow['designation']; ?></td>
-                                        <td data-label="Supervisor">
-                                            <?php
-                                            echo $sqlRow['supervisor_one'];
-                                            if (!empty($sqlRow['supervisor_two'])) {
-                                                echo ' / ' . $sqlRow['supervisor_two'];
-                                            }
-                                            ?>
-                                        </td>
-                                        <td data-label="Account Type"><?php echo $sqlRow['account_type']; ?></td>
 
-                                    </tr>
-                                    <?php
-                                }
-                            } else {
+                </div>
+
+                <!-- Approval Table -->
+                <table class="table table-striped w-100">
+
+                    <thead>
+                        <tr class="text-center" style="background-color: #900008; color: white;">
+                            <th scope="col"><input type="checkbox" id="select-all"></th>
+                            <th scope="col">Employee Name</th>
+                            <th scope="col">Username</th>
+                            <th scope="col">Badge No.</th>
+                            <th scope="col">Cost Center</th>
+                            <th scope="col">Designation</th>
+                            <th scope="col">Supervisor</th>
+                            <th scope="col">Account Type</th>
+
+                        </tr>
+                    </thead>
+
+                    <tbody id="data-table">
+                        <?php
+                        $userName = $_SESSION['username'];
+                        $sql = "SELECT * FROM tbl_users WHERE usertype = '1'";
+                        $sql_query = mysqli_query($con, $sql);
+
+                        if (mysqli_num_rows($sql_query) > 0) {
+                            while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
                                 ?>
-                                <tr>
-                                    <td colspan="8" class="text-center">No users found</td>
+                                <tr class="table-row text-center" style="vertical-align:middle;">
+                                    <td data-label="Select">
+                                        <input type="checkbox" class="select-row" data-id="<?php echo $sqlRow['id']; ?>"
+                                            data-employee_name="<?php echo $sqlRow['employee_name']; ?>"
+                                            data-badge_number="<?php echo $sqlRow['badge_number']; ?>"
+                                            data-cost_center="<?php echo $sqlRow['cost_center']; ?>"
+                                            data-designation="<?php echo $sqlRow['designation']; ?>"
+                                            data-account_type="<?php echo $sqlRow['account_type']; ?>">
+                                    </td>
+                                    <td data-label="Employee Name"><?php echo $sqlRow['employee_name']; ?></td>
+                                    <td data-label="Username"><?php echo $sqlRow['username']; ?></td>
+                                    <td data-label="Badge No."><?php echo $sqlRow['badge_number']; ?></td>
+                                    <td data-label="Cost Center"><?php echo $sqlRow['cost_center']; ?></td>
+                                    <td data-label="Designation"><?php echo $sqlRow['designation']; ?></td>
+                                    <td data-label="Supervisor">
+                                        <?php
+                                        echo $sqlRow['supervisor_one'];
+                                        if (!empty($sqlRow['supervisor_two'])) {
+                                            echo ' / ' . $sqlRow['supervisor_two'];
+                                        }
+                                        ?>
+                                    </td>
+                                    <td data-label="Account Type"><?php echo $sqlRow['account_type']; ?></td>
+
                                 </tr>
                                 <?php
                             }
+                        } else {
                             ?>
-                        </tbody>
-                    </table>
+                            <tr>
+                                <td colspan="8" class="text-center">No users found</td>
+                            </tr>
+                            <?php
+                        }
+                        ?>
+                    </tbody>
+                </table>
 
 
             </div>
@@ -247,19 +241,19 @@ ob_end_flush();
             <div class="tab-pane fade" id="account-tab-pane" role="tabpanel" aria-labelledby="account-tab">
 
                 <!-- Account Creation and Register Button -->
-                <div class="d-flex justify-between-evenly w-100">
-                    <div class="text-center my-3 w-50">
-                        <input type="text" id="search_account" class="form-control w-50 mx-auto"
-                            placeholder="Search here" autocomplete="off" />
-                    </div>
-                    <div class="text-center my-3 w-50">
-                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#accCreation">Register
-                            Account</button>
+                <div class="d-flex justify-content-evenly  align-items-center w-100 p-3">
+                    <input type="text" id="search_account" class="form-control w-25 me-2" placeholder="Search here"
+                        autocomplete="off" />
 
-                        <button class="btn btn-primary" id="update_acc-btn">Update Accounts</button>
-                
-                        <button class="btn btn-danger" id="delete_acc-btn">Delete Accounts</button>
-                    </div>
+                    <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal"
+                        data-bs-target="#accountModal">
+                        Account Registration
+                    </button>
+
+                    <button class="btn btn-primary w-auto" id="update_acc-btn">Update Accounts</button>
+
+                    <button class="btn btn-danger w-auto" id="delete_acc-btn">Delete Accounts</button>
+
                 </div>
 
                 <!-- Accounts Table -->
@@ -290,16 +284,14 @@ ob_end_flush();
                                 ?>
                                 <tr class="table-row text-center" style="vertical-align:middle;">
                                     <td data-label="Select">
-                                        <input type="checkbox" class="select-acc" 
-                                                data-id="<?php echo $sqlRow['id']; ?>"
-                                                data-employee_name="<?php echo $sqlRow['employee_name']; ?>"
-                                                data-username="<?php echo $sqlRow['username']; ?>"
-                                                data-badge_number="<?php echo $sqlRow['badge_number']; ?>"
-                                                data-cost_center="<?php echo $sqlRow['cost_center']; ?>"
-                                                data-designation="<?php echo $sqlRow['designation']; ?>"
-                                                data-account_type="<?php echo $sqlRow['account_type']; ?>"
-                                                >
-                                        </td>
+                                        <input type="checkbox" class="select-acc" data-id="<?php echo $sqlRow['id']; ?>"
+                                            data-employee_name="<?php echo $sqlRow['employee_name']; ?>"
+                                            data-username="<?php echo $sqlRow['username']; ?>"
+                                            data-badge_number="<?php echo $sqlRow['badge_number']; ?>"
+                                            data-cost_center="<?php echo $sqlRow['cost_center']; ?>"
+                                            data-designation="<?php echo $sqlRow['designation']; ?>"
+                                            data-account_type="<?php echo $sqlRow['account_type']; ?>">
+                                    </td>
                                     <td data-label="Employee Name"><?php echo $sqlRow['employee_name']; ?></td>
                                     <td data-label="Username"><?php echo $sqlRow['username']; ?></td>
                                     <td data-label="Badge No."><?php echo $sqlRow['badge_number']; ?></td>
@@ -335,30 +327,41 @@ ob_end_flush();
             <div class="tab-pane fade" id="costcenter-tab-pane" role="tabpanel" aria-labelledby="costcenter-tab">
 
                 <!-- Search and Cost Center Button -->
-                <div class="d-flex justify-between-evenly w-100">
-                    <div class="text-center my-3 w-50">
-                        <input type="text" id="search_cost" class="form-control w-50 mx-auto" placeholder="Search here"
-                            autocomplete="off" />
-                    </div>
-                    <div class="text-center my-3 w-50">
-                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#cost_center">Cost
-                            Center /
-                            Supervisor</button>
-                    </div>
+                <div class="d-flex justify-content-between align-items-center w-100 p-3">
+
+                    <input type="text" id="search_cost" class="form-control w-25 me-2" placeholder="Search here"
+                        autocomplete="off" />
+
+                    <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal"
+                        data-bs-target="#costCenterModal">
+                        Cost Center / Supervisor
+                    </button>
+
+                    <button class="btn btn-primary w-auto" id="update_cost-btn">
+                        Update Cost Center / Supervisor
+                    </button>
+
+                    <button class="btn btn-danger w-auto" id="delete_cost-btn">
+                        Delete Cost Center / Supervisor
+                    </button>
+
                 </div>
 
                 <!-- Cost Center Table -->
                 <table class="table table-striped w-100">
 
                     <thead>
-                        <tr class="text-center" style="background-color: #900008; color: white;">
+                        <tr class="text-center"
+                            style="background-color: #900008; color: white; vertical-align: middle;">
+                            <th scope="col"><input type="checkbox" id="select-all-cost"></th>
                             <th scope="col">New CCID</th>
                             <th scope="col">New CCID Name</th>
                             <th scope="col">Project Code</th>
                             <th scope="col">Project</th>
+                            <th scope="col">Supervisor</th>
                             <th scope="col">Badge No.</th>
                             <th scope="col">Supervisor</th>
-                            <th scope="col">Action</th>
+                            <th scope="col">Badge No.</th>
                         </tr>
                     </thead>
 
@@ -372,40 +375,32 @@ ob_end_flush();
                             while ($ccs_row = mysqli_fetch_assoc($sql_ccs_query)) {
                                 ?>
                                 <tr class="text-center" style="vertical-align:middle;">
+                                    <td data-label="Select">
+                                        <input type="checkbox" class="select-cost" data-id="<?php echo $ccs_row['id']; ?>"
+                                            data-ccid="<?php echo $ccs_row['ccid']; ?>"
+                                            data-ccid_name="<?php echo $ccs_row['ccid_name']; ?>"
+                                            data-project_code="<?php echo $ccs_row['project_code']; ?>"
+                                            data-project_name="<?php echo $ccs_row['project_name']; ?>"
+                                            data-badge_one="<?php echo $ccs_row['badge_one']; ?>"
+                                            data-badge_two="<?php echo $ccs_row['badge_two']; ?>"
+                                            data-supervisor_one="<?php echo $ccs_row['supervisor_one']; ?>"
+                                            data-supervisor_two="<?php echo $ccs_row['supervisor_two']; ?>">
+                                    </td>
                                     <td data-label="New CCID"><?php echo $ccs_row['ccid'] ?></td>
                                     <td data-label="New CCID Name"><?php echo $ccs_row['ccid_name'] ?></td>
                                     <td data-label="Project Code"><?php echo $ccs_row['project_code'] ?></td>
                                     <td data-label="Project Name"><?php echo $ccs_row['project_name'] ?></td>
+                                    <td data-label="Supervisor">
+                                        <?php echo $ccs_row['supervisor_one'] ?>
+                                    </td>
                                     <td data-label="Badge No.">
-                                        <?php
-                                        echo $ccs_row['badge_one'];
-                                        if (!empty($ccs_row['badge_two'])) {
-                                            echo ' / ' . $ccs_row['badge_two'];
-                                        }
-                                        ?>
+                                        <?php echo $ccs_row['badge_one'] ?>
                                     </td>
                                     <td data-label="Supervisor">
-                                        <?php
-                                        echo $ccs_row['supervisor_one'];
-                                        if (!empty($ccs_row['supervisor_two'])) {
-                                            echo ' / ' . $ccs_row['supervisor_two'];
-                                        }
-                                        ?>
+                                        <?php echo $ccs_row['supervisor_two'] ?>
                                     </td>
-                                    <td>
-                                        <button class="btn btn-primary edit_ccs" data-bs-toggle="modal"
-                                            data-bs-target="#edit_ccs_modal" data-id="<?php echo $ccs_row['id'] ?>"
-                                            data-ccid="<?php echo $ccs_row['ccid'] ?>"
-                                            data-ccid_name="<?php echo $ccs_row['ccid_name'] ?>"
-                                            data-project_code="<?php echo $ccs_row['project_code'] ?>"
-                                            data-project_name="<?php echo $ccs_row['project_name'] ?>"
-                                            data-badge_one="<?php echo $ccs_row['badge_one'] ?>"
-                                            data-badge_two="<?php echo $ccs_row['badge_two'] ?>"
-                                            data-supervisor_one="<?php echo $ccs_row['supervisor_one'] ?>"
-                                            data-supervisor_two="<?php echo $ccs_row['supervisor_two'] ?>">Edit</button>
-
-                                        <button class="btn btn-danger delete_css"
-                                            data-id="<?php echo $ccs_row['id'] ?>" data-ccid_name="<?php echo $ccs_row['ccid_name'] ?>">Delete</button>
+                                    <td data-label="Badge No.">
+                                        <?php echo $ccs_row['badge_two'] ?>
                                     </td>
 
                                 </tr>
@@ -423,17 +418,19 @@ ob_end_flush();
 
     </div>
 
-     <!-- Account Approval Modal -->
-     <div class="modal fade" id="accountApprovalModal" tabindex="-1" aria-labelledby="accountApprovalModalLabel" aria-hidden="true">
+    <!-- Account Approval Modal -->
+    <div class="modal fade" id="accountApprovalModal" tabindex="-1" aria-labelledby="accountApprovalModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="accountApprovalModalLabel">Approval of Selected Accounts</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="approveAccForm">
                         <div class="table-responsive">
-                            <table class="table table-bordered">
+                            <table class="table table-striped table-bordered">
                                 <thead class="text-center text-white" style="background-color: #900008;">
                                     <tr style="vertical-align: middle;">
                                         <th>Employee Name</th>
@@ -463,11 +460,12 @@ ob_end_flush();
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="accRejectModalLabel">Rejection of Selected Accounts</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="rejectAccForm">
                         <div class="table-responsive">
-                            <table class="table table-bordered">
+                            <table class="table table-striped table-bordered">
                                 <thead class="text-center text-white" style="background-color: #900008;">
                                     <tr style="vertical-align: middle;">
                                         <th>Employee Name</th>
@@ -492,17 +490,67 @@ ob_end_flush();
         </div>
     </div>
 
+    <!-- Account Creation Modal -->
+    <div class="modal fade" id="accountModal" tabindex="-1" aria-labelledby="accountModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 1400px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="accountModalLabel">Account Registration</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="mb-4 d-flex flex-wrap gap-3 align-items-stretch justify-content-evenly">
+                        <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
+                            <button class="btn btn-success" id="btnAddAccountRow">Add Row</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive overflow-x-auto">
+                        <table class="table table-striped table-bordered text-center w-100" id="accountTable">
+                            <thead>
+                                <tr class="text-center"
+                                    style="background-color: #900008; color: white; vertical-align: middle;">
+                                    <th>Employee Name</th>
+                                    <th>Username</th>
+                                    <th>Badge Number</th>
+                                    <th>Designation</th>
+                                    <th>Account Type</th>
+                                    <th>Cost Center</th>
+                                    <th>Supervisors</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="accountSubmit"
+                        name="submit_account">Submit</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Account Deletion Modal -->
-    <div class="modal fade" id="accDeletionModal" tabindex="-1" aria-labelledby="accDeletionModalLabel" aria-hidden="true">
+    <div class="modal fade" id="accDeletionModal" tabindex="-1" aria-labelledby="accDeletionModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="accDeletionModalLabel">Deletion of Selected Accounts</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="deleteAccForm">
                         <div class="table-responsive">
-                            <table class="table table-bordered">
+                            <table class="table table-striped table-bordered">
                                 <thead class="text-center text-white" style="background-color: #900008;">
                                     <tr style="vertical-align: middle;">
                                         <th>Employee Name</th>
@@ -534,11 +582,12 @@ ob_end_flush();
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="accUpdateModalLabel">Modification of Selected Accounts</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="updateAccForm">
                         <div class="table-responsive">
-                            <table class="table table-bordered">
+                            <table class="table table-striped table-bordered">
                                 <thead class="text-center text-white" style="background-color: #900008;">
                                     <tr style="vertical-align: middle;">
                                         <th>Employee Name</th>
@@ -558,6 +607,135 @@ ob_end_flush();
                             <button type="submit" class="btn btn-primary" name="updateacc_submit">Update</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cost Center Deletion Modal -->
+    <div class="modal fade" id="costDeletionModal" tabindex="-1" aria-labelledby="costDeletionModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="min-width: 1500px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="costDeletionModalLabel">Deletion of Selected Cost Centers</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="deleteCostForm">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered">
+                                <thead class="text-center text-white" style="background-color: #900008;">
+                                    <tr style="vertical-align: middle;">
+                                        <th>CCID</th>
+                                        <th>CCID Name</th>
+                                        <th>Project Code</th>
+                                        <th>Project</th>
+                                        <th>Supervisor One</th>
+                                        <th>Badge Number</th>
+                                        <th>Supervisor Two</th>
+                                        <th>Badge Number</th>
+                                        <th>Reasons</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalCostDeletionList">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger" name="deletecost_submit">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cost Center Modification Modal -->
+    <div class="modal fade" id="costUpdateModal" tabindex="-1" aria-labelledby="costUpdateModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 1400px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="costUpdateModalLabel">Modification of Selected Cost Centers</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="updateCostForm">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered">
+                                <thead class="text-center text-white" style="background-color: #900008;">
+                                    <tr style="vertical-align: middle;">
+                                        <th>CCID</th>
+                                        <th>CCID Name</th>
+                                        <th>Project Code</th>
+                                        <th>Project</th>
+                                        <th>Supervisor One</th>
+                                        <th>Badge Number</th>
+                                        <th>Supervisor Two</th>
+                                        <th>Badge Number</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modalCostUpdateList">
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" name="updatecost_submit">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cost Center Creation Modal -->
+    <div class="modal fade" id="costCenterModal" tabindex="-1" aria-labelledby="costCenterModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 1400px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="costCenterModalLabel">Cost Center Registration</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="mb-4 d-flex flex-wrap gap-3 align-items-stretch justify-content-evenly">
+                        <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
+                            <button class="btn btn-success" id="btnAddCostCenterRow">Add Row</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive overflow-x-auto">
+                        <table class="table table-striped table-bordered text-center w-100" id="costCenterTable">
+                            <thead>
+                                <tr class="text-center"
+                                    style="background-color: #900008; color: white; vertical-align: middle;">
+                                    <th>CCID</th>
+                                    <th>CCID Name</th>
+                                    <th>Project Code</th>
+                                    <th>Project Name</th>
+                                    <th>Supervisor</th>
+                                    <th>Badge Number</th>
+                                    <th>Supervisor</th>
+                                    <th>Badge Number</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="costCenterSubmit"
+                        name="submit_costCenter">Submit</button>
+
                 </div>
             </div>
         </div>
@@ -601,231 +779,6 @@ ob_end_flush();
         </div>
     </div>
 
-    <!-- MODAL FOR COST CENTER CREATION -->
-    <div class="modal fade" id="cost_center" tabindex="-1" aria-labelledby="cost_centerLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="cost_centerLabel">Cost Center / Supervisor Form</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="../../controller/ccs.php">
-                        <div class="mb-3">
-                            <label for="new_ccid" class="form-label">New CCID</label>
-                            <input type="text" class="form-control" id="new_ccid" name="new_ccid"
-                                placeholder="Enter CCID" required autocomplete="off">
-                        </div>
-
-                        <div class="mb-3 position-relative">
-                            <label for="new_ccid_name" class="form-label">New CCID Name</label>
-                            <input type="text" class="form-control" id="new_ccid_name" name="new_ccid_name"
-                                placeholder="Enter CCID Name" required autocomplete="off">
-                        </div>
-                        <div class="mb-3 position-relative">
-                            <label for="project_code" class="form-label">Project Code</label>
-                            <input type="text" class="form-control" id="project_code" name="project_code"
-                                placeholder="Enter Project Code" required autocomplete="off">
-                        </div>
-
-                        <div class="mb-3 position-relative">
-                            <label for="project_name" class="form-label">Project Name</label>
-                            <input type="text" class="form-control" id="project_name" name="project_name"
-                                placeholder="Enter Project Name" required autocomplete="off">
-                        </div>
-                        <div class="mb-3 position-relative ">
-                            <label for="badge_one" class="form-label">Badge No.</label>
-                            <div class="d-flex justify-content-between">
-                                <input type="text" class="form-control mx-1" id="badge_one" name="badge_one"
-                                    placeholder="Enter Badge Number" required autocomplete="off">
-                                <input type="text" class="form-control mx-1" id="badge_two" name="badge_two"
-                                    placeholder="Enter Badge Number" autocomplete="off">
-                            </div>
-                        </div>
-                        <div class="mb-3 position-relative ">
-                            <label for="supervisor_one" class="form-label">Supervisor</label>
-                            <div class="d-flex justify-content-between">
-                                <input type="text" class="form-control mx-1" id="supervisor_one" name="supervisor_one"
-                                    placeholder="Enter Supervisor" required autocomplete="off">
-                                <input type="text" class="form-control mx-1" id="supervisor_two" name="supervisor_two"
-                                    placeholder="Enter Supervisor" autocomplete="off">
-                            </div>
-                        </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" name="submit_cc">Submit</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL FOR COST CENTER EDIT -->
-    <div class="modal fade" id="edit_ccs_modal" tabindex="-1" aria-labelledby="edit_ccs_modalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="edit_ccs_modalLabel">Cost Center / Supervisor Form</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="../../controller/ccs.php">
-                        <div class="mb-3" style="display: none;">
-                            <label for="edit_id" class="form-label">New CCID</label>
-                            <input type="text" class="form-control" id="edit_id" name="id" required autocomplete="off">
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_new_ccid" class="form-label">New CCID</label>
-                            <input type="text" class="form-control" id="edit_new_ccid" name="new_ccid" required
-                                placeholder="Enter CCID" autocomplete="off">
-                        </div>
-
-                        <div class="mb-3 position-relative">
-                            <label for="edit_new_ccid_name" class="form-label">New CCID Name</label>
-                            <input type="text" class="form-control" id="edit_new_ccid_name" name="new_ccid_name"
-                                placeholder="Enter CCID Name" required autocomplete="off">
-                        </div>
-                        <div class="mb-3 position-relative">
-                            <label for="edit_project_code" class="form-label">Project Code</label>
-                            <input type="text" class="form-control" id="edit_project_code" name="project_code"
-                                placeholder="Enter Project Code" required autocomplete="off">
-                        </div>
-
-                        <div class="mb-3 position-relative">
-                            <label for="edit_project_name" class="form-label">Project Name</label>
-                            <input type="text" class="form-control" id="edit_project_name" name="project_name"
-                                placeholder="Enter Project Name" required autocomplete="off">
-                        </div>
-                        <div class="mb-3 position-relative ">
-                            <label for="edit_badge_one" class="form-label">Badge No.</label>
-                            <div class="d-flex justify-content-between">
-                                <input type="text" class="form-control mx-1" id="edit_badge_one" name="badge_one"
-                                    placeholder="Enter Badge Number" required autocomplete="off">
-                                <input type="text" class="form-control mx-1" id="edit_badge_two" name="badge_two"
-                                    placeholder="Enter Badge Number" autocomplete="off">
-                            </div>
-                        </div>
-                        <div class="mb-3 position-relative ">
-                            <label for="edit_supervisor_one" class="form-label">Supervisor</label>
-                            <div class="d-flex justify-content-between">
-                                <input type="text" class="form-control mx-1" id="edit_supervisor_one"
-                                    placeholder="Enter Supervisor" name="supervisor_one" required autocomplete="off">
-                                <input type="text" class="form-control mx-1" id="edit_supervisor_two"
-                                    placeholder="Enter Supervisor" name="supervisor_two" autocomplete="off">
-                            </div>
-                        </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" name="submit_edit_cc">Submit</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL FOR ACCOUNT CREATION -->
-    <div class="modal fade" id="accCreation" tabindex="-1" aria-labelledby="accCreationLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="accCreationLabel">Create New Account</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="../../controller/user.php">
-
-                        <div class="mb-3 mx-1">
-                            <label for="employee_name" class="form-label">Employee Name</label>
-                            <input type="text" class="form-control" id="employee_name" name="employee_name"
-                                placeholder="Enter Employee Name" required autocomplete="off">
-                        </div>
-                        <div class="mb-3 position-relative d-flex justify-content-evenly">
-                            <div class="w-50 mx-1">
-                                <label for="username" class="form-label">Username</label>
-                                <input type="text" class="form-control " id="username" name="username"
-                                    placeholder="Enter username" required autocomplete="off">
-                            </div>
-                            <div class="w-50  mx-1">
-                                <label for="passwordred" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="passwordred" name="password"
-                                    placeholder="Enter password" required autocomplete="off">
-                                <i class="bi bi-eye-slash" id="toggle-password"
-                                    style="position: absolute; right: 10px; top: 40px; cursor: pointer;"></i>
-                            </div>
-                        </div>
-                        <div class="mb-3 position-relative d-flex justify-content-evenly">
-                            <div class="w-50 mx-1">
-                                <label for="badge_number" class="form-label">Badge Number</label>
-                                <input type="text" class="form-control " id="badge_number" name="badge_number"
-                                    placeholder="Enter Badge Number" required autocomplete="off">
-                            </div>
-                            <div class="w-50  mx-1">
-                                <label for="designation" class="form-label">Designation</label>
-                                <select class="form-select" id="designation" name="designation" required>
-                                    <option selected value="">Select Designation</option>
-                                    <option value="Supervisor">Supervisor</option>
-                                    <option value="Kitting">Kitting</option>
-                                    <option value="Inspector">Inspector</option>
-                                    <option value="Operator">Operator</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mb-3 position-relative d-flex justify-content-evenly">
-                            <div class="w-50 mx-1">
-                                <label for="account_type" class="form-label">Account Type</label>
-                                <select class="form-select" id="account_type" name="account_type" required>
-                                    <option selected value="">Select Account Type</option>
-                                    <option value="User">User</option>
-                                    <option value="Kitting">Kitting</option>
-                                    <option value="Supervisor">Supervisor</option>
-                                </select>
-                            </div>
-                            <div class="w-50 mx-1">
-                                <label for="create_cost_center" class="form-label">Cost Center</label>
-                                <select class="form-select" id="create_cost_center" name="cost_center" required>
-                                    <option selected value="">Select Cost Center</option>
-                                    <?php
-                                    $select_ccid = "SELECT * FROM tbl_ccs";
-                                    $select_ccid_query = mysqli_query($con, $select_ccid);
-
-                                    if (mysqli_num_rows($select_ccid_query) > 0) {
-                                        while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
-                                            ?>
-                                            <option value="<?php echo $ccid_row['ccid'] ?>"
-                                                data-id="<?php echo $ccid_row['id'] ?>"><?php echo $ccid_row['ccid'] ?>
-                                            </option>
-                                            <?php
-                                        }
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-
-                        </div>
-
-                        <div class="mb-3 position-relative">
-                            <label for="create_supervisor_one" class="form-label">Supervisor</label>
-                            <div class="d-flex justify-content-between">
-                                <input type="text" class="form-control mx-1" id="create_supervisor_one"
-                                    placeholder="Enter Supervisor" name="supervisor_one" required readonly>
-                                <input type="text" class="form-control mx-1" id="create_supervisor_two"
-                                    placeholder="Enter Supervisor" name="supervisor_two" readonly>
-                            </div>
-                        </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" name="register">Register</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </section>
 
 
@@ -860,6 +813,11 @@ ob_end_flush();
         // Select all for Accounts Tab
         $('#select-all-account').on('change', function () {
             $('.select-acc').prop('checked', $(this).prop('checked'));
+        });
+
+        // Select all for Cost Center Tab
+        $('#select-all-cost').on('change', function () {
+            $('.select-cost').prop('checked', $(this).prop('checked'));
         });
 
         // Search Input for Change Pass Tab
@@ -988,49 +946,6 @@ ob_end_flush();
             }
         });
 
-        // Edit Cost Center Data
-        $('.edit_ccs').on('click', function () {
-            var edit_id = $(this).data('id');
-            var edit_ccid = $(this).data('ccid');
-            var edit_ccid_name = $(this).data('ccid_name');
-            var edit_project_code = $(this).data('project_code');
-            var edit_project_name = $(this).data('project_name');
-            var edit_badge_one = $(this).data('badge_one');
-            var edit_badge_two = $(this).data('badge_two');
-            var edit_supervisor_one = $(this).data('supervisor_one');
-            var edit_supervisor_two = $(this).data('supervisor_two');
-
-            $('#edit_id').val(edit_id);
-            $('#edit_new_ccid').val(edit_ccid);
-            $('#edit_new_ccid_name').val(edit_ccid_name);
-            $('#edit_project_code').val(edit_project_code);
-            $('#edit_project_name').val(edit_project_name);
-            $('#edit_badge_one').val(edit_badge_one);
-            $('#edit_badge_two').val(edit_badge_two);
-            $('#edit_supervisor_one').val(edit_supervisor_one);
-            $('#edit_supervisor_two').val(edit_supervisor_two);
-        });
-
-        // Delete Cost Center Data
-        $('.delete_css').on('click', function () {
-            var itemId = $(this).data('id');
-            var itemCcid_name = $(this).data('ccid_name');
-
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this action for CCID: " + itemCcid_name + "!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "../../controller/ccs.php?id=" + itemId;
-                }
-            });
-        });
-
         // Update Account Password Data
         $('.edit-pass').on('click', function () {
             var forgot_pass_id = $(this).data('id');
@@ -1089,7 +1004,7 @@ ob_end_flush();
                 icon.removeClass('bi-eye').addClass('bi-eye-slash');
             }
         });
-    
+
         // Account Approval Button
         $("#approve_acc-btn").click(function () {
             $("#modalAccountApprovalList").empty();
@@ -1169,7 +1084,7 @@ ob_end_flush();
                 dataType: "json",
                 success: function (response) {
                     if (response.success) {
-                        
+
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
@@ -1189,7 +1104,7 @@ ob_end_flush();
                 }
             });
         });
-    
+
         // Account Rejection Button
         $("#reject_acc-btn").click(function () {
             $("#modalAccountRejectionList").empty();
@@ -1261,7 +1176,7 @@ ob_end_flush();
                 dataType: "json",
                 success: function (response) {
                     if (response.success) {
-                        
+
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
@@ -1282,6 +1197,7 @@ ob_end_flush();
             });
         });
 
+        // Account Deletion Button
         $("#delete_acc-btn").click(function () {
             $("#modalAccountDeletionList").empty();
 
@@ -1341,6 +1257,7 @@ ob_end_flush();
             $("#accDeletionModal").modal("show");
         });
 
+        // Account Deletion Submit
         $("#deleteAccForm").submit(function (e) {
             e.preventDefault();
 
@@ -1355,7 +1272,7 @@ ob_end_flush();
                 dataType: "json",
                 success: function (response) {
                     if (response.success) {
-                        
+
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
@@ -1378,6 +1295,7 @@ ob_end_flush();
 
         let rowCounter = 0;
 
+        // Update Account Button
         $("#update_acc-btn").click(function () {
             $("#modalAccountUpdateList").empty();
 
@@ -1403,7 +1321,7 @@ ob_end_flush();
                 let accType = $(this).data("account_type");
 
                 rowCounter++;
-            const rowId = 'row_' + rowCounter;
+                const rowId = 'row_' + rowCounter;
 
                 let row = `
                     <tr class=" text-center" style="vertical-align: middle;" id="${rowId}">
@@ -1468,6 +1386,7 @@ ob_end_flush();
             $("#accUpdateModal").modal("show");
         });
 
+        // Update Account Submit
         $("#updateAccForm").submit(function (e) {
             e.preventDefault();
 
@@ -1482,7 +1401,7 @@ ob_end_flush();
                 dataType: "json",
                 success: function (response) {
                     if (response.success) {
-                        
+
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
@@ -1503,7 +1422,7 @@ ob_end_flush();
             });
         });
 
-
+        // Cost Center Selection in Account Modification
         $(document).on('change', '.costSelect', function () {
             var costCenterId = $(this).find('option:selected').data('id');
             var rowId = $(this).data('row-id');
@@ -1532,7 +1451,512 @@ ob_end_flush();
 
                         var sup1 = response.supervisor_one || '';
                         var sup2 = response.supervisor_two || '';
-                        supervisorBoth.val(`${sup1} / ${sup2}`);
+
+                        if (sup2 === "") {
+                            supervisorBoth.val(`${sup1}`);
+                        } else {
+                            supervisorBoth.val(`${sup1} / ${sup2}`);
+                        }
+
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.log('AJAX Error: ' + status + ' - ' + error);
+                    }
+                });
+            } else {
+                supervisorOne.val('');
+                supervisorTwo.val('');
+                supervisorBoth.val('');
+            }
+        });
+
+        // Cost Center Deletion Button
+        $("#delete_cost-btn").click(function () {
+            $("#modalCostDeletionList").empty();
+
+            let selectedItems = $(".select-cost:checked");
+
+            if (selectedItems.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No items selected',
+                    text: 'Please select at least one cost center to delete.',
+                    confirmButtonText: 'Ok'
+                });
+                return;
+            }
+
+            selectedItems.each(function () {
+                let id = $(this).data("id");
+                let ccid = $(this).data("ccid");
+                let ccidName = $(this).data("ccid_name");
+                let projectCode = $(this).data("project_code");
+                let projectName = $(this).data("project_name");
+                let badgeOne = $(this).data("badge_one");
+                let badgeTwo = $(this).data("badge_two");
+                let supervisorOne = $(this).data("supervisor_one");
+                let supervisorTwo = $(this).data("supervisor_two");
+
+                let row = `
+                    <tr class=" text-center" style="vertical-align: middle;">
+                        <td>
+                            ${ccid}
+                        </td>
+                        <td>
+                            ${ccidName}
+                        </td>
+                        <td>
+                            ${projectCode}
+                        </td>
+                        <td>
+                            ${projectName}
+                        </td>
+                        <td>
+                            ${supervisorOne}
+                        </td>
+                        <td>
+                            ${badgeOne}
+                        </td>
+                        <td>
+                            ${supervisorTwo}
+                        </td>
+                        <td>
+                            ${badgeTwo}
+                        </td>
+                        <td>
+                            <input type="text" class="form-control" name="reasons[]" placeholder="Reason for Deletion" autocomplete="OFF">
+                        </td>
+                        <td style="display:none;"> 
+                            <input type="hidden" name="ids[]" value="${id}">
+                            <input type="hidden" name="ccids[]" value="${ccid}">
+                        </td>
+                    </tr>
+                `;
+                $("#modalCostDeletionList").append(row);
+            });
+
+            $("#costDeletionModal").modal("show");
+        });
+
+        // Cost Center Deletion Submit
+        $("#deleteCostForm").submit(function (e) {
+            e.preventDefault();
+
+            let formData = $(this).serialize();
+
+            formData += "&deletecost_submit=1";
+
+            $.ajax({
+                url: '../../controller/ccs.php',
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Cost Center deleted successfully!',
+                            confirmButtonText: 'Ok'
+                        }).then(() => {
+                            window.location.href = 'accReg.php?tab=costcenter';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error || 'An unexpected error occurred.',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                }
+            });
+        });
+
+        // Cost Center Modification Button
+        $("#update_cost-btn").click(function () {
+            $("#modalCostUpdateList").empty();
+
+            let selectedItems = $(".select-cost:checked");
+
+            if (selectedItems.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No items selected',
+                    text: 'Please select at least one cost center to update.',
+                    confirmButtonText: 'Ok'
+                });
+                return;
+            }
+
+            selectedItems.each(function () {
+                let id = $(this).data("id");
+                let ccid = $(this).data("ccid");
+                let ccidName = $(this).data("ccid_name");
+                let projectCode = $(this).data("project_code");
+                let projectName = $(this).data("project_name");
+                let badgeOne = $(this).data("badge_one");
+                let badgeTwo = $(this).data("badge_two");
+                let supervisorOne = $(this).data("supervisor_one");
+                let supervisorTwo = $(this).data("supervisor_two");
+
+                let row = `
+                    <tr class=" text-center" style="vertical-align: middle;">
+                        <td>
+                            <input type="text" name="ccids[]" value="${ccid}" class="form-control" autocomplete="OFF">
+                        </td>
+                        <td>
+                            <input type="text" name="ccidNames[]" value="${ccidName}" class="form-control" autocomplete="OFF">
+                        </td>
+                        <td>
+                            <input type="text" name="projectCodes[]" value="${projectCode}" class="form-control" autocomplete="OFF">
+                        </td>
+                        <td>
+                            <input type="text" name="projectNames[]" value="${projectName}" class="form-control" autocomplete="OFF">
+                        </td>
+                        <td>
+                            <input type="text" name="supervisorOnes[]" value="${supervisorOne}" class="form-control" autocomplete="OFF">
+                        </td>
+                        <td>
+                            <input type="text" name="badgeOnes[]" value="${badgeOne}" class="form-control" autocomplete="OFF">
+                        </td>
+                        <td>
+                            <input type="text" name="supervisorTwos[]" value="${supervisorTwo}" class="form-control" autocomplete="OFF">
+                        </td>
+                        <td>
+                            <input type="text" name="badgeTwos[]" value="${badgeTwo}" class="form-control" autocomplete="OFF">
+                        </td>
+                        <td style="display:none;">                    
+                            <input type="hidden" name="ids[]" value="${id}">
+                        </td>
+                    </tr>
+                `;
+                $("#modalCostUpdateList").append(row);
+            });
+
+            $("#costUpdateModal").modal("show");
+        });
+
+        // Cost Center Modification Submit
+        $("#updateCostForm").submit(function (e) {
+            e.preventDefault();
+
+            let formData = $(this).serialize();
+
+            formData += "&updatecost_submit=1";
+
+            $.ajax({
+                url: '../../controller/ccs.php',
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Cost Center updated successfully!',
+                            confirmButtonText: 'Ok'
+                        }).then(() => {
+                            window.location.href = 'accReg.php?tab=costcenter';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error || 'An unexpected error occurred.',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                }
+            });
+        });
+
+        // Cost Center Creation Submit
+        $("#costCenterSubmit").on("click", function (e) {
+            e.preventDefault();
+
+            let data = [];
+            let valid = true;
+
+            $("#costCenterTable tbody tr").each(function () {
+                let item = {};
+
+                $(this).find("input").each(function () {
+                    const input = $(this);
+                    const name = input.attr("name");
+                    const value = input.val().trim();
+
+                    item[name] = value;
+
+                    const isOptional = (name === 'supervisorTwo' || name === 'badgeTwo');
+                    if (!value && !isOptional) {
+                        valid = false;
+                        input.addClass("is-invalid");
+                    } else {
+                        input.removeClass("is-invalid");
+                    }
+                });
+
+                data.push(item);
+            });
+
+            if (!valid) {
+                return Swal.fire("Error!", "Missing Inputs", "error");
+            }
+
+            if (data.length === 0) {
+                return Swal.fire("Error!", "No data to submit.", "error");
+            }
+
+            $.ajax({
+                url: "../../controller/ccs.php",
+                method: "POST",
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify({
+                    costCenterSubmit: true,
+                    items: data
+                }),
+                success: function (res) {
+                    if (res.message === "Cost Center(s) added successfully") {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Success",
+                            text: res.message
+                        }).then(() => {
+                            window.location.href = 'accReg.php?tab=costcenter';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: res.message || "Something went wrong."
+                        });
+                    }
+                },
+            });
+        });
+
+        // Cost Center Add Row
+        $("#btnAddCostCenterRow").on("click", function () {
+            addCostCenterRow();
+        });
+
+        // Cost Center Row
+        function addCostCenterRow(data = {}) {
+            const row = $("<tr></tr>");
+            row.append(`
+                <td>
+                    <input type="text" name="ccid" class="form-control" placeholder="CCID" autocomplete="off" required>
+                </td>
+                <td>
+                    <input type="text" name="ccidName" class="form-control" placeholder="CCID Name" autocomplete="off" required>
+                </td>
+                <td>
+                    <input type="text" name="projectCode" class="form-control" placeholder="Project Code" autocomplete="off" required>
+                </td>
+                <td>
+                    <input type="text" name="projectName" class="form-control" placeholder="Project Name" autocomplete="off" required>
+                </td>
+                <td>
+                    <input type="text" name="supervisorOne" class="form-control" placeholder="Supervisor" autocomplete="off" required>
+                </td>
+                <td>
+                    <input type="text" name="badgeOne" class="form-control" placeholder="Badge Number" autocomplete="off" required>
+                </td>
+                <td>
+                    <input type="text" name="supervisorTwo" class="form-control" placeholder="Supervisor" autocomplete="off" >
+                </td>
+                <td>
+                    <input type="text" name="badgeTwo" class="form-control" placeholder="Badge Number" autocomplete="off" >
+                </td>
+                <td>
+                    <button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button>
+                </td>
+            `);
+            $("#costCenterTable tbody").append(row);
+        }
+
+        // Account Registration Add Row
+        $("#btnAddAccountRow").on("click", function () {
+            addAccountRow();
+        });
+
+        // Account Registration Submit
+        $("#accountSubmit").on("click", function (e) {
+            e.preventDefault();
+
+            let data = [];
+            let valid = true;
+
+            $("#accountTable tbody tr").each(function () {
+                let item = {};
+
+                $(this).find("input, select").each(function () {
+                    const input = $(this);
+                    const name = input.attr("name");
+                    const value = input.val().trim();
+
+                    item[name] = value;
+
+                    const isOptional = (name === 'supervisorTwo');
+                    if (!value && !isOptional) {
+                        valid = false;
+                        input.addClass("is-invalid");
+                    } else {
+                        input.removeClass("is-invalid");
+                    }
+                });
+
+                data.push(item);
+            });
+
+            if (!valid) {
+                return Swal.fire("Error!", "Missing Inputs", "error");
+            }
+
+            if (data.length === 0) {
+                return Swal.fire("Error!", "No data to submit.", "error");
+            }
+
+            $.ajax({
+                url: "../../controller/accounts.php",
+                method: "POST",
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify({
+                    accountSubmit: true,
+                    items: data
+                }),
+                success: function (res) {
+                    if (res.message === "Account registrations completed successfully.") {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Success",
+                            text: res.message
+                        }).then(() => {
+                            window.location.href = 'accReg.php?tab=account';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: res.message || "Something went wrong."
+                        });
+                    }
+                },
+            });
+        });
+
+        let costCounter = 0;
+
+        // Account Registration Button
+        function addAccountRow(data = {}) {
+            costCounter++;
+            const costID = 'row_' + costCounter;
+            const row = $("<tr></tr>").attr("id", costID);
+            row.append(`
+                <td>
+                    <input type="text" name="employeeName" class="form-control" placeholder="Employee Name" autocomplete="off" required>
+                </td>
+                <td>
+                    <input type="text" name="username" class="form-control" placeholder="Username" autocomplete="off" required>
+                </td>
+                <td>
+                    <input type="text" name="badgeNumber" class="form-control" placeholder="Badge Number" autocomplete="off" required>
+                </td>
+                <td>
+                    <select class="form-select" name="designation" required>
+                        <option value="">Select Designation</option>
+                        <option value="Supervisor">Supervisor</option>
+                        <option value="Kitting" >Kitting</option>
+                        <option value="Inspector">Inspector</option>
+                        <option value="Operator" >Operator</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select" name="accountType" required>
+                        <option value="">Select Account Type</option>
+                        <option value="User">User</option>
+                        <option value="Kitting">Kitting</option>
+                        <option value="Supervisor">Supervisor</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="costCenter" class="form-select costAccountSelect w-100" required data-row-id="${costID}">  
+                        <option value="">Cost Center</option>
+                        <?php
+                        $select_ccid = "SELECT * FROM tbl_ccs";
+                        $select_ccid_query = mysqli_query($con, $select_ccid);
+                        if (mysqli_num_rows($select_ccid_query) > 0) {
+                            while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
+                                ?>
+                                <option value="<?php echo $ccid_row['ccid'] ?>"
+                                    data-id="<?php echo $ccid_row['id'] ?>"
+                                   >
+                                    <?php echo $ccid_row['ccid'] ?>
+                                </option>
+                            <?php
+                            }
+                        }
+                        ?>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="form-control supervisorBothAccount" readonly style="min-width: 300px;">
+                </td>
+                <td style="display: none;">
+                    <input type="text" name="supervisorOne" class="form-control supervisorOneAccount" placeholder="supervisorOneAccount" autocomplete="off" >
+                    <input type="text" name="supervisorTwo" class="form-control supervisorTwoAccount" placeholder="supervisorTwoAccount" autocomplete="off" >
+                </td>
+                <td>
+                    <button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button>
+                </td>
+            `);
+            $("#accountTable tbody").append(row);
+            $(`select.costAccountSelect[data-row-id="${costID}"]`).trigger('change');
+        }
+
+        // Change Accounts Supervisor
+        $(document).on('change', '.costAccountSelect', function () {
+            var costCenterId = $(this).find('option:selected').data('id');
+            var costID = $(this).data('row-id');
+            var supervisorOne = $('#' + costID).find('.supervisorOneAccount');
+            var supervisorTwo = $('#' + costID).find('.supervisorTwoAccount');
+            var supervisorBoth = $('#' + costID).find('.supervisorBothAccount');
+
+            if (costCenterId) {
+                $.ajax({
+                    url: '../../controller/fetch_supervisors.php',
+                    method: 'GET',
+                    data: { cost_center_id: costCenterId },
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.supervisor_one) {
+                            supervisorOne.val(response.supervisor_one);
+                        } else {
+                            supervisorOne.val('');
+                        }
+
+                        if (response.supervisor_two) {
+                            supervisorTwo.val(response.supervisor_two);
+                        } else {
+                            supervisorTwo.val('');
+                        }
+
+                        var sup1 = response.supervisor_one || '';
+                        var sup2 = response.supervisor_two || '';
+
+                        if (sup2 === "") {
+                            supervisorBoth.val(`${sup1}`);
+                        } else {
+                            supervisorBoth.val(`${sup1} / ${sup2}`);
+                        }
+
 
                     },
                     error: function (xhr, status, error) {

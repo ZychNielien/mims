@@ -34,29 +34,13 @@ if (!isset($_SESSION['username'])) {
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- Favicon -->
     <link rel="icon" href="../../public/img/favicon.ico" type="image/x-icon">
-
-    <!-- Bootstrap Font Style -->
     <link rel="stylesheet" href="../../node_modules/bootstrap-icons/font/bootstrap-icons.min.css">
-
-    <!-- Bootstrap Style -->
     <link rel="stylesheet" href="../../bootstrap/css/bootstrap.min.css">
-
-    <!-- Sweetalert Style -->
     <link rel="stylesheet" href="../../public/css/sweetalert.min.css">
-
-    <!-- Navigation Bar Style -->
     <link rel="stylesheet" href="../../public/css/navigation.css">
-
-    <!-- Sweetalert Script -->
     <script src="../../public/js/sweetalert2@11.js"></script>
-
-    <!-- Jquery Script -->
     <script src="../../public/js/jquery.js"></script>
-
-    <!-- Bootstrap Script -->
     <script src="../../bootstrap/js/bootstrap.bundle.min.js"></script>
 
 </head>
