@@ -96,6 +96,29 @@ $input = json_decode(file_get_contents("php://input"), true);
 // CREATE ACCOUNTS
 if (isset($input['accountSubmit']) && is_array($input['items'])) {
     $items = $input['items'];
+
+    $duplicates = [];
+
+    foreach ($items as $item) {
+        $cUsername = strtoupper(mysqli_real_escape_string($con, $item['username'] ?? ''));
+
+        if (!$cUsername) continue;
+
+        $check_sql = "SELECT 1 FROM tbl_users WHERE username = '$cUsername' LIMIT 1";
+        $check_result = mysqli_query($con, $check_sql);
+
+        if ($check_result && mysqli_num_rows($check_result) > 0) {
+            $duplicates[] = $cUsername;
+        }
+    }
+
+    if (!empty($duplicates)) {
+        echo json_encode([
+            "message" => "Duplicate Username(s) found",
+            "duplicates" => $duplicates
+        ]);
+        exit;
+    }
     $values = [];
     $valuesLog = [];
 

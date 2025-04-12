@@ -1832,8 +1832,15 @@ ob_end_flush();
                     accountSubmit: true,
                     items: data
                 }),
-                success: function (res) {
-                    if (res.message === "Account registrations completed successfully.") {
+
+                success: res => {
+                    if (res.duplicates) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Duplicate Username(s)',
+                            text: `The following already exist: ${res.duplicates.join(", ")}`
+                        });
+                    } else if (res.message === "Account registrations completed successfully.") {
                         Swal.fire({
                             icon: "success",
                             title: "Success",
