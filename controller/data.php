@@ -20,7 +20,8 @@ if (isset($input['machineSubmit']) && is_array($input['items'])) {
     foreach ($input['items'] as $item) {
         $machineNumber = strtoupper(mysqli_real_escape_string($con, $item['machineNumber'] ?? ''));
 
-        if (!$machineNumber) continue;
+        if (!$machineNumber)
+            continue;
 
         $check_sql = "SELECT 1 FROM tbl_machine WHERE machine_number = '$machineNumber' LIMIT 1";
         $check_result = mysqli_query($con, $check_sql);
@@ -81,20 +82,20 @@ if (isset($_POST['updatemachine_submit'])) {
             $id = intval($ids[$i]);
             $machineNumber = strtoupper(mysqli_real_escape_string($con, $machineNumbers[$i]));
 
-            $check_sql = "SELECT id FROM tbl_machine WHERE machine_number = '$machineNumber'";
+            $check_sql = "SELECT id FROM tbl_machine WHERE machine_number = '$machineNumber' AND id != '$id'";
             $check_result = mysqli_query($con, $check_sql);
 
             if (mysqli_num_rows($check_result) > 0) {
                 $success = false;
                 $errors[] = "Machine number '$machineNumber' already exists.";
                 break;
-            }else{
+            } else {
                 $sql = "UPDATE `tbl_machine` SET machine_number = '$machineNumber' WHERE id = '$id'";
                 if (mysqli_query($con, $sql)) {
                     $action = "Machine Number Modification";
                     $description = $account_username . " has successfully updated the details of the " . $machineNumber . " in the system.";
                     $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
-    
+
                     if (!mysqli_query($con, $sql_log)) {
                         $success = false;
                         $errors[] = "Failed to log update for machine number '$machineNumber'.";
@@ -135,7 +136,7 @@ if (isset($_POST['deletemachine_submit'])) {
             $reason = mysqli_real_escape_string($con, $reasons[$i]);
             $action = "Machine Number Deletion";
             $description = $account_username . " has successfully deleted the " . $machineNumber . " from the system.";
-   
+
             $sql = "DELETE FROM `tbl_machine` WHERE id = '$id'";
 
             if (mysqli_query($con, $sql)) {
@@ -168,7 +169,8 @@ if (isset($input['stationSubmit']) && is_array($input['items'])) {
     foreach ($input['items'] as $item) {
         $stationCode = strtoupper(mysqli_real_escape_string($con, $item['stationCode'] ?? ''));
 
-        if (!$stationCode) continue;
+        if (!$stationCode)
+            continue;
 
         $check_sql = "SELECT 1 FROM tbl_station_code WHERE station_code = '$stationCode' LIMIT 1";
         $check_result = mysqli_query($con, $check_sql);
@@ -224,31 +226,40 @@ if (isset($_POST['updatestation_submit'])) {
         $ids = $_POST['ids'];
         $stationCodes = $_POST['stationCodes'];
         $success = true;
+        $errors = [];
 
         for ($i = 0; $i < count($ids); $i++) {
             $id = intval($ids[$i]);
             $stationCode = strtoupper(mysqli_real_escape_string($con, $stationCodes[$i]));
-            $action = "Station Code Modification";
-            $description = $account_username . " has successfully updated the details of the " . $stationCode . " in the system.";
-   
-            $sql = "UPDATE `tbl_station_code` SET station_code = '$stationCode' WHERE id = '$id'";
-
-            if (mysqli_query($con, $sql)) {
-
-                $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
-                if (!mysqli_query($con, $sql_log)) {
+            $check_sql = "SELECT id FROM tbl_station_code WHERE station_code = '$stationCode' AND id != '$id'";
+            $check_result = mysqli_query($con, $check_sql);
+            if (mysqli_num_rows($check_result) > 0) {
+                $success = false;
+                $errors[] = "Station Code '$stationCode' already exists.";
+                break;
+            } else {
+                $sql = "UPDATE `tbl_station_code` SET station_code = '$stationCode' WHERE id = '$id'";
+                if (mysqli_query($con, $sql)) {
+                    $action = "Station Code Modification";
+                    $description = $account_username . " has successfully updated the details of the " . $stationCode . " in the system.";
+                    $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+                    if (!mysqli_query($con, $sql_log)) {
+                        $success = false;
+                        $errors[] = "Failed to log update for station code '$stationCode'.";
+                        break;
+                    }
+                } else {
                     $success = false;
+                    $errors[] = "Failed to update station code '$stationCode'.";
                     break;
                 }
-
             }
-
         }
 
         if ($success) {
             echo json_encode(["success" => true]);
         } else {
-            echo json_encode(["success" => false, "error" => "A database error occurred."]);
+            echo json_encode(["success" => false, "error" => $errors]);
         }
 
     } else {
@@ -270,7 +281,7 @@ if (isset($_POST['deletestation_submit'])) {
             $reason = mysqli_real_escape_string($con, $reasons[$i]);
             $action = "Station Code Deletion";
             $description = $account_username . " has successfully deleted the " . $stationCode . " from the system.";
-   
+
             $sql = "DELETE FROM `tbl_station_code` WHERE id = '$id'";
 
             if (mysqli_query($con, $sql)) {
@@ -303,7 +314,8 @@ if (isset($input['withdrawSubmit']) && is_array($input['items'])) {
     foreach ($input['items'] as $item) {
         $withdrawReason = strtoupper(mysqli_real_escape_string($con, $item['withdrawReason'] ?? ''));
 
-        if (!$withdrawReason) continue;
+        if (!$withdrawReason)
+            continue;
 
         $check_sql = "SELECT 1 FROM tbl_withdrawal_reason WHERE reason = '$withdrawReason' LIMIT 1";
         $check_result = mysqli_query($con, $check_sql);
@@ -363,27 +375,35 @@ if (isset($_POST['updatewithdraw_submit'])) {
         for ($i = 0; $i < count($ids); $i++) {
             $id = intval($ids[$i]);
             $withdrawReason = strtoupper(mysqli_real_escape_string($con, $withdrawReasons[$i]));
-            $action = "Withdrawal Reason Modification";
-            $description = $account_username . " has successfully updated the details of the " . $withdrawReason . " in the system.";
-   
-            $sql = "UPDATE `tbl_withdrawal_reason` SET reason = '$withdrawReason' WHERE id = '$id'";
-
-            if (mysqli_query($con, $sql)) {
-
-                $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
-                if (!mysqli_query($con, $sql_log)) {
+            $check_sql = "SELECT id FROM tbl_withdrawal_reason WHERE reason = '$withdrawReason' AND id != '$id'";
+            $check_result = mysqli_query($con, $check_sql);
+            if (mysqli_num_rows($check_result) > 0) {
+                $success = false;
+                $errors[] = "Withdrawal Reason '$withdrawReason' already exists.";
+                break;
+            } else {
+                $sql = "UPDATE `tbl_withdrawal_reason` SET reason = '$withdrawReason' WHERE id = '$id'";
+                if (mysqli_query($con, $sql)) {
+                    $action = "Withdrawal Reason Modification";
+                    $description = $account_username . " has successfully updated the details of the " . $withdrawReason . " in the system.";
+                    $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+                    if (!mysqli_query($con, $sql_log)) {
+                        $success = false;
+                        $errors[] = "Failed to log update for withdrawal reason '$withdrawReason'.";
+                        break;
+                    }
+                } else {
                     $success = false;
+                    $errors[] = "Failed to update withdrawal reason '$withdrawReason'.";
                     break;
                 }
-
             }
-
         }
 
         if ($success) {
             echo json_encode(["success" => true]);
         } else {
-            echo json_encode(["success" => false, "error" => "A database error occurred."]);
+            echo json_encode(["success" => false, "error" => $errors]);
         }
 
     } else {
@@ -405,7 +425,7 @@ if (isset($_POST['deletewithdraw_submit'])) {
             $reason = mysqli_real_escape_string($con, $reasons[$i]);
             $action = "Withdrawal Reason Deletion";
             $description = $account_username . " has successfully deleted the " . $withdrawReason . " from the system.";
-   
+
             $sql = "DELETE FROM `tbl_withdrawal_reason` WHERE id = '$id'";
 
             if (mysqli_query($con, $sql)) {
@@ -438,7 +458,8 @@ if (isset($input['unitSubmit']) && is_array($input['items'])) {
     foreach ($input['items'] as $item) {
         $unit = strtoupper(mysqli_real_escape_string($con, $item['unit'] ?? ''));
 
-        if (!$unit) continue;
+        if (!$unit)
+            continue;
 
         $check_sql = "SELECT 1 FROM tbl_unit WHERE unit = '$unit' LIMIT 1";
         $check_result = mysqli_query($con, $check_sql);
@@ -498,27 +519,35 @@ if (isset($_POST['updateunit_submit'])) {
         for ($i = 0; $i < count($ids); $i++) {
             $id = intval($ids[$i]);
             $unitMeasure = mysqli_real_escape_string($con, $unitMeasures[$i]);
-            $action = "Unit of Measure Modification";
-            $description = $account_username . " has successfully updated the details of the " . $unitMeasure . " in the system.";
-   
-            $sql = "UPDATE `tbl_unit` SET unit = '$unitMeasure' WHERE id = '$id'";
-
-            if (mysqli_query($con, $sql)) {
-
-                $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
-                if (!mysqli_query($con, $sql_log)) {
+            $check_sql = "SELECT id FROM tbl_unit WHERE unit = '$unitMeasure' AND id != '$id'";
+            $check_result = mysqli_query($con, $check_sql);
+            if (mysqli_num_rows($check_result) > 0) {
+                $success = false;
+                $errors[] = "Unit of Measure '$unitMeasure' already exists.";
+                break;
+            } else {
+                $sql = "UPDATE `tbl_unit` SET unit = '$unitMeasure' WHERE id = '$id'";
+                if (mysqli_query($con, $sql)) {
+                    $action = "Unit of Measure Modification";
+                    $description = $account_username . " has successfully updated the details of the " . $unitMeasure . " in the system.";
+                    $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', '$action','$description' , '$dts')";
+                    if (!mysqli_query($con, $sql_log)) {
+                        $success = false;
+                        $errors[] = "Failed to log update for unit of measure '$unitMeasure'.";
+                        break;
+                    }
+                } else {
                     $success = false;
+                    $errors[] = "Failed to update unit of measure '$unitMeasure'.";
                     break;
                 }
-
             }
-
         }
 
         if ($success) {
             echo json_encode(["success" => true]);
         } else {
-            echo json_encode(["success" => false, "error" => "A database error occurred."]);
+            echo json_encode(["success" => false, "error" => $errors]);
         }
 
     } else {
@@ -540,7 +569,7 @@ if (isset($_POST['deleteunit_submit'])) {
             $reason = mysqli_real_escape_string($con, $reasons[$i]);
             $action = "Unit of Measure Deletion";
             $description = $account_username . " has successfully deleted the " . $unitMeasure . " from the system.";
-   
+
             $unit_sql = "DELETE FROM `tbl_unit` WHERE id = '$id'";
 
             if (mysqli_query($con, $unit_sql)) {

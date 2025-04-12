@@ -17,7 +17,9 @@ if ($_SESSION['user'] == 'Supervisor' || $_SESSION['user'] == 'Kitting') {
     $sql = "SELECT * FROM tbl_notif WHERE for_who = '$username' OR for_who = 'admin'";
 
     if ($_SESSION['user'] == 'Supervisor') {
-        $sql .= " OR for_who = 'adminOnly'";
+        $sql .= " OR for_who = 'adminOnly' OR for_who = 'Supervisor'";
+    } else if ($_SESSION['user'] == 'Kitting') {
+        $sql .= " OR for_who = 'Kitting'";
     }
 
     $sql .= " ORDER BY created_at DESC LIMIT 50";

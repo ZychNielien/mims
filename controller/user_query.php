@@ -19,7 +19,7 @@ if (isset($_POST['req_part'])) {
     $cost_center = $_POST['cost_center'];
     $part_option = $_POST['part_option'];
 
-    $check_sql = "SELECT ts.part_name, ts.part_qty, ts.exp_date, ti.min_invent_req, ts.batch_number
+    $check_sql = "SELECT ts.part_name, ts.part_qty, ts.exp_date, ti.min_invent_req, ts.batch_number, ti.approver
                     FROM tbl_stock ts
                     LEFT JOIN tbl_inventory ti ON ts.part_name = ti.part_name
                     WHERE ts.part_name = '$part_id' AND status = 'Active'
@@ -35,6 +35,7 @@ if (isset($_POST['req_part'])) {
             'part_qty' => $checkedRow['part_qty'],
             'exp_date' => $checkedRow['exp_date'],
             'batch_number' => $checkedRow['batch_number'],
+            'approver' => $checkedRow['approver'],
         ];
     }
 
@@ -70,8 +71,9 @@ if (isset($_POST['req_part'])) {
         }
 
         if ($part_qty_remaining <= 0) {
+            $approver = $data['approver'];
             $mensahe = $req_by . ' has requested ' . $part_qty . ' of ' . $part_id . '. Click here for more details.';
-            $for = "admin";
+            $for = $approver;
 
             $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
                           VALUES ('$req_by', '$mensahe', 0, '$dts', '$for', 'Approval')";

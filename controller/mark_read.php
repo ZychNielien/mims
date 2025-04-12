@@ -18,7 +18,9 @@ if ($_SESSION['user'] == 'User') {
     $sql = "UPDATE tbl_notif SET is_read = 1 WHERE is_read = 0 AND (for_who = '$username' OR for_who = 'admin'";
 
     if ($_SESSION['user'] == 'Supervisor') {
-        $sql .= " OR for_who = 'adminOnly'";
+        $sql .= " OR for_who = 'adminOnly' OR for_who = 'Supervisor'";
+    } else if ($_SESSION['user'] == 'Kitting') {
+        $sql .= " OR for_who = 'Kitting'";
     }
 
     $sql .= ")";
