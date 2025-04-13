@@ -53,7 +53,7 @@ include "navBar.php";
             <tbody id="data-table">
                 <?php
                 $userName = $_SESSION['username'];
-                $sql = "SELECT * FROM tbl_requested WHERE status = 'approved'  ORDER BY dts_approve DESC";
+                $sql = "SELECT * FROM tbl_requested WHERE status = 'approved' ORDER BY dts_approve DESC";
                 $sql_query = mysqli_query($con, $sql);
 
                 if (mysqli_num_rows($sql_query) > 0) {
@@ -79,7 +79,7 @@ include "navBar.php";
                 } else {
                     ?>
                     <tr>
-                        <td colspan="11" class="text-center">No issuance found</td>
+                        <td colspan="12" class="text-center">No issuance found</td>
                     </tr>
                     <?php
                 }

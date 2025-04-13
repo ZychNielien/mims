@@ -7,7 +7,7 @@ include "navBar.php";
 
 <head>
 
-    <title>Issuance History</title>
+    <title>Log History</title>
     <script src="../../public/js/jquery.js"></script>
     <link rel="stylesheet" href="../../public/css/table.css">
 

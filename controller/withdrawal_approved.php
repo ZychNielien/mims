@@ -43,6 +43,6 @@ if (mysqli_num_rows($sql_query) > 0) {
         <?php
     }
 } else {
-    echo "<tr><td colspan='11' class='text-center'>No approved request found</td></tr>";
+    echo "<tr><td colspan='12' class='text-center'>No approved request found</td></tr>";
 }
 ?>

@@ -3,6 +3,7 @@
 include "../model/dbconnection.php";
 session_start();
 date_default_timezone_set('Asia/Manila');
+$stockData = json_decode(file_get_contents("php://input"), true);
 
 if (isset($_POST['stock_data'])) {
     $stockData = json_decode($_POST['stock_data'], true);

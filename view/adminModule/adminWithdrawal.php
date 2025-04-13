@@ -520,7 +520,7 @@ include "navBar.php";
                     </div>
                     <div class="d-flex justify-content-end mt-3">
                         <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger" name="delete_submit">Reject</button>
+                        <button type="submit" class="btn btn-danger" name="delete_submit">Delete</button>
                     </div>
                 </form>
             </div>
@@ -715,7 +715,7 @@ include "navBar.php";
                 Swal.fire({
                     icon: 'warning',
                     title: 'No items selected',
-                    text: 'Please select at least one request to reject.',
+                    text: 'Please select at least one request to delete.',
                     confirmButtonText: 'Ok'
                 });
                 return;
@@ -769,7 +769,7 @@ include "navBar.php";
                     if (response.success) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Rejected!',
+                            title: 'Deleted!',
                             text: 'Requests have been deleted successfully.',
                             confirmButtonText: 'Ok'
                         }).then(() => {
