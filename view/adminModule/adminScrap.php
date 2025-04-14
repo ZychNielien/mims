@@ -17,16 +17,13 @@ include "navBar.php";
 
 <section>
 
-    <!-- Title Div -->
     <div class="welcomeDiv my-4">
         <h2 class="text-center" style="color: #900008; font-weight: bold;">Scrap Materials
         </h2>
     </div>
 
-    <!-- Main Container -->
     <div class="mx-5">
 
-        <!-- Navigation Tab -->
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home"
@@ -38,20 +35,21 @@ include "navBar.php";
             </div>
         </nav>
 
-        <!-- Navigation Tab Content -->
         <div class="tab-content" id="nav-tabContent">
 
-            <!-- Items Awaiting Receipt Tab -->
             <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
 
                 <div class="mx-3 my-4">
+                    <div class="mb-2">
+                        <button class="btn btn-success" id="receive-btn">Receive Request</button>
+                    </div>
 
-                    <!-- Items Awaiting Receipt Table -->
                     <table class="table table-striped w-100">
 
                         <thead>
                             <tr class="text-center"
                                 style="background-color: #900008; color: white; vertical-align: middle;">
+                                <th scope="col"><input type="checkbox" id="select-all-receive"></th>
                                 <th scope="col">Date/Time of Return</th>
                                 <th scope="col">Lot ID</th>
                                 <th scope="col">Part Number</th>
@@ -60,18 +58,16 @@ include "navBar.php";
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Returned By</th>
-
                                 <th scope="col">Return Qty</th>
                                 <th scope="col">Return Reason</th>
-                                <th scope="col">Action</th>
                             </tr>
                         </thead>
 
                         <tbody id="data-table">
                             <?php
-
+                            $userType = $_SESSION['user'];
                             $userName = $_SESSION['username'];
-                            $sql = "SELECT * FROM tbl_requested WHERE status = 'returning' ORDER BY dts_return DESC";
+                            $sql = "SELECT tr.*, ti.approver FROM tbl_requested tr JOIN tbl_inventory ti ON tr.part_name = ti.part_name WHERE tr.status = 'returning' AND ti.approver ='$userType' ORDER BY tr.dts_return DESC";
 
 
                             $sql_query = mysqli_query($con, $sql);
@@ -80,6 +76,15 @@ include "navBar.php";
                                 while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
                                     ?>
                                     <tr class="table-row text-center" style="vertical-align: middle;">
+                                        <td>
+                                            <input type="checkbox" class="select-receive" data-id="<?php echo $sqlRow['id']; ?>"
+                                                data-return_qty="<?php echo $sqlRow['return_qty']; ?>"
+                                                data-req_by="<?php echo $sqlRow['req_by']; ?>"
+                                                data-part_name="<?php echo $sqlRow['part_name']; ?>"
+                                                data-batch_number="<?php echo $sqlRow['batch_number']; ?>"
+                                                data-exp_date="<?php echo $sqlRow['exp_date']; ?>"
+                                                data-return_reason="<?php echo $sqlRow['return_reason']; ?>" />
+                                        </td>
                                         <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts_return']; ?></td>
                                         <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
                                         <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
@@ -88,17 +93,8 @@ include "navBar.php";
                                         <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
                                         <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                                         <td data-label="Return By"><?php echo $sqlRow['req_by']; ?></td>
-
                                         <td data-label="Return Qty"><?php echo $sqlRow['return_qty']; ?></td>
                                         <td data-label="Return Reason"><?php echo $sqlRow['return_reason']; ?></td>
-                                        <td data-label="Receive">
-                                            <button class="btn btn-success receive-btn" data-id="<?php echo $sqlRow['id']; ?>"
-                                                data-part_name="<?php echo $sqlRow['part_name']; ?>"
-                                                data-exp_date="<?php echo $sqlRow['exp_date']; ?>"
-                                                data-part_qty="<?php echo $sqlRow['return_qty']; ?>"
-                                                data-req_by="<?php echo $sqlRow['req_by']; ?>">Receive</button>
-
-                                        </td>
                                     </tr>
                                     <?php
                                 }
@@ -118,12 +114,10 @@ include "navBar.php";
 
             </div>
 
-            <!-- Processed Returned Items -->
             <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
 
                 <div class="mx-3 my-4">
 
-                    <!-- Processed Returned Items Table -->
                     <table class="table table-striped w-100">
 
                         <thead>
@@ -146,9 +140,9 @@ include "navBar.php";
 
                         <tbody id="data-table">
                             <?php
-
+                            $userType = $_SESSION['user'];
                             $userName = $_SESSION['username'];
-                            $sql = "SELECT * FROM tbl_requested WHERE status = 'returned' ORDER BY dts_receive DESC";
+                            $sql = "SELECT tr.*, ti.approver FROM tbl_requested tr JOIN tbl_inventory ti ON tr.part_name = ti.part_name WHERE tr.status = 'returned' AND ti.approver = '$userType' ORDER BY dts_receive DESC";
 
 
                             $sql_query = mysqli_query($con, $sql);
@@ -193,55 +187,134 @@ include "navBar.php";
 
 </section>
 
+<!-- Withdrawal Receive Modal -->
+<div class="modal fade" id="receiveModal" tabindex="-1" aria-labelledby="receiveModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="receiveModalLabel">Receiving of Selected Requests</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="receiveForm">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered">
+                            <thead class="text-center text-white" style="background-color: #900008;">
+                                <tr>
+                                    <th>Returning By</th>
+                                    <th>Part Number</th>
+                                    <th>Batch Number</th>
+                                    <th>Returning Reason</th>
+                                    <th>Returning Quantity</th>
+                                    <th>Receiving Quantity</th>
+                                    <th>Actual Batch Number</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalReceiveList">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success" name="receive_submit">Receive</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+    $(document).ready(function () {
 
-    // Received Items Button
-    $(document).on('click', '.receive-btn', function () {
-        var itemId = $(this).data('id');
-        var item_part_name = $(this).data('part_name');
-        var item_part_qty = $(this).data('part_qty');
-        var item_req_by = $(this).data('req_by');
-        var item_exp_date = $(this).data('exp_date');
+        // Select Receive
+        $('#select-all-receive').on('change', function () {
+            $('.select-receive').prop('checked', $(this).prop('checked'));
+        });
 
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'You are about to mark this item as received.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, mark as received',
-            cancelButtonText: 'No, cancel',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: '../../controller/return.php',
-                    method: 'POST',
-                    data: {
-                        id: itemId,
-                        part_name: item_part_name,
-                        exp_date: item_exp_date,
-                        part_qty: item_part_qty,
-                        req_by: item_req_by
-                    },
-                    success: function (response) {
-                        Swal.fire(
-                            'Received!',
-                            'The item status has been updated.',
-                            'success'
-                        ).then(() => {
-                            location.reload();
-                        });
-                    },
-                    error: function () {
-                        Swal.fire(
-                            'Error!',
-                            'There was an issue updating the status.',
-                            'error'
-                        );
-                    }
+        // Receive Withdrawal Request Button
+        $("#receive-btn").click(function () {
+            $("#modalReceiveList").empty();
+
+            let selectedItems = $(".select-receive:checked");
+
+            if (selectedItems.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No items selected',
+                    text: 'Please select at least one request to receive.',
+                    confirmButtonText: 'Ok'
                 });
+                return;
             }
+
+            selectedItems.each(function () {
+                let id = $(this).data("id");
+                let partName = $(this).data("part_name");
+                let approved_qty = $(this).data("approved_qty");
+                let req_by = $(this).data("req_by");
+                let batch_number = $(this).data("batch_number");
+                let exp_date = $(this).data("exp_date");
+                let return_qty = $(this).data("return_qty");
+                let return_reason = $(this).data("return_reason");
+
+                let row = `
+                    <tr class="text-center" style="vertical-align: middle;">
+                        <td>${req_by}</td>
+                        <td>${partName}</td>
+                        <td>${batch_number}</td>
+                        <td>${return_reason}</td>
+                        <td>${return_qty}</td>
+                        <td><input type="number" name="quantities[]" value="${return_qty}" class="form-control" min="1" max="${return_qty}" required></td>
+                        <td><input type="text" name="batchnumbers[]" class="form-control" placeholder="Actual Batch Number" autocomplete="off" required></td>
+                        <td style="display:none;"> 
+                            <input type="hidden" name="actualBNs[]" value="${batch_number}">
+                            <input type="hidden" name="ids[]" value="${id}">
+                            <input type="hidden" name="part_names[]" value="${partName}">
+                            <input type="hidden" name="req_bys[]" value="${req_by}">
+                            <input type="hidden" name="exp_dates[]" value="${exp_date}">
+                        </td>
+                    </tr>
+
+                `;
+                $("#modalReceiveList").append(row);
+            });
+            $("#receiveModal").modal("show");
+        });
+
+        // Receive Withdrawal Request Submit
+        $("#receiveForm").submit(function (e) {
+            e.preventDefault();
+
+            let formData = $(this).serialize();
+            formData += "&receive_submit=1";
+
+            $.ajax({
+                url: '../../controller/update_status.php',
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Received!',
+                            confirmButtonText: 'Ok'
+                        }).then(() => {
+                            window.location.href = 'adminScrap.php';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error || 'An unexpected error occurred.',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                },
+            });
         });
     });
+
 
 </script>

@@ -24,6 +24,11 @@ if (mysqli_num_rows($sql_query) > 0) {
     while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
         ?>
         <tr class='table-row text-center' style="vertical-align: middle;">
+            <td>
+                <input type="checkbox" class="select-return" data-id="<?php echo $sqlRow['id']; ?>"
+                    data-approved_qty="<?php echo $sqlRow['approved_qty']; ?>" data-req_by="<?php echo $sqlRow['req_by']; ?>"
+                    data-part_name="<?php echo $sqlRow['part_name']; ?>" />
+            </td>
             <td data-label='Date / Time / Shift'><?php echo $sqlRow['dts_approve']; ?></td>
             <td data-label='Lot Id'><?php echo $sqlRow['lot_id']; ?></td>
             <td data-label='Part Name'><?php echo $sqlRow['part_name']; ?></td>
@@ -35,10 +40,6 @@ if (mysqli_num_rows($sql_query) > 0) {
             <td data-label='Batch Number'><?php echo $sqlRow['batch_number']; ?></td>
             <td data-label='Approved Reason'><?php echo $sqlRow['approved_reason']; ?></td>
             <td data-label='Return Qty'><?php echo $sqlRow['approved_by']; ?></td>
-            <td data-label='Receieved By'> <button class="btn btn-primary return-btn" data-bs-toggle="modal"
-                    data-bs-target="#returnModal" data-id="<?php echo $sqlRow['id']; ?>"
-                    data-part-qty="<?php echo $sqlRow['approved_qty']; ?>" data-req-by="<?php echo $sqlRow['req_by']; ?>"
-                    data-part-name="<?php echo $sqlRow['part_name']; ?>">Return</button></td>
         </tr>
         <?php
     }

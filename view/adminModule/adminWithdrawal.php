@@ -265,11 +265,12 @@ include "navBar.php";
 
             <div class="mx-3">
 
-                <!-- Title Tab -->
                 <h3 class="text-center fw-bold" style="color: #900008;">History of Approved Requests</h3>
 
-                <!-- Approved Requests Selections -->
                 <div class="d-flex justify-content-evenly mb-3 text-center">
+                    <div>
+                        <button class="btn btn-primary" id="return-btn">Return Request</button>
+                    </div>
                     <div>
                         <label for="start_date_approve" class="me-2 fw-bold">Start Date:</label>
                         <input type="date" id="start_date_approve" class="form-control" />
@@ -278,57 +279,15 @@ include "navBar.php";
                         <label for="end_date_approve" class="ms-2 me-2 fw-bold">End Date:</label>
                         <input type="date" id="end_date_approve" class="form-control" />
                     </div>
+
                 </div>
 
-                <!-- Return Modal -->
-                <div class="modal fade" id="returnModal" tabindex="-1" aria-labelledby="returnModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="returnModalLabel">Return Item</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form method="POST" action="../../controller/update_status.php">
-                                    <input type="hidden" name="id" id="returnId">
-                                    <div class="mb-3">
-                                        <label for="returnQty" class="form-label">Quantity</label>
-                                        <input type="number" class="form-control" id="returnQty" name="return_qty"
-                                            placeholder="Enter Quantity" required>
-                                    </div>
-                                    <div class="mb-3" style="display: none;">
-                                        <label for="reqBy" class="form-label">Quantity</label>
-                                        <input type="text" class="form-control" id="reqBy" name="req_by">
-                                    </div>
-                                    <div class="mb-3" style="display: none;">
-                                        <label for="part_namereturn" class="form-label">Quantity</label>
-                                        <input type="text" class="form-control" id="part_namereturn" name="part_name">
-                                    </div>
-                                    <div id="quantityMessage" class="alert alert-info">
-                                        Your requested quantity for this part is [X]. Please return a quantity below
-                                        [X].
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="returnReason" class="form-label">Reason for Return</label>
-                                        <textarea class="form-control" id="returnReason" name="return_reason" rows="3"
-                                            placeholder="Enter Reason for Return" required></textarea>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary" name="submitReturn">Submit
-                                        Return</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Approved Requests Table -->
                 <table class="table table-striped w-100">
 
                     <thead>
                         <tr class="text-center"
                             style="background-color: #900008; color: white; vertical-align: middle;">
+                            <th scope="col"><input type="checkbox" id="select-all-return"></th>
                             <th scope="col">Approved Date / Time</th>
                             <th scope="col">Lot ID</th>
                             <th scope="col">Part Number</th>
@@ -340,7 +299,6 @@ include "navBar.php";
                             <th scope="col">Batch Number</th>
                             <th scope="col">Approved Reason</th>
                             <th scope="col">Approved By</th>
-                            <th scope="col">Action</th>
                         </tr>
                     </thead>
 
@@ -456,6 +414,7 @@ include "navBar.php";
 
 </section>
 
+<!-- Admin Withdrawal Modification -->
 <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
@@ -492,7 +451,7 @@ include "navBar.php";
     </div>
 </div>
 
-
+<!-- Admin Withdrawal Deletion -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
@@ -521,6 +480,40 @@ include "navBar.php";
                     <div class="d-flex justify-content-end mt-3">
                         <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-danger" name="delete_submit">Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Withdrawal Return -->
+<div class="modal fade" id="returnModal" tabindex="-1" aria-labelledby="returnModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="returnModalLabel">Returning of Selected Requests</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="returnForm">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered">
+                            <thead class="text-center text-white" style="background-color: #900008;">
+                                <tr>
+                                    <th>Part Number</th>
+                                    <th>Approved Quantity</th>
+                                    <th>Returning Quantity</th>
+                                    <th>Reason for Returning</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalReturnList">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" name="return_submit">Return</button>
                     </div>
                 </form>
             </div>
@@ -587,6 +580,7 @@ include "navBar.php";
             $('.select-row').prop('checked', $(this).prop('checked'));
         });
 
+        // Update Withdrawal Request Button
         $("#update-btn").click(function () {
             $("#modalItemList").empty();
 
@@ -672,6 +666,7 @@ include "navBar.php";
             $("#updateModal").modal("show");
         });
 
+        // Update Withdrawal Request Submit
         $("#updateForm").submit(function (e) {
             e.preventDefault();
 
@@ -705,7 +700,7 @@ include "navBar.php";
             });
         });
 
-
+        // Delete Withdrawal Request Button
         $("#delete-btn").click(function () {
             $("#modalDeleteItemList").empty();
 
@@ -754,6 +749,7 @@ include "navBar.php";
             $("#deleteModal").modal("show");
         });
 
+        // Delete Withdrawal Request Submit
         $("#deleteForm").submit(function (e) {
             e.preventDefault();
 
@@ -787,22 +783,11 @@ include "navBar.php";
             });
         });
 
-
-        // Return Item Withdrew Data
-        $(document).on('click', '.return-btn', function () {
-            var Id = $(this).data('id');
-            var partQty = $(this).data('part-qty');
-            var reqBy = $(this).data('req-by');
-            var partName = $(this).data('part-name');
-
-            $('#part_namereturn').val(partName);
-            $('#returnId').val(Id);
-            $('#reqBy').val(reqBy);
-            $('#returnQty').attr('max', partQty);
-            $('#returnQty').val('');
-
-            $('#quantityMessage').text('Your requested quantity for this part is ' + partQty + '. Please return a quantity below or equal to this.');
+        // Select Return
+        $('#select-all-return').on('change', function () {
+            $('.select-return').prop('checked', $(this).prop('checked'));
         });
+
 
         // Approve Request Date Selection
         $('#start_date_approve, #end_date_approve').on('change', function () {
@@ -890,6 +875,82 @@ include "navBar.php";
                 }
             });
         }
+
+
+        // Return Withdrawal Request Button
+        $("#return-btn").click(function () {
+            $("#modalReturnList").empty();
+
+            let selectedItems = $(".select-return:checked");
+
+            if (selectedItems.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'No items selected',
+                    text: 'Please select at least one request to return.',
+                    confirmButtonText: 'Ok'
+                });
+                return;
+            }
+
+            selectedItems.each(function () {
+                let id = $(this).data("id");
+                let partName = $(this).data("part_name");
+                let approved_qty = $(this).data("approved_qty");
+                let req_by = $(this).data("req_by");
+
+                let row = `
+                    <tr class="text-center" style="vertical-align: middle;">
+                        <td>${partName}</td>
+                        <td>${approved_qty}</td>
+                        <td><input type="number" name="quantities[]" value="${approved_qty}" class="form-control" min="1" max="${approved_qty}" required></td>
+                        <td><input type="text" name="reasons[]" class="form-control" placeholder="Reason for Returning ${partName}" autocomplete="off" required></td>
+                        <td style="display:none;"> 
+                            <input type="hidden" name="ids[]" value="${id}">
+                            <input type="hidden" name="part_names[]" value="${partName}">
+                            <input type="hidden" name="req_bys[]" value="${req_by}">
+                        </td>
+                    </tr>
+
+                `;
+                $("#modalReturnList").append(row);
+            });
+            $("#returnModal").modal("show");
+        });
+
+        // Return Withdrawal Request Submit
+        $("#returnForm").submit(function (e) {
+            e.preventDefault();
+
+            let formData = $(this).serialize();
+            formData += "&return_submit=1";
+
+            $.ajax({
+                url: '../../controller/update_status.php',
+                type: "POST",
+                data: formData,
+                dataType: "json",
+                success: function (response) {
+                    if (response.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'You are now authorized to return the part number(s)',
+                            confirmButtonText: 'Ok'
+                        }).then(() => {
+                            window.location.href = 'adminWithdrawal.php?tab=approved';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.error || 'An unexpected error occurred.',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                },
+            });
+        });
 
 
     });
