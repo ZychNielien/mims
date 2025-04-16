@@ -34,15 +34,13 @@ if ($sql_machine_query) {
 </head>
 
 <section>
-    <!-- Welcome Div -->
+
     <div class="welcomeDiv my-2">
         <h2 class="text-center">Welcome, <?php echo $_SESSION['username'] ?>!</h2>
     </div>
 
-    <!-- Main Container -->
     <div class="px-5 hatian d-flex justify-between align-center">
 
-        <!-- Material Withdrawal Side -->
         <div class="divWithdrawal px-3 w-25">
 
             <!-- Material Withdrawal Title -->
@@ -196,7 +194,7 @@ if ($sql_machine_query) {
                     </div>
 
                     <!-- Submit Material Request -->
-                    <button type="submit" class="btn btn-primary" name="req_part">Submit</button>
+                    <button type="submit" class="btn btn-success" name="req_part">Submit</button>
 
                 </div>
 
@@ -204,15 +202,12 @@ if ($sql_machine_query) {
 
         </div>
 
-        <!-- Material Withdrawal Requests -->
         <div class="divReq p-3 w-75" style="max-height: 750px; overflow: auto;">
 
-            <!-- Material Withdrawal Request Title -->
             <div class="containerTitle">
                 <h4 class="text-center">Requested Parts</h4>
             </div>
 
-            <!-- Material Withdrawal Request Delete Button -->
             <div class="d-flex justify-content-start gap-3 w-100 mb-3">
                 <div>
                     <button class="btn btn-primary" id="update-btn">Edit Request</button>
@@ -222,7 +217,6 @@ if ($sql_machine_query) {
                 </div>
             </div>
 
-            <!-- Material Withdrawal Request Table -->
             <table class="table table-striped">
 
                 <thead>
@@ -286,6 +280,7 @@ if ($sql_machine_query) {
 
 </section>
 
+<!-- Modification of Withdrawal Request Modal -->
 <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
@@ -321,9 +316,9 @@ if ($sql_machine_query) {
     </div>
 </div>
 
-
+<!-- Deletion of Withdrawal Request Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteModalLabel">Deletion of Selected Requests</h5>
@@ -348,7 +343,7 @@ if ($sql_machine_query) {
                     </div>
                     <div class="d-flex justify-content-end mt-3">
                         <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger" name="delete_submit">Reject</button>
+                        <button type="submit" class="btn btn-danger" name="delete_submit">Delete</button>
                     </div>
                 </form>
             </div>
@@ -405,6 +400,7 @@ if ($sql_machine_query) {
             $('.select-row').prop('checked', $(this).prop('checked'));
         });
 
+        // Update Withdrawal Request Button
         $("#update-btn").click(function () {
             $("#modalItemList").empty();
 
@@ -487,6 +483,7 @@ if ($sql_machine_query) {
             $("#updateModal").modal("show");
         });
 
+        // Update Withdrawal Request Submit
         $("#updateForm").submit(function (e) {
             e.preventDefault();
 
@@ -520,7 +517,7 @@ if ($sql_machine_query) {
             });
         });
 
-
+        // Delete Withdrawal Request Button
         $("#delete-btn").click(function () {
             $("#modalDeleteItemList").empty();
 
@@ -530,7 +527,7 @@ if ($sql_machine_query) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'No items selected',
-                    text: 'Please select at least one request to reject.',
+                    text: 'Please select at least one request to delete.',
                     confirmButtonText: 'Ok'
                 });
                 return;
@@ -569,6 +566,7 @@ if ($sql_machine_query) {
             $("#deleteModal").modal("show");
         });
 
+        // Delete Withdrawal Request Submit
         $("#deleteForm").submit(function (e) {
             e.preventDefault();
 
@@ -601,7 +599,6 @@ if ($sql_machine_query) {
                 },
             });
         });
-
 
     });
 

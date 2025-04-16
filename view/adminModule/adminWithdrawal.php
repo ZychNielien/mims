@@ -161,7 +161,7 @@ include "navBar.php";
                                     ?>
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-primary" name="mat_req_part">Submit</button>
+                            <button type="submit" class="btn btn-success" name="mat_req_part">Submit</button>
                         </div>
 
 

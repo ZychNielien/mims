@@ -183,7 +183,7 @@ if (isset($_POST['return_submit'])) {
     }
 }
 
-// Return Approved Request 
+// Received Return Request 
 if (isset($_POST['receive_submit'])) {
     if (isset($_POST['ids']) && isset($_POST['part_names']) && isset($_POST['quantities']) && isset($_POST['batchnumbers']) && isset($_POST['req_bys']) && isset($_POST['exp_dates']) && isset($_POST['actualBNs'])) {
 

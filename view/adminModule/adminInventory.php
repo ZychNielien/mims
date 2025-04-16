@@ -476,45 +476,54 @@ include "navBar.php";
             reader.readAsArrayBuffer(file);
         });
 
+
+
+        // Submit Material Registration
         $("#btnSubmit").on("click", function (e) {
             e.preventDefault();
+
             let data = [];
             let valid = true;
+
             $("#itemTable tbody tr").each(function () {
                 let item = {};
-                $(this).find("input, select").each(function () {
-                    item[$(this).attr("name")] = $(this).val();
-                    if (!$(this).val()) {
+
+                $(this).find("input").each(function () {
+                    const input = $(this);
+                    const name = input.attr("name");
+                    const value = input.val().trim();
+
+                    item[name] = value;
+
+                    if (!value) {
                         valid = false;
-                        $(this).addClass("is-invalid");
+                        input.addClass("is-invalid");
                     } else {
-                        $(this).removeClass("is-invalid");
+                        input.removeClass("is-invalid");
                     }
                 });
+
                 data.push(item);
             });
 
-            if (!valid) return Swal.fire(
-                'Error!',
-                'Missing Inputs',
-                'error'
+            if (!valid) {
+                return Swal.fire("Error!", "Missing Inputs", "error");
+            }
 
-
-            );
-
-            if (data.length === 0) return Swal.fire(
-                'Error!',
-                'No data to submit.',
-                'error'
-
-
-            );
+            if (data.length === 0) {
+                return Swal.fire("Error!", "No data to submit.", "error");
+            }
 
             $.ajax({
-                url: "../submit.php",
+                url: "../../controller/inventory.php",
                 method: "POST",
                 contentType: "application/json",
-                data: JSON.stringify({ items: data }),
+                dataType: "json",
+                data: JSON.stringify({
+                    materialSubmit: true,
+                    items: data
+                }),
+
                 success: res => {
                     if (res.duplicates) {
                         Swal.fire({
