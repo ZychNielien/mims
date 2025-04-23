@@ -53,7 +53,7 @@ include "navBar.php";
             <tbody id="data-table">
                 <?php
                 $userName = $_SESSION['username'];
-                $sql = "SELECT * FROM tbl_requested WHERE status = 'approved' ORDER BY dts_approve DESC";
+                $sql = "SELECT * FROM tbl_requested WHERE status = 'Approved' ORDER BY dts_approve DESC";
                 $sql_query = mysqli_query($con, $sql);
 
                 if (mysqli_num_rows($sql_query) > 0) {

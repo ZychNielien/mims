@@ -582,7 +582,7 @@ if ($sql_machine_query) {
                     if (response.success) {
                         Swal.fire({
                             icon: 'success',
-                            title: 'Rejected!',
+                            title: 'Deleted!',
                             text: 'Requests have been deleted successfully.',
                             confirmButtonText: 'Ok'
                         }).then(() => {

@@ -129,6 +129,11 @@ if (isset($_POST['delete_submit'])) {
             $dts = date('Y-m-d H:i:s');
             $mensahe = $username . " has canceled the withdrawal request for the " . $current_part_name . " with a quantity of " . $quantity . ".";
 
+            $select = "SELECT approver FROM tbl_inventory WHERE part_name = '$current_part_name'";
+            $select_query = mysqli_query($con, $select);
+            $selectedApprover = mysqli_fetch_assoc($select_query);
+            $approver = $selectedApprover['approver'];
+
             $delete_req = "DELETE FROM `tbl_requested` WHERE id = '$id'";
             if (mysqli_query($con, $delete_req)) {
 
@@ -139,7 +144,7 @@ if (isset($_POST['delete_submit'])) {
 
                 }
                 $update_admin_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
-                VALUES ('$username', '$mensahe', 0, '$dts', 'admin', 'Inventory')";
+                VALUES ('$username', '$mensahe', 0, '$dts', '$approver', 'Inventory')";
                 if (!mysqli_query($con, $update_admin_notif)) {
                     $success = false;
                     break;

@@ -205,20 +205,29 @@ if (isset($_POST['delete_submit'])) {
 // MATERIAL REGISTRATION
 if (isset($data['materialSubmit']) && is_array($data['items'])) {
     $duplicates = [];
+    $seen_parts = [];
 
     foreach ($data['items'] as $item) {
-        $part_number = mysqli_real_escape_string($con, $item['new_part_number'] ?? '');
+        $part_number = trim(mysqli_real_escape_string($con, $item['new_part_number'] ?? ''));
 
         if (!$part_number)
             continue;
 
-        $check_sql = "SELECT 1 FROM tbl_inventory WHERE part_name = '$part_number' LIMIT 1";
+        if (in_array(strtolower($part_number), $seen_parts)) {
+            $duplicates[] = $part_number;
+            continue;
+        }
+
+        $check_sql = "SELECT 1 FROM tbl_inventory WHERE LOWER(TRIM(part_name)) = LOWER('$part_number') LIMIT 1";
         $check_result = mysqli_query($con, $check_sql);
 
         if ($check_result && mysqli_num_rows($check_result) > 0) {
             $duplicates[] = $part_number;
         }
+
+        $seen_parts[] = strtolower($part_number);
     }
+
 
     if (!empty($duplicates)) {
         echo json_encode([

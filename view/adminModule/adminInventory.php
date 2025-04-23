@@ -149,6 +149,11 @@ include "navBar.php";
                         <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
                             <button class="btn btn-primary" id="btnUpload">Upload File</button>
                         </div>
+                        <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
+                            <a href="../../public/Material_Registration.xlsx" download class="btn btn-outline-success">
+                                📥 Download Template
+                            </a>
+                        </div>
 
                         <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
                             <button class="btn btn-success" id="btnAddRow">Add Row</button>
@@ -464,13 +469,15 @@ include "navBar.php";
                 const workbook = XLSX.read(data, { type: "array" });
                 const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 }).slice(1);
                 rows.forEach(row => addRow({
-                    new_part_number: row[0],
+                    new_part_number: (row[0] || '').trim(),
                     new_part_desc: row[1],
                     new_option: row[2],
-                    new_cost_center: row[3],
-                    new_location: row[4],
-                    new_min_invent_req: parseInt(row[5]) || 0,
-                    new_unit: row[6]
+                    new_category: row[3],
+                    new_cost_center: row[4],
+                    new_location: row[5],
+                    new_min_invent_req: parseInt(row[6]) || 0,
+                    new_unit: row[7],
+                    new_approver: row[8]
                 }));
             };
             reader.readAsArrayBuffer(file);
@@ -488,7 +495,7 @@ include "navBar.php";
             $("#itemTable tbody tr").each(function () {
                 let item = {};
 
-                $(this).find("input").each(function () {
+                $(this).find("input, select").each(function () {
                     const input = $(this);
                     const name = input.attr("name");
                     const value = input.val().trim();
@@ -888,7 +895,7 @@ include "navBar.php";
                         </td>
                         <td>
                             <select class="form-select" name="partypes[]" required>
-                                <option value="${!partType ? 'selected' : ''}">Select Approver</option>
+                                <option value="" ${!partType ? 'selected' : ''}>Material Type</option>
                                 <option value="Direct" ${partType === 'Direct' ? 'selected' : ''}>Direct</option>
                                 <option value="Indirect" ${partType === 'Indirect' ? 'selected' : ''}>Indirect</option>
                             </select>
@@ -903,7 +910,7 @@ include "navBar.php";
                         </td>
                         <td>
                             <select name="costcenters[]" class="form-select w-100" required>  
-                                <option value="${!partCostCenter ? 'selected' : ''}">Cost Center</option>
+                                <option value="" ${!partCostCenter ? 'selected' : ''}>Cost Center</option>
                                 <?php
                                 $select_ccid = "SELECT * FROM tbl_ccs";
                                 $select_ccid_query = mysqli_query($con, $select_ccid);

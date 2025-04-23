@@ -56,13 +56,15 @@ include "navBar.php";
 
                     <div class="d-flex justify-content-evenly  align-items-center w-100 p-3">
 
-                        <input type="text" class="form-control w-25 me-2" placeholder="Search here" autocomplete="off" id="search_machine" placeholder="Machine Number"/>
-                        <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal" data-bs-target="#addMachineModal">Register Machine</button>
+                        <input type="text" class="form-control w-25 me-2" placeholder="Search here" autocomplete="off"
+                            id="search_machine" placeholder="Machine Number" />
+                        <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal"
+                            data-bs-target="#addMachineModal">Register Machine</button>
                         <button class="btn btn-primary w-auto " id="update_machine-btn">Update Machine</button>
                         <button class="btn btn-danger w-auto " id="delete_machine-btn">Delete Machine</button>
 
                     </div>
-                 
+
                     <table class="table table-striped w-100">
                         <thead>
                             <tr class="text-center"
@@ -80,7 +82,8 @@ include "navBar.php";
                                     ?>
                                     <tr class="table-row text-center" style="vertical-align: middle;">
                                         <td data-label="Select">
-                                            <input type="checkbox" class="select-machine" data-id="<?php echo $machineRow['id']; ?>"
+                                            <input type="checkbox" class="select-machine"
+                                                data-id="<?php echo $machineRow['id']; ?>"
                                                 data-machine_number="<?php echo $machineRow['machine_number']; ?>">
                                         </td>
                                         <td data-label="Machine Number"><?php echo $machineRow['machine_number']; ?></td>
@@ -105,8 +108,10 @@ include "navBar.php";
                 <div class="container">
                     <div class="d-flex justify-content-evenly  align-items-center w-100 p-3">
 
-                        <input type="text" class="form-control w-25 me-2" placeholder="Search here" autocomplete="off" id="search_station" placeholder="Station Code"/>
-                        <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal" data-bs-target="#addStationModal">Register Station Code</button>
+                        <input type="text" class="form-control w-25 me-2" placeholder="Search here" autocomplete="off"
+                            id="search_station" placeholder="Station Code" />
+                        <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal"
+                            data-bs-target="#addStationModal">Register Station Code</button>
                         <button class="btn btn-primary w-auto " id="update_station-btn">Update Station Code</button>
                         <button class="btn btn-danger w-auto " id="delete_station-btn">Delete Station Code</button>
 
@@ -128,7 +133,8 @@ include "navBar.php";
                                     ?>
                                     <tr class="table-row  text-center">
                                         <td data-label="Select">
-                                            <input type="checkbox" class="select-station" data-id="<?php echo $stationRow['id']; ?>"
+                                            <input type="checkbox" class="select-station"
+                                                data-id="<?php echo $stationRow['id']; ?>"
                                                 data-station_code="<?php echo $stationRow['station_code']; ?>">
                                         </td>
                                         <td data-label="Station Code"><?php echo $stationRow['station_code']; ?></td>
@@ -155,10 +161,14 @@ include "navBar.php";
 
                     <div class="d-flex justify-content-evenly  align-items-center w-100 p-3">
 
-                        <input type="text" class="form-control w-25 me-2" placeholder="Search here" autocomplete="off" id="search_withdraw"/>
-                        <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal" data-bs-target="#addWithdrawModal">Register Withdrawal Reason</button>
-                        <button class="btn btn-primary w-auto " id="update_withdraw-btn">Update Withdrawal Reason</button>
-                        <button class="btn btn-danger w-auto " id="delete_withdraw-btn">Delete Withdrawal Reason</button>
+                        <input type="text" class="form-control w-25 me-2" placeholder="Search here" autocomplete="off"
+                            id="search_withdraw" />
+                        <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal"
+                            data-bs-target="#addWithdrawModal">Register Withdrawal Reason</button>
+                        <button class="btn btn-primary w-auto " id="update_withdraw-btn">Update Withdrawal
+                            Reason</button>
+                        <button class="btn btn-danger w-auto " id="delete_withdraw-btn">Delete Withdrawal
+                            Reason</button>
 
                     </div>
                     <table class="table table-striped w-100">
@@ -178,7 +188,8 @@ include "navBar.php";
                                     ?>
                                     <tr class="table-row  text-center">
                                         <td data-label="Select">
-                                            <input type="checkbox" class="select-withdraw" data-id="<?php echo $reasonRow['id']; ?>"
+                                            <input type="checkbox" class="select-withdraw"
+                                                data-id="<?php echo $reasonRow['id']; ?>"
                                                 data-withdrawal_reason="<?php echo $reasonRow['reason']; ?>">
                                         </td>
                                         <td data-label="Withdrawal Reason"><?php echo $reasonRow['reason']; ?></td>
@@ -198,8 +209,10 @@ include "navBar.php";
                 <div class="container">
                     <div class="d-flex justify-content-evenly  align-items-center w-100 p-3">
 
-                        <input type="text" class="form-control w-25 me-2" placeholder="Search here" autocomplete="off" id="search_unit"/>
-                        <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal" data-bs-target="#addUnitModal">Register Unit of Measure</button>
+                        <input type="text" class="form-control w-25 me-2" placeholder="Search here" autocomplete="off"
+                            id="search_unit" />
+                        <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal"
+                            data-bs-target="#addUnitModal">Register Unit of Measure</button>
                         <button class="btn btn-primary w-auto " id="update_unit-btn">Update Unit of Measure</button>
                         <button class="btn btn-danger w-auto " id="delete_unit-btn">Delete Unit of Measure</button>
 
@@ -243,425 +256,450 @@ include "navBar.php";
 
         </div>
 
-    <!-- Register Machine Modal -->
-    <div class="modal fade" id="addMachineModal" tabindex="-1" aria-labelledby="addMachineModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addMachineModalLabel">Machine Number Registration</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
+        <!-- Register Machine Modal -->
+        <div class="modal fade" id="addMachineModal" tabindex="-1" aria-labelledby="addMachineModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addMachineModalLabel">Machine Number Registration</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
 
-                    <div class="mb-4 d-flex flex-wrap gap-3 align-items-stretch justify-content-evenly">
-                        <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
-                            <button class="btn btn-success" id="btnAddMachineRow">Add Row</button>
+                        <div class="mb-4 d-flex flex-wrap gap-3 align-items-stretch justify-content-evenly">
+                            <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
+                                <button class="btn btn-success" id="btnAddMachineRow">Add Row</button>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="table-responsive overflow-x-auto">
-                        <table class="table table-striped table-bordered text-center w-100" id="machineTable">
-                            <thead>
-                                <tr class="text-center"
-                                    style="background-color: #900008; color: white; vertical-align: middle;">
-                                    <th>Machine Number</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                            </tbody>
-                        </table>
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="machineSubmit"
-                        name="submit_machine">Submit</button>
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Update Machine Modal -->
-    <div class="modal fade" id="updateMachineModal" tabindex="-1" aria-labelledby="updateMachineModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateMachineModalLabel">Modification of Selected Machines</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="updateMachineForm">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered">
-                                <thead class="text-center text-white" style="background-color: #900008;">
-                                    <tr style="vertical-align: middle;">
+                        <div class="table-responsive overflow-x-auto">
+                            <table class="table table-striped table-bordered text-center w-100" id="machineTable">
+                                <thead>
+                                    <tr class="text-center"
+                                        style="background-color: #900008; color: white; vertical-align: middle;">
                                         <th>Machine Number</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="modalUpdateMachineList">
+                                <tbody>
+
                                 </tbody>
                             </table>
                         </div>
-                        <div class="d-flex justify-content-end mt-3">
-                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary" name="updatemachine_submit">Update</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Delete Machine Modal -->
-    <div class="modal fade" id="deleteMachineModal" tabindex="-1" aria-labelledby="deleteMachineModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteMachineModalLabel">Deletion of Selected Machines</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="deleteMachineForm">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered">
-                                <thead class="text-center text-white" style="background-color: #900008;">
-                                    <tr style="vertical-align: middle;">
-                                        <th>Machine Number</th>
-                                        <th>Reasons</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="modalDeleteMachineList">
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="d-flex justify-content-end mt-3">
-                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-danger" name="deletemachine_submit">Delete</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Register Station Code Modal -->
-    <div class="modal fade" id="addStationModal" tabindex="-1" aria-labelledby="addStationModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addStationModalLabel">Station Code Registration</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-
-                    <div class="mb-4 d-flex flex-wrap gap-3 align-items-stretch justify-content-evenly">
-                        <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
-                            <button class="btn btn-success" id="btnAddStationRow">Add Row</button>
-                        </div>
                     </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" id="machineSubmit"
+                            name="submit_machine">Submit</button>
 
-                    <div class="table-responsive overflow-x-auto">
-                        <table class="table table-striped table-bordered text-center w-100" id="stationTable">
-                            <thead>
-                                <tr class="text-center"
-                                    style="background-color: #900008; color: white; vertical-align: middle;">
-                                    <th>Station Code</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                            </tbody>
-                        </table>
                     </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success" id="stationSubmit"
-                        name="submit_station">Register</button>
-
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Update Station Code Modal -->
-    <div class="modal fade" id="updateStationModal" tabindex="-1" aria-labelledby="updateStationModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateStationModalLabel">Modification of Selected Station Codes</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <!-- Update Machine Modal -->
+        <div class="modal fade" id="updateMachineModal" tabindex="-1" aria-labelledby="updateMachineModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateMachineModalLabel">Modification of Selected Machines</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="updateMachineForm">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead class="text-center text-white" style="background-color: #900008;">
+                                        <tr style="vertical-align: middle;">
+                                            <th>Machine Number</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modalUpdateMachineList">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-end mt-3">
+                                <button type="button" class="btn btn-secondary me-2"
+                                    data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary"
+                                    name="updatemachine_submit">Update</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="updateStationForm">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered">
-                                <thead class="text-center text-white" style="background-color: #900008;">
-                                    <tr style="vertical-align: middle;">
+            </div>
+        </div>
+
+        <!-- Delete Machine Modal -->
+        <div class="modal fade" id="deleteMachineModal" tabindex="-1" aria-labelledby="deleteMachineModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteMachineModalLabel">Deletion of Selected Machines</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="deleteMachineForm">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead class="text-center text-white" style="background-color: #900008;">
+                                        <tr style="vertical-align: middle;">
+                                            <th>Machine Number</th>
+                                            <th>Reasons</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modalDeleteMachineList">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-end mt-3">
+                                <button type="button" class="btn btn-secondary me-2"
+                                    data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger" name="deletemachine_submit">Delete</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Station Code Modal -->
+        <div class="modal fade" id="addStationModal" tabindex="-1" aria-labelledby="addStationModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addStationModalLabel">Station Code Registration</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="mb-4 d-flex flex-wrap gap-3 align-items-stretch justify-content-evenly">
+                            <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
+                                <button class="btn btn-success" id="btnAddStationRow">Add Row</button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive overflow-x-auto">
+                            <table class="table table-striped table-bordered text-center w-100" id="stationTable">
+                                <thead>
+                                    <tr class="text-center"
+                                        style="background-color: #900008; color: white; vertical-align: middle;">
                                         <th>Station Code</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="modalUpdateStationList">
+                                <tbody>
+
                                 </tbody>
                             </table>
                         </div>
-                        <div class="d-flex justify-content-end mt-3">
-                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary" name="updatestation_submit">Update</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Delete Machine Modal -->
-    <div class="modal fade" id="deleteStationModal" tabindex="-1" aria-labelledby="deleteStationModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteStationModalLabel">Deletion of Selected Station Codes</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="deleteStationForm">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered">
-                                <thead class="text-center text-white" style="background-color: #900008;">
-                                    <tr style="vertical-align: middle;">
-                                        <th>Station Code</th>
-                                        <th>Reasons</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="modalDeleteStationList">
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="d-flex justify-content-end mt-3">
-                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-danger" name="deletestation_submit">Delete</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Register Withdrawal Reason Modal -->
-    <div class="modal fade" id="addWithdrawModal" tabindex="-1" aria-labelledby="addWithdrawModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addWithdrawModalLabel">Withdrawal Reason Registration</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-
-                    <div class="mb-4 d-flex flex-wrap gap-3 align-items-stretch justify-content-evenly">
-                        <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
-                            <button class="btn btn-success" id="btnAddWithdrawRow">Add Row</button>
-                        </div>
                     </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success" id="stationSubmit"
+                            name="submit_station">Register</button>
 
-                    <div class="table-responsive overflow-x-auto">
-                        <table class="table table-striped table-bordered text-center w-100" id="withdrawTable">
-                            <thead>
-                                <tr class="text-center"
-                                    style="background-color: #900008; color: white; vertical-align: middle;">
-                                    <th>Withdrawal Reason</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                            </tbody>
-                        </table>
                     </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success" id="withdrawSubmit"
-                        name="submit_withdraw">Register</button>
-
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Update Station Code Modal -->
-    <div class="modal fade" id="updateWithdrawModal" tabindex="-1" aria-labelledby="updateWithdrawModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateWithdrawModalLabel">Modification of Selected Withdrawal Reasons</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="updateWithdrawForm">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered">
-                                <thead class="text-center text-white" style="background-color: #900008;">
-                                    <tr style="vertical-align: middle;">
-                                        <th>Withdrawal Reasons</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="modalUpdateWithdrawList">
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="d-flex justify-content-end mt-3">
-                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary" name="updatewithdraw_submit">Update</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Machine Modal -->
-    <div class="modal fade" id="deleteWithdrawModal" tabindex="-1" aria-labelledby="deleteWithdrawModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteWithdrawModalLabel">Deletion of Selected Withdrawal Reasons</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="deleteWithdrawForm">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered">
-                                <thead class="text-center text-white" style="background-color: #900008;">
-                                    <tr style="vertical-align: middle;">
-                                        <th>Withdrawal Reasons</th>
-                                        <th>Reasons</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="modalDeleteWithdrawList">
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="d-flex justify-content-end mt-3">
-                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-danger" name="deletewithdraw_submit">Delete</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Register Unit of Measure Modal -->
-    <div class="modal fade" id="addUnitModal" tabindex="-1" aria-labelledby="addUnitModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addUnitModalLabel">Unit Registration</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-
-                    <div class="mb-4 d-flex flex-wrap gap-3 align-items-stretch justify-content-evenly">
-                        <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
-                            <button class="btn btn-success" id="btnAddUnitRow">Add Row</button>
-                        </div>
+        <!-- Update Station Code Modal -->
+        <div class="modal fade" id="updateStationModal" tabindex="-1" aria-labelledby="updateStationModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateStationModalLabel">Modification of Selected Station Codes</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-
-                    <div class="table-responsive overflow-x-auto">
-                        <table class="table table-striped table-bordered text-center w-100" id="unitTable">
-                            <thead>
-                                <tr class="text-center"
-                                    style="background-color: #900008; color: white; vertical-align: middle;">
-                                    <th>Unit of Measure</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                            </tbody>
-                        </table>
+                    <div class="modal-body">
+                        <form id="updateStationForm">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead class="text-center text-white" style="background-color: #900008;">
+                                        <tr style="vertical-align: middle;">
+                                            <th>Station Code</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modalUpdateStationList">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-end mt-3">
+                                <button type="button" class="btn btn-secondary me-2"
+                                    data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary"
+                                    name="updatestation_submit">Update</button>
+                            </div>
+                        </form>
                     </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success" id="unitSubmit"
-                        name="submit_unit">Register</button>
-
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Update Unit of Measure Modal -->
-    <div class="modal fade" id="updateUnitModal" tabindex="-1" aria-labelledby="updateUnitModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="updateUnitModalLabel">Modification of Selected Unit of Measure</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <!-- Delete Machine Modal -->
+        <div class="modal fade" id="deleteStationModal" tabindex="-1" aria-labelledby="deleteStationModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteStationModalLabel">Deletion of Selected Station Codes</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="deleteStationForm">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead class="text-center text-white" style="background-color: #900008;">
+                                        <tr style="vertical-align: middle;">
+                                            <th>Station Code</th>
+                                            <th>Reasons</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modalDeleteStationList">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-end mt-3">
+                                <button type="button" class="btn btn-secondary me-2"
+                                    data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger" name="deletestation_submit">Delete</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="updateUnitForm">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered">
-                                <thead class="text-center text-white" style="background-color: #900008;">
-                                    <tr style="vertical-align: middle;">
-                                        <th>Unit of Measures</th>
+            </div>
+        </div>
+
+        <!-- Register Withdrawal Reason Modal -->
+        <div class="modal fade" id="addWithdrawModal" tabindex="-1" aria-labelledby="addWithdrawModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addWithdrawModalLabel">Withdrawal Reason Registration</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="mb-4 d-flex flex-wrap gap-3 align-items-stretch justify-content-evenly">
+                            <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
+                                <button class="btn btn-success" id="btnAddWithdrawRow">Add Row</button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive overflow-x-auto">
+                            <table class="table table-striped table-bordered text-center w-100" id="withdrawTable">
+                                <thead>
+                                    <tr class="text-center"
+                                        style="background-color: #900008; color: white; vertical-align: middle;">
+                                        <th>Withdrawal Reason</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="modalUpdateUnitList">
+                                <tbody>
+
                                 </tbody>
                             </table>
                         </div>
-                        <div class="d-flex justify-content-end mt-3">
-                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary" name="updateunit_submit">Update</button>
-                        </div>
-                    </form>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success" id="withdrawSubmit"
+                            name="submit_withdraw">Register</button>
+
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Delete Unit of Measures Modal -->
-    <div class="modal fade" id="deleteUnitModal" tabindex="-1" aria-labelledby="deleteUnitModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteUnitModalLabel">Deletion of Selected Unit of Measures</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <!-- Update Station Code Modal -->
+        <div class="modal fade" id="updateWithdrawModal" tabindex="-1" aria-labelledby="updateWithdrawModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateWithdrawModalLabel">Modification of Selected Withdrawal
+                            Reasons</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="updateWithdrawForm">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead class="text-center text-white" style="background-color: #900008;">
+                                        <tr style="vertical-align: middle;">
+                                            <th>Withdrawal Reasons</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modalUpdateWithdrawList">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-end mt-3">
+                                <button type="button" class="btn btn-secondary me-2"
+                                    data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary"
+                                    name="updatewithdraw_submit">Update</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <form id="deleteUnitForm">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered">
-                                <thead class="text-center text-white" style="background-color: #900008;">
-                                    <tr style="vertical-align: middle;">
-                                        <th>Unit of Measures</th>
-                                        <th>Reasons</th>
+            </div>
+        </div>
+
+        <!-- Delete Machine Modal -->
+        <div class="modal fade" id="deleteWithdrawModal" tabindex="-1" aria-labelledby="deleteWithdrawModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteWithdrawModalLabel">Deletion of Selected Withdrawal Reasons
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="deleteWithdrawForm">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead class="text-center text-white" style="background-color: #900008;">
+                                        <tr style="vertical-align: middle;">
+                                            <th>Withdrawal Reasons</th>
+                                            <th>Reasons</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modalDeleteWithdrawList">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-end mt-3">
+                                <button type="button" class="btn btn-secondary me-2"
+                                    data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger"
+                                    name="deletewithdraw_submit">Delete</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Unit of Measure Modal -->
+        <div class="modal fade" id="addUnitModal" tabindex="-1" aria-labelledby="addUnitModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addUnitModalLabel">Unit Registration</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="mb-4 d-flex flex-wrap gap-3 align-items-stretch justify-content-evenly">
+                            <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
+                                <button class="btn btn-success" id="btnAddUnitRow">Add Row</button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive overflow-x-auto">
+                            <table class="table table-striped table-bordered text-center w-100" id="unitTable">
+                                <thead>
+                                    <tr class="text-center"
+                                        style="background-color: #900008; color: white; vertical-align: middle;">
+                                        <th>Unit of Measure</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="modalDeleteUnitList">
+                                <tbody>
+
                                 </tbody>
                             </table>
                         </div>
-                        <div class="d-flex justify-content-end mt-3">
-                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-danger" name="deleteunit_submit">Delete</button>
-                        </div>
-                    </form>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success" id="unitSubmit"
+                            name="submit_unit">Register</button>
+
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+
+        <!-- Update Unit of Measure Modal -->
+        <div class="modal fade" id="updateUnitModal" tabindex="-1" aria-labelledby="updateUnitModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateUnitModalLabel">Modification of Selected Unit of Measure</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="updateUnitForm">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead class="text-center text-white" style="background-color: #900008;">
+                                        <tr style="vertical-align: middle;">
+                                            <th>Unit of Measures</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modalUpdateUnitList">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-end mt-3">
+                                <button type="button" class="btn btn-secondary me-2"
+                                    data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" name="updateunit_submit">Update</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Unit of Measures Modal -->
+        <div class="modal fade" id="deleteUnitModal" tabindex="-1" aria-labelledby="deleteUnitModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteUnitModalLabel">Deletion of Selected Unit of Measures</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="deleteUnitForm">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-bordered">
+                                    <thead class="text-center text-white" style="background-color: #900008;">
+                                        <tr style="vertical-align: middle;">
+                                            <th>Unit of Measures</th>
+                                            <th>Reasons</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="modalDeleteUnitList">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-end mt-3">
+                                <button type="button" class="btn btn-secondary me-2"
+                                    data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger" name="deleteunit_submit">Delete</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
 </section>
@@ -1198,7 +1236,7 @@ include "navBar.php";
                             text: 'Station Codes deleted successfully!',
                             confirmButtonText: 'Ok'
                         }).then(() => {
-                            location.reload();
+                            window.location.href = 'adminData.php?tab=station';
                         });
                     } else {
                         Swal.fire({
@@ -1403,8 +1441,8 @@ include "navBar.php";
             });
         });
 
-       // Delete Withdrawal Reason Button
-       $("#delete_withdraw-btn").click(function () {
+        // Delete Withdrawal Reason Button
+        $("#delete_withdraw-btn").click(function () {
             $("#modalDeleteWithdrawList").empty();
 
             let selectedItems = $(".select-withdraw:checked");
@@ -1466,7 +1504,7 @@ include "navBar.php";
                             text: 'Withdrawal Reasons deleted successfully!',
                             confirmButtonText: 'Ok'
                         }).then(() => {
-                            location.reload();
+                            window.location.href = 'adminData.php?tab=withdraw';
                         });
                     } else {
                         Swal.fire({
@@ -1672,7 +1710,7 @@ include "navBar.php";
         });
 
         // Delete Unit of Measures Button
-       $("#delete_unit-btn").click(function () {
+        $("#delete_unit-btn").click(function () {
             $("#modalDeleteUnitList").empty();
 
             let selectedItems = $(".select-unit:checked");
