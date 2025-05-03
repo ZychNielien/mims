@@ -14,7 +14,6 @@ include "navBar.php";
 
 <section>
 
-    <!-- Navigation Tabs -->
     <nav class="m-3">
         <div class="nav nav-tabs" id="nav-tab" role="tablist">
             <button class="nav-link active" id="withdraw-tab" data-bs-toggle="tab" data-bs-target="#withdraw-tab-pane"
@@ -202,20 +201,17 @@ include "navBar.php";
                             <?php
                             $userName = $_SESSION['username'];
                             $sql = "SELECT 
-                                tr.*, 
-                                ts.part_qty AS total_qty 
-                            FROM 
-                                tbl_requested tr 
-                            LEFT JOIN 
-                                tbl_stock ts 
-                                ON tr.part_name = ts.part_name 
-                                AND tr.exp_date = ts.exp_date 
-                            WHERE 
-                                tr.req_by = '$userName' 
-                                AND tr.status = 'Pending'  
-                            ORDER BY 
-                                tr.dts DESC
-                            ";
+                                        tr.*, 
+                                        ts.part_qty AS total_qty, 
+                                        ts.item_code 
+                                    FROM tbl_requested tr 
+                                    JOIN tbl_stock ts 
+                                    ON tr.part_name = ts.part_name 
+                                        AND tr.exp_date = ts.exp_date 
+                                        AND tr.batch_number = ts.batch_number 
+                                    WHERE tr.req_by = '$userName' 
+                                        AND tr.status = 'Pending'  
+                                    ORDER BY tr.dts DESC";
                             $sql_query = mysqli_query($con, $sql);
 
                             if (mysqli_num_rows($sql_query) > 0) {
@@ -231,7 +227,9 @@ include "navBar.php";
                                                 data-lot_id="<?php echo $sqlRow['lot_id']; ?>"
                                                 data-machine="<?php echo $sqlRow['machine_no']; ?>"
                                                 data-withdrawal="<?php echo $sqlRow['with_reason']; ?>"
-                                                data-total_qty="<?php echo $sqlRow['total_qty']; ?>" />
+                                                data-total_qty="<?php echo $sqlRow['total_qty']; ?>"
+                                                data-item_code="<?php echo $sqlRow['item_code']; ?>"
+                                                data-batch_number="<?php echo $sqlRow['batch_number']; ?>" />
                                         </td>
                                         <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts'] ?></td>
                                         <td data-label="Lot Id"><?php echo $sqlRow['lot_id'] ?></td>
@@ -283,7 +281,6 @@ include "navBar.php";
                 </div>
 
                 <table class="table table-striped w-100">
-
                     <thead>
                         <tr class="text-center"
                             style="background-color: #900008; color: white; vertical-align: middle;">
@@ -301,12 +298,12 @@ include "navBar.php";
                             <th scope="col">Approved By</th>
                         </tr>
                     </thead>
-
                     <tbody id="data-table-approve">
 
                     </tbody>
-
                 </table>
+
+                <div id="pagination"></div>
 
             </div>
 
@@ -317,10 +314,8 @@ include "navBar.php";
 
             <div class="mx-3">
 
-                <!-- Title Tab -->
                 <h3 class="text-center fw-bold" style="color: #900008;">History of Rejected Requests</h3>
 
-                <!-- Rejected Requests Selections -->
                 <div class="d-flex justify-content-evenly mb-3 text-center">
                     <div>
                         <label for="start_date_reject" class="me-2 fw-bold">Start Date:</label>
@@ -332,7 +327,6 @@ include "navBar.php";
                     </div>
                 </div>
 
-                <!-- Rejected Requests Table -->
                 <table class="table table-striped w-100">
 
                     <thead>
@@ -357,6 +351,8 @@ include "navBar.php";
 
                 </table>
 
+                <div id="pagination-reject"></div>
+
             </div>
 
         </div>
@@ -366,10 +362,8 @@ include "navBar.php";
 
             <div class="mx-3">
 
-                <!-- Title Tab -->
                 <h3 class="text-center fw-bold" style="color: #900008;">History of Returned Requests</h3>
 
-                <!-- Returned Requests Selections -->
                 <div class="d-flex justify-content-evenly mb-3 text-center items-center">
                     <div>
                         <label for="start_date_return" class="me-2 fw-bold">Start Date:</label>
@@ -381,7 +375,6 @@ include "navBar.php";
                     </div>
                 </div>
 
-                <!-- Returned Requests Table -->
                 <table class="table table-striped w-100">
 
                     <thead>
@@ -405,6 +398,8 @@ include "navBar.php";
                     </tbody>
 
                 </table>
+
+                <div id="pagination-return"></div>
 
             </div>
 
@@ -504,6 +499,7 @@ include "navBar.php";
                                     <th>Part Number</th>
                                     <th>Approved Quantity</th>
                                     <th>Returning Quantity</th>
+                                    <th>Purpose of Return</th>
                                     <th>Reason for Returning</th>
                                 </tr>
                             </thead>
@@ -606,7 +602,8 @@ include "navBar.php";
                 let withdrawal = $(this).data("withdrawal");
                 let dts = $(this).data("dts");
                 let total_qty = $(this).data("total_qty");
-                console.log(machine);
+                let batch_number = $(this).data("batch_number");
+                let item_code = $(this).data("item_code");
 
                 let row = `
                     <tr class="text-center" style="vertical-align: middle;">
@@ -653,7 +650,9 @@ include "navBar.php";
                                 ?>
                             </select>
                         </td>
-                        <td style="display:none;"> 
+                        <td style="display:none;">
+                            <input type="hidden" name="batch_numbers[]" value="${batch_number}">
+                            <input type="hidden" name="item_codes[]" value="${item_code}"> 
                             <input type="hidden" name="ids[]" value="${id}">
                             <input type="hidden" name="part_names[]" value="${partName}">
                             <input type="hidden" name="exp_dates[]" value="${exp_date}">
@@ -725,6 +724,8 @@ include "navBar.php";
                 let machine = $(this).data("machine");
                 let withdrawal = $(this).data("withdrawal");
                 let dts = $(this).data("dts");
+                let batch_number = $(this).data("batch_number");
+                let item_code = $(this).data("item_code");
 
                 let row = `
                     <tr class=" text-center" style="vertical-align: middle;">
@@ -737,6 +738,8 @@ include "navBar.php";
                     
                 
                         <td style="display:none;"> 
+                            <input type="hidden" name="batch_numbers[]" value="${batch_number}">
+                            <input type="hidden" name="item_codes[]" value="${item_code}">
                             <input type="hidden" name="part_names[]" value="${partName}">
                             <input type="hidden" name="quantities[]" value="${qty}">
                             <input type="hidden" name="exp_dates[]" value="${exp_date}">
@@ -785,31 +788,91 @@ include "navBar.php";
 
         // Select Return
         $('#select-all-return').on('change', function () {
-            $('.select-return').prop('checked', $(this).prop('checked'));
+            let isChecked = $(this).prop('checked');
+
+            $('.select-return').each(function () {
+                if (!$(this).prop('disabled')) {
+                    $(this).prop('checked', isChecked);
+                }
+            });
         });
 
+        // Approved Request Pagination
+        $(document).on('click', '.page-link-approve', function (e) {
+            e.preventDefault();
 
-        // Approve Request Date Selection
-        $('#start_date_approve, #end_date_approve').on('change', function () {
+            let page = $(this).attr('href').split('=')[1];
+
             let startDate = $('#start_date_approve').val();
             let endDate = $('#end_date_approve').val();
 
-            if (startDate && endDate) {
-                filterDataApprove(startDate, endDate);
-            }
+            filterDataApprove(startDate, endDate, page);
         });
 
-        // Approve Request AJAX
-        function filterDataApprove(startDate, endDate) {
+        // Approve Request Fetch Data Tables
+        function filterDataApprove(startDate, endDate, page = 1) {
             $.ajax({
                 url: '../../controller/withdrawal_approved.php',
                 method: 'GET',
                 data: {
                     start_date: startDate,
-                    end_date: endDate
+                    end_date: endDate,
+                    page: page
                 },
                 success: function (response) {
-                    $('#data-table-approve').html(response);
+                    let data = JSON.parse(response);
+
+                    $('#data-table-approve').html(data.table);
+                    $('#pagination').html(data.pagination);
+                },
+                error: function (xhr, status, error) {
+                    console.log("Error: ", error);
+                    alert('Error fetching data.');
+                }
+            });
+        }
+
+        let startDate = $('#start_date_approve').val();
+        let endDate = $('#end_date_approve').val();
+
+        // Approve Request Date Selection
+        $('#start_date_approve, #end_date_approve').on('change', function () {
+
+            startDate = $('#start_date_approve').val();
+            endDate = $('#end_date_approve').val();
+
+            filterDataApprove(startDate, endDate, 1);
+        });
+
+        filterDataApprove(startDate, endDate, 1);
+
+        // Rejected Request Pagination
+        $(document).on('click', '.page-link-reject', function (e) {
+            e.preventDefault();
+
+            let page = $(this).attr('href').split('=')[1];
+
+            let startDateReject = $('#start_date_reject').val();
+            let endDateReject = $('#end_date_reject').val();
+
+            filterDataReject(startDateReject, endDateReject, page);
+        });
+
+        // Rejected Request Fetch Data Tables
+        function filterDataReject(startDateReject, endDateReject, page = 1) {
+            $.ajax({
+                url: '../../controller/withdrawal_rejected.php',
+                method: 'GET',
+                data: {
+                    start_date: startDateReject,
+                    end_date: endDateReject,
+                    page: page
+                },
+                success: function (response) {
+                    let data = JSON.parse(response);
+
+                    $('#data-table-reject').html(data.table);
+                    $('#pagination-reject').html(data.pagination);
                 },
                 error: function (xhr, status, error) {
                     console.log("Error: ", error);
@@ -820,25 +883,44 @@ include "navBar.php";
 
         // Rejected Request Date Selection
         $('#start_date_reject, #end_date_reject').on('change', function () {
-            let startDate = $('#start_date_reject').val();
-            let endDate = $('#end_date_reject').val();
+            let startDateReject = $('#start_date_reject').val();
+            let endDateReject = $('#end_date_reject').val();
 
-            if (startDate && endDate) {
-                filterDataReject(startDate, endDate);
-            }
+            filterDataReject(startDateReject, endDateReject, 1);
         });
 
-        // Reject Request AJAX
-        function filterDataReject(startDate, endDate) {
+        let startDateReject = $('#start_date_reject').val();
+        let endDateReject = $('#end_date_reject').val();
+
+        filterDataReject(startDateReject, endDateReject, 1);
+
+        // Return Request Pagination
+        $(document).on('click', '.page-link-return', function (e) {
+            e.preventDefault();
+
+            let page = $(this).attr('href').split('=')[1];
+
+            let startDateReturn = $('#start_date_return').val();
+            let endDateReturn = $('#end_date_return').val();
+
+            filterDataReturn(startDateReturn, endDateReturn, page);
+        });
+
+        // Return Request Fetch Data Tables
+        function filterDataReturn(startDateReturn, endDateReturn, page = 1) {
             $.ajax({
-                url: '../../controller/withdrawal_rejected.php',
+                url: '../../controller/withdrawal_returned.php',
                 method: 'GET',
                 data: {
-                    start_date: startDate,
-                    end_date: endDate
+                    start_date: startDateReturn,
+                    end_date: endDateReturn,
+                    page: page
                 },
                 success: function (response) {
-                    $('#data-table-reject').html(response);
+                    let data = JSON.parse(response);
+
+                    $('#data-table-return').html(data.table);
+                    $('#pagination-return').html(data.pagination);
                 },
                 error: function (xhr, status, error) {
                     console.log("Error: ", error);
@@ -849,33 +931,16 @@ include "navBar.php";
 
         // Return Request Date Selection
         $('#start_date_return, #end_date_return').on('change', function () {
-            let startDate = $('#start_date_return').val();
-            let endDate = $('#end_date_return').val();
+            let startDateReturn = $('#start_date_return').val();
+            let endDateReturn = $('#end_date_return').val();
 
-            if (startDate && endDate) {
-                filterDataReturn(startDate, endDate);
-            }
+            filterDataReturn(startDateReturn, endDateReturn, 1);
         });
 
-        // Return Request AJAX
-        function filterDataReturn(startDate, endDate) {
-            $.ajax({
-                url: '../../controller/withdrawal_returned.php',
-                method: 'GET',
-                data: {
-                    start_date: startDate,
-                    end_date: endDate
-                },
-                success: function (response) {
-                    $('#data-table-return').html(response);
-                },
-                error: function (xhr, status, error) {
-                    console.log("Error: ", error);
-                    alert('Error fetching data.');
-                }
-            });
-        }
+        let startDateReturn = $('#start_date_return').val();
+        let endDateReturn = $('#end_date_return').val();
 
+        filterDataReturn(startDateReturn, endDateReturn, 1);
 
         // Return Withdrawal Request Button
         $("#return-btn").click(function () {
@@ -904,6 +969,13 @@ include "navBar.php";
                         <td>${partName}</td>
                         <td>${approved_qty}</td>
                         <td><input type="number" name="quantities[]" value="${approved_qty}" class="form-control" min="1" max="${approved_qty}" required></td>
+                        <td>
+                            <select class="form-select" name="return_purposes[]" required>
+                                <option value="">Purpose of Return</option>
+                                <option value="Partial">Partial</option>
+                                <option value="Scrap">Scrap</option>
+                            </select>
+                        </td>
                         <td><input type="text" name="reasons[]" class="form-control" placeholder="Reason for Returning ${partName}" autocomplete="off" required></td>
                         <td style="display:none;"> 
                             <input type="hidden" name="ids[]" value="${id}">

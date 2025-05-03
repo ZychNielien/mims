@@ -43,12 +43,10 @@ if ($sql_machine_query) {
 
         <div class="divWithdrawal px-3 w-25">
 
-            <!-- Material Withdrawal Title -->
             <div class="containerTitle">
                 <h4>Material Withdrawal</h4>
             </div>
 
-            <!-- Material Withdrawal Form -->
             <form method="POST" action="../../controller/user_query.php">
 
                 <?php
@@ -62,10 +60,8 @@ if ($sql_machine_query) {
 
                 ?>
 
-                <!-- Selected User Cost Center Input -->
                 <input type="hidden" value="<?php echo $select_user_row['cost_center'] ?>" name="cost_center">
 
-                <!-- Part Number Selection -->
                 <div class="mb-3">
                     <label for="partSelect" class="form-label">Part Number</label>
                     <select class="form-select" id="partSelect">
@@ -82,32 +78,21 @@ if ($sql_machine_query) {
                     </select>
                 </div>
 
-                <!-- Part Number Details -->
                 <div id="itemDetails" style="display: none;">
-
-                    <!-- Part Name Input Hidden -->
                     <input type="hidden" id="part_name" name="part_name" />
-
-                    <!-- Part Description -->
                     <div class="mb-1">
                         <label for="part_desc" class="form-label">Item Description</label>
                         <textarea class="form-control" id="part_desc" rows="2" name="part_desc" readonly></textarea>
                     </div>
-
-                    <!-- Part Option -->
                     <div class="mb-1">
                         <label for="part_option" class="form-label">Option</label>
                         <input type="text" class="form-control" id="part_option" name="part_option" readonly>
                     </div>
-
-                    <!-- Part Quantity -->
                     <div class="mb-1">
                         <label for="part_qty" class="form-label">ITEM QUANTITY</label>
                         <input type="number" class="form-control" id="part_qty" name="part_qty" required
                             placeholder="Enter Item Quantity">
                     </div>
-
-                    <!-- Part Station Code -->
                     <div class="mb-1">
                         <label for="station_code" class="form-label">STATION CODE</label>
                         <select class="form-select" id="station_code" name="station_code" required>
@@ -129,15 +114,11 @@ if ($sql_machine_query) {
                             ?>
                         </select>
                     </div>
-
-                    <!-- Requested By (USER) -->
                     <div class="mb-1" style="display: none;">
                         <label for="req_by" class="form-label">Req By</label>
                         <input type="text" class="form-control" id="req_by" value="<?php echo $_SESSION['username'] ?>"
                             name="req_by">
                     </div>
-
-                    <!-- Machine Number -->
                     <div class="mb-1">
                         <label for="machine_no" class="form-label">MACHINE NUMBER</label>
                         <select class="form-select" id="machine_no" name="machine_no" required>
@@ -162,15 +143,11 @@ if ($sql_machine_query) {
                             ?>
                         </select>
                     </div>
-
-                    <!-- Lot ID -->
                     <div class="mb-1">
                         <label for="lot_id" class="form-label">LOT ID</label>
                         <input type="text" class="form-control" id="lot_id" name="lot_id" required
                             placeholder="Enter Lot ID" autocomplete="off">
                     </div>
-
-                    <!-- Withdrawal Reason -->
                     <div class="mb-3">
                         <label for="with_reason" class="form-label">WITHDRAWAL REASON</label>
                         <select class="form-select" id="with_reason" name="with_reason" required>
@@ -193,7 +170,6 @@ if ($sql_machine_query) {
                         </select>
                     </div>
 
-                    <!-- Submit Material Request -->
                     <button type="submit" class="btn btn-success" name="req_part">Submit</button>
 
                 </div>
@@ -236,7 +212,12 @@ if ($sql_machine_query) {
 
                     <?php
                     $userName = $_SESSION['username'];
-                    $sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'Pending'  ORDER BY dts DESC";
+                    $sql = "SELECT tr.*, ts.item_code 
+                            FROM tbl_requested tr 
+                            JOIN tbl_stock ts 
+                            ON tr.part_name = ts.part_name AND tr.exp_date = ts.exp_date AND tr.batch_number = ts.batch_number 
+                            WHERE tr.req_by = '$userName' AND tr.status = 'Pending'  
+                            ORDER BY tr.dts DESC";
                     $sql_query = mysqli_query($con, $sql);
 
                     if (mysqli_num_rows($sql_query) > 0) {
@@ -250,7 +231,9 @@ if ($sql_machine_query) {
                                         data-exp_date="<?php echo $sqlRow['exp_date']; ?>"
                                         data-lot_id="<?php echo $sqlRow['lot_id']; ?>"
                                         data-machine="<?php echo $sqlRow['machine_no']; ?>"
-                                        data-withdrawal="<?php echo $sqlRow['with_reason']; ?>">
+                                        data-withdrawal="<?php echo $sqlRow['with_reason']; ?>"
+                                        data-item_code="<?php echo $sqlRow['item_code']; ?>"
+                                        data-batch_number="<?php echo $sqlRow['batch_number']; ?>">
                                 </td>
                                 <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts'] ?></td>
                                 <td data-label="Lot Id"><?php echo $sqlRow['lot_id'] ?></td>
@@ -427,6 +410,8 @@ if ($sql_machine_query) {
                 let dts = $(this).data("dts");
                 let withdraw_options = '<?php echo $withdraw_option; ?>';
                 let machine_options = '<?php echo $machine_option; ?>';
+                let batch_number = $(this).data("batch_number");
+                let item_code = $(this).data("item_code");
 
                 let row = `
             <tr class="text-center" style="vertical-align: middle;">
@@ -468,6 +453,8 @@ if ($sql_machine_query) {
                     </select>
                 </td>
                 <td style="display:none;"> 
+                    <input type="hidden" name="batch_numbers[]" value="${batch_number}">
+                    <input type="hidden" name="item_codes[]" value="${item_code}">
                     <input type="hidden" name="ids[]" value="${id}">
                     <input type="hidden" name="part_names[]" value="${partName}">
                     <input type="hidden" name="exp_dates[]" value="${exp_date}">
@@ -542,6 +529,8 @@ if ($sql_machine_query) {
                 let machine = $(this).data("machine");
                 let withdrawal = $(this).data("withdrawal");
                 let dts = $(this).data("dts");
+                let batch_number = $(this).data("batch_number");
+                let item_code = $(this).data("item_code");
 
                 let row = `
                     <tr class=" text-center" style="vertical-align: middle;">
@@ -551,9 +540,10 @@ if ($sql_machine_query) {
                         <td data-label="Part Quantity">${qty}</td>
                         <td data-label="Machine Number">${machine}</td>
                         <td data-label="Withdrawal Reason">${withdrawal}</td>
-                    
-                
+
                         <td style="display:none;"> 
+                            <input type="hidden" name="batch_numbers[]" value="${batch_number}">
+                            <input type="hidden" name="item_codes[]" value="${item_code}">
                             <input type="hidden" name="part_names[]" value="${partName}">
                             <input type="hidden" name="quantities[]" value="${qty}">
                             <input type="hidden" name="exp_dates[]" value="${exp_date}">

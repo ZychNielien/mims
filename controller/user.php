@@ -7,7 +7,7 @@ date_default_timezone_set('Asia/Manila');
 if (isset($_POST['account_submit'])) {
     $employee_name = mysqli_real_escape_string($con, $_POST['employee_name']);
     $employee_username = mysqli_real_escape_string($con, $_POST['employee_username']);
-    $employee_password = mysqli_real_escape_string($con, $_POST['employee_password']);
+    $employee_password_raw = $_POST['employee_password'];
     $badge_number = mysqli_real_escape_string($con, $_POST['badge_number']);
     $designation = mysqli_real_escape_string($con, $_POST['designation']);
     $account_type = mysqli_real_escape_string($con, $_POST['account_type']);
@@ -15,26 +15,31 @@ if (isset($_POST['account_submit'])) {
     $supervisor_one = mysqli_real_escape_string($con, $_POST['supervisor_one']);
     $supervisor_two = mysqli_real_escape_string($con, $_POST['supervisor_two']);
 
+    $employee_password = password_hash($employee_password_raw, PASSWORD_DEFAULT);
+
     $checkUsernameSQL = "SELECT * FROM tbl_users WHERE username = '$employee_username'";
     $checkUsernameQuery = mysqli_query($con, $checkUsernameSQL);
 
     if (mysqli_num_rows($checkUsernameQuery) > 0) {
-
         $_SESSION['status'] = "Username is already taken, please choose another one.";
         $_SESSION['status_code'] = "error";
         header("Location: ../view/index.php");
     } else {
+        $sql = "INSERT INTO tbl_users 
+                (employee_name, username, password, badge_number, designation, account_type, cost_center, supervisor_one, supervisor_two, usertype) 
+                VALUES 
+                ('$employee_name', '$employee_username', '$employee_password', '$badge_number', '$designation', '$account_type', '$cost_center', '$supervisor_one', '$supervisor_two', 1)";
 
-        $sql = "INSERT INTO tbl_users (employee_name, username, password, badge_number, designation, account_type,cost_center,supervisor_one,supervisor_two ,usertype) VALUES ('$employee_name', '$employee_username','$employee_password', '$badge_number','$designation', '$account_type','$cost_center', '$supervisor_one','$supervisor_two',  1)";
         if (mysqli_query($con, $sql)) {
-
             $dts = date('Y-m-d H:i:s');
             $message = htmlspecialchars($employee_name, ENT_QUOTES, 'UTF-8') . " account registration is awaiting approval.";
             $for = "adminOnly";
             $destination = "Account Registration Pending Approval";
 
-            $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
-                          VALUES ('System', '$message', 0, '$dts', '$for', '$destination')";
+            $sql_notif = "INSERT INTO `tbl_notif` 
+                          (username, message, is_read, created_at, for_who, destination) 
+                          VALUES 
+                          ('System', '$message', 0, '$dts', '$for', '$destination')";
             $sql_notif_query = mysqli_query($con, $sql_notif);
 
             if ($sql_notif_query) {
@@ -42,16 +47,14 @@ if (isset($_POST['account_submit'])) {
                 $_SESSION['status_code'] = "success";
                 header("Location: ../view/index.php");
             }
-
-
         } else {
             $_SESSION['status'] = "Error registering user.";
             $_SESSION['status_code'] = "error";
             header("Location: ../view/index.php");
         }
-
     }
 }
+
 
 // CHANGE PASS NG SUPERVISOR/KITTING
 if (isset($_POST['changePass'])) {
@@ -67,10 +70,11 @@ if (isset($_POST['changePass'])) {
         $row = mysqli_fetch_assoc($result);
         $storedPassword = $row['password'];
 
-        if ($oldPassword === $storedPassword) {
+        if (password_verify($oldPassword, $storedPassword)) {
             if ($newPassword === $confirmPassword) {
+                $newHashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
 
-                $updateSql = "UPDATE tbl_users SET password = '$newPassword' WHERE username = '$userId'";
+                $updateSql = "UPDATE tbl_users SET password = '$newHashedPassword' WHERE username = '$userId'";
 
                 if (mysqli_query($con, $updateSql)) {
                     $_SESSION['status'] = "Password updated successfully!";
@@ -98,6 +102,7 @@ if (isset($_POST['changePass'])) {
     }
 }
 
+
 // CHANGE PASS NG USER
 if (isset($_POST['changePassUser'])) {
     $userId = mysqli_real_escape_string($con, $_POST['userID']);
@@ -112,10 +117,10 @@ if (isset($_POST['changePassUser'])) {
         $row = mysqli_fetch_assoc($result);
         $storedPassword = $row['password'];
 
-        if ($oldPassword === $storedPassword) {
+        if (password_verify($oldPassword, $storedPassword)) {
             if ($newPassword === $confirmPassword) {
-
-                $updateSql = "UPDATE tbl_users SET password = '$newPassword' WHERE username = '$userId'";
+                $newHashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+                $updateSql = "UPDATE tbl_users SET password = '$newHashedPassword' WHERE username = '$userId'";
 
                 if (mysqli_query($con, $updateSql)) {
                     $_SESSION['status'] = "Password updated successfully!";
@@ -142,6 +147,7 @@ if (isset($_POST['changePassUser'])) {
         header("Location: ../view/userModule/userDashboard.php");
     }
 }
+
 
 
 if (isset($_POST['ccid']) && !empty($_POST['ccid'])) {

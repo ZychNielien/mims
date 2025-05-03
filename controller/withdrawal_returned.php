@@ -2,27 +2,44 @@
 
 session_start();
 include "../model/dbconnection.php";
+$userName = $_SESSION['username'];
 
 $startDate = isset($_GET['start_date']) ? $_GET['start_date'] : '';
 $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : '';
+$page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+$itemsPerPage = 100;
 
-$userName = $_SESSION['username'];
-
-$sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'returned' ORDER BY dts_return DESC";
+$countSql = "SELECT COUNT(*) as total FROM tbl_requested WHERE req_by = '$userName' AND status = 'returned'";
 
 if ($startDate && $endDate) {
     $startDateTime = $startDate . ' 00:00:00';
     $endDateTime = $endDate . ' 23:59:59';
+    $countSql .= " AND dts_return BETWEEN '$startDateTime' AND '$endDateTime'";
+}
 
+$countResult = mysqli_query($con, $countSql);
+$totalRows = mysqli_fetch_assoc($countResult)['total'];
+$totalPages = ceil($totalRows / $itemsPerPage);
+
+$offset = ($page - 1) * $itemsPerPage;
+
+$sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'returned'";
+
+if ($startDate && $endDate) {
     $sql .= " AND dts_return BETWEEN '$startDateTime' AND '$endDateTime'";
 }
 
+
+$sql .= " ORDER BY dts_return DESC LIMIT $itemsPerPage OFFSET $offset";
+
 $sql_query = mysqli_query($con, $sql);
+
+$tableRows = '';
 
 if (mysqli_num_rows($sql_query) > 0) {
 
     while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
-        echo "<tr class='table-row text-center'>
+        $tableRows .= "<tr class='table-row text-center'>
                 <td data-label='Date / Time / Shift'>{$sqlRow['dts_return']}</td>
                 <td data-label='Lot Id'>{$sqlRow['lot_id']}</td>
                 <td data-label='Part Name'>{$sqlRow['part_name']}</td>
@@ -36,6 +53,34 @@ if (mysqli_num_rows($sql_query) > 0) {
               </tr>";
     }
 } else {
-    echo "<tr><td colspan='11' class='text-center'>No returned request found</td></tr>";
+    $tableRows = "<tr><td colspan='11' class='text-center'>No returned request found</td></tr>";
 }
+
+$pagination = '';
+if ($totalPages > 1) {
+    $pagination .= '<ul class="pagination justify-content-center">';
+
+    if ($page > 1) {
+        $pagination .= '<li class="page-item"><a class="page-link page-link-return" href="?page=' . ($page - 1) . '&start_date=' . $startDate . '&end_date=' . $endDate . '">&laquo; Prev</a></li>';
+    }
+
+    for ($i = 1; $i <= $totalPages; $i++) {
+        $pagination .= '<li class="page-item' . ($i == $page ? ' active' : '') . '"><a class="page-link page-link-return" href="?page=' . $i . '&start_date=' . $startDate . '&end_date=' . $endDate . '">' . $i . '</a></li>';
+    }
+
+    if ($page < $totalPages) {
+        $pagination .= '<li class="page-item"><a class="page-link page-link-return" href="?page=' . ($page + 1) . '&start_date=' . $startDate . '&end_date=' . $endDate . '">Next &raquo;</a></li>';
+    }
+
+    $pagination .= '</ul>';
+}
+
+$response = [
+    'table' => $tableRows,
+    'pagination' => $pagination,
+    'total_pages' => $totalPages
+];
+
+echo json_encode($response);
+
 ?>

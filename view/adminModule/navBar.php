@@ -1,17 +1,12 @@
 <?php
 
-// SESSION 
 session_start();
 
-// Database Connection
 include "../../model/dbconnection.php";
 
-// Navigation Page Active
 $page = basename(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 $tab = isset($_GET['tab']) ? $_GET['tab'] : 'default';
 
-
-// Prevent User
 if ($_SESSION['user'] == 'User') {
     $_SESSION['status'] = "The link is for admin only.";
     $_SESSION['status_code'] = "error";
@@ -19,7 +14,6 @@ if ($_SESSION['user'] == 'User') {
     exit();
 }
 
-// Prevent users from logging in without proper authentication.
 if (!isset($_SESSION['username'])) {
     $_SESSION['status'] = "Access Denied. Please log in as an admin.";
     $_SESSION['status_code'] = "error";
@@ -51,25 +45,20 @@ if (!isset($_SESSION['username'])) {
 
 <body class="bg-light">
 
-    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg" style="background-color: #900008;">
 
-        <!-- Navigation Container -->
         <div class="container d-flex justify-evenly  w-100">
 
-            <!-- Navigation Logo -->
             <div class="w-50">
                 <img src="../../public/img/AIMSLogo.png" class="w-75" alt="">
             </div>
 
-            <!-- Navigation Toggle Menu -->
             <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarMobileToggle" aria-controls="navbarMobileToggle" aria-expanded="false"
                 aria-label="Toggle navigation">
                 <i class="bi bi-list font-bold"></i>
             </button>
 
-            <!-- Navigation List -->
             <div class="collapse navbar-collapse" id="navbarMobileToggle">
                 <ul class="navbar-nav me-auto mt-2 mb-2 mb-lg-0 text-white d-flex justify-content-between">
                     <li class="nav-item">
@@ -141,7 +130,7 @@ if (!isset($_SESSION['username'])) {
                             echo "nav-link text-white";
                         }
                         ?>
-                    " href="#">Scrap</a>
+                    " href="#">Return</a>
                     </li>
                     <?php if ($_SESSION['user'] !== 'Kitting'): ?>
                         <li class="nav-item" id="accountRegistrationKitting">
@@ -209,13 +198,13 @@ if (!isset($_SESSION['username'])) {
                                 value="<?php echo $_SESSION['username'] ?>" required>
                         </div>
                         <div class="mb-3 position-relative">
-                            <label for="old_password" class="form-label">Password</label>
+                            <label for="old_password" class="form-label">Old Password</label>
                             <input type="password" class="form-control" id="old_password" name="old_password" required>
                             <i class="bi bi-eye-slash" id="toggle_old_password"
                                 style="position: absolute; right: 10px; top: 40px; cursor: pointer;"></i>
                         </div>
                         <div class="mb-3 position-relative">
-                            <label for="password" class="form-label">Password</label>
+                            <label for="password" class="form-label">New Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                             <i class="bi bi-eye-slash" id="toggle_password"
                                 style="position: absolute; right: 10px; top: 40px; cursor: pointer;"></i>

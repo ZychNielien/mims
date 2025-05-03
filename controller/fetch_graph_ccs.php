@@ -19,7 +19,7 @@ SELECT
 FROM tbl_ccs tc
 LEFT JOIN tbl_requested tr 
     ON tr.cost_center = tc.ccid 
-    AND tr.status = 'APPROVED'
+    AND (tr.status = 'APPROVED' OR tr.status = 'returned')
 ";
 
 $conditions = [];
@@ -63,7 +63,7 @@ SELECT
 FROM tbl_ccs tc
 LEFT JOIN tbl_requested tr 
     ON tr.cost_center = tc.ccid 
-    AND tr.status = 'APPROVED'
+    AND (tr.status = 'APPROVED' OR tr.status = 'returned')
 ";
 
 if (!empty($conditions)) {

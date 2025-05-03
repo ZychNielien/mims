@@ -16,10 +16,8 @@ include "navBar.php";
 
 <section style="max-height: 90%;">
 
-    <!-- Main Container -->
     <div class="container">
 
-        <!-- Title Div -->
         <div class="welcomeDiv my-2">
             <h2 class="text-center" style="color: #900008; font-weight: bold;">AIMS Data Management
             </h2>

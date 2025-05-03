@@ -15,84 +15,152 @@ include "navBar.php";
 
 <section style="max-height: 90%;">
 
-    <!-- Title Div -->
     <div class="welcomeDiv my-2">
         <h2 class="text-center" style="color: #900008; font-weight: bold;">Issuance History
         </h2>
     </div>
 
-    <!-- Main Container -->
     <div class="mx-5">
 
-        <!-- Search and Export to Excel -->
         <div class="d-flex flex-wrap justify-content-evenly">
             <input type="text" id="search-box" placeholder="Search..." />
             <button id="export-btn" class="btn btn-success my-2">Export to Excel</button>
         </div>
 
-        <!-- Issuance History Table -->
-        <table class="table table-striped w-100">
+        <?php
+        $userName = $_SESSION['username'];
 
-            <thead>
-                <tr class="text-center" style="background-color: #900008; color: white; vertical-align: middle;">
-                    <th scope="col">Date / Time / Shift</th>
-                    <th scope="col">Lot ID</th>
-                    <th scope="col">Part Number</th>
-                    <th scope="col">Item Description</th>
-                    <th scope="col">Qty.</th>
-                    <th scope="col">Machine No.</th>
-                    <th scope="col">Withdrawal Reason</th>
-                    <th scope="col">Requested By</th>
-                    <th scope="col">Approved Qty</th>
-                    <th scope="col">Batch Number</th>
-                    <th scope="col">Approved Reason</th>
-                    <th scope="col">Approved By</th>
-                </tr>
-            </thead>
+        $limit = 100;
+        $page = isset($_GET['page']) && is_numeric($_GET['page']) ? $_GET['page'] : 1;
+        $start_from = ($page - 1) * $limit;
 
-            <tbody id="data-table">
-                <?php
-                $userName = $_SESSION['username'];
-                $sql = "SELECT * FROM tbl_requested WHERE status = 'Approved' ORDER BY dts_approve DESC";
-                $sql_query = mysqli_query($con, $sql);
+        $sql = "SELECT * FROM tbl_requested 
+        WHERE (status = 'Approved' OR status = 'returned') AND dts_approve >= NOW() - INTERVAL 60 DAY
+        ORDER BY dts_approve DESC 
+        LIMIT $start_from, $limit";
+        $sql_query = mysqli_query($con, $sql);
 
-                if (mysqli_num_rows($sql_query) > 0) {
-                    while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
+        $total_query = mysqli_query($con, "SELECT COUNT(*) AS total FROM tbl_requested WHERE dts_approve >= NOW() - INTERVAL 60 DAY");
+        $total_row = mysqli_fetch_assoc($total_query);
+        $total_records = $total_row['total'];
+        $total_pages = ceil($total_records / $limit);
+        ?>
+        <div class="d-flex flex-column-reverse">
+            <table class="table table-striped w-100">
+                <thead>
+                    <tr class="text-center" style="background-color: #900008; color: white; vertical-align: middle;">
+                        <th scope="col">Date / Time / Shift</th>
+                        <th scope="col">Lot ID</th>
+                        <th scope="col">Part Number</th>
+                        <th scope="col">Item Description</th>
+                        <th scope="col">Machine No.</th>
+                        <th scope="col">Withdrawal Reason</th>
+                        <th scope="col">Requested By</th>
+                        <th scope="col">Approved Qty</th>
+                        <th scope="col">Batch Number</th>
+                        <th scope="col">Approved Reason</th>
+                        <th scope="col">Approved By</th>
+                    </tr>
+                </thead>
+
+                <tbody id="data-table">
+                    <?php
+                    if (mysqli_num_rows($sql_query) > 0) {
+                        while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
+                            ?>
+                            <tr class="table-row  text-center" style="vertical-align: middle;">
+
+                                <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts_approve']; ?></td>
+                                <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
+                                <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
+                                <td data-label="Part Desc"><?php echo $sqlRow['part_desc']; ?></td>
+                                <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
+                                <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
+                                <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>
+                                <td data-label='Approved Qty'><?php echo $sqlRow['approved_qty']; ?></td>
+                                <td data-label="Batch Number"><?php echo $sqlRow['batch_number']; ?></td>
+                                <td data-label='Approved Reason'><?php echo $sqlRow['approved_reason']; ?></td>
+                                <td data-label="Approved By"><?php echo $sqlRow['approved_by']; ?></td>
+                            </tr>
+                            <?php
+                        }
+                    } else {
                         ?>
-                        <tr class="table-row  text-center">
-
-                            <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts_approve']; ?></td>
-                            <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
-                            <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
-                            <td data-label="Part Desc"><?php echo $sqlRow['part_desc']; ?></td>
-                            <td data-label="Quantity"><?php echo $sqlRow['part_qty']; ?></td>
-                            <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
-                            <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
-                            <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>
-                            <td data-label='Approved Qty'><?php echo $sqlRow['approved_qty']; ?></td>
-                            <td data-label="Batch Number"><?php echo $sqlRow['batch_number']; ?></td>
-                            <td data-label='Approved Reason'><?php echo $sqlRow['approved_reason']; ?></td>
-                            <td data-label="Approved By"><?php echo $sqlRow['approved_by']; ?></td>
+                        <tr>
+                            <td colspan="12" class="text-center">No issuance materials found</td>
                         </tr>
                         <?php
                     }
-                } else {
                     ?>
-                    <tr>
-                        <td colspan="12" class="text-center">No issuance found</td>
-                    </tr>
-                    <?php
-                }
-                ?>
-            </tbody>
+                </tbody>
+            </table>
 
-        </table>
+            <?php
+            $max_visible_links = 5;
+            $start_page = max(1, $page - floor($max_visible_links / 2));
+            $end_page = min($total_pages, $start_page + $max_visible_links - 1);
+
+            if ($end_page - $start_page < $max_visible_links - 1) {
+                $start_page = max(1, $end_page - $max_visible_links + 1);
+            }
+            ?>
+
+            <div class="text-center mt-3">
+                <nav>
+                    <ul class="pagination justify-content-center">
+
+                        <?php if ($page > 1): ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<?php echo $page - 1; ?>">&laquo; Prev</a>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php if ($start_page > 1): ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">1</a>
+                            </li>
+                            <?php if ($start_page > 2): ?>
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        href="?page=<?php echo $start_page - 1; ?>"><?php echo $start_page - 1; ?>...</a>
+                                </li>
+                            <?php endif; ?>
+                        <?php endif; ?>
+
+                        <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
+                            <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
+                                <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <?php if ($end_page < $total_pages): ?>
+                            <?php if ($end_page + 1 < $total_pages): ?>
+                                <li class="page-item">
+                                    <a class="page-link"
+                                        href="?page=<?php echo $end_page + 1; ?>">...<?php echo $end_page + 1; ?></a>
+                                </li>
+                            <?php endif; ?>
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="?page=<?php echo $total_pages; ?>"><?php echo $total_pages; ?></a>
+                            </li>
+                        <?php endif; ?>
+
+                        <?php if ($page < $total_pages): ?>
+                            <li class="page-item">
+                                <a class="page-link" href="?page=<?php echo $page + 1; ?>">Next &raquo;</a>
+                            </li>
+                        <?php endif; ?>
+
+                    </ul>
+                </nav>
+            </div>
+        </div>
 
     </div>
 
 </section>
 
-<!-- Excel Script -->
 <script src="../../public/js/excel.js"></script>
 
 <script>

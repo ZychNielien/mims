@@ -66,7 +66,7 @@ if (isset($_POST['rejectacc_submit'])) {
             $reason = mysqli_real_escape_string($con, $reasons[$i]);
 
 
-            $sql = "UPDATE tbl_users SET usertype = '3' WHERE id = '$id'";
+            $sql = "UPDATE tbl_users SET usertype = '3' , reason = '$reason' WHERE id = '$id'";
             if (!mysqli_query($con, $sql)) {
                 $success = false;
                 break;
@@ -101,8 +101,8 @@ if (isset($input['accountSubmit']) && is_array($input['items'])) {
 
     foreach ($items as $item) {
         $cUsername = strtoupper(mysqli_real_escape_string($con, $item['username'] ?? ''));
-
-        if (!$cUsername) continue;
+        if (!$cUsername)
+            continue;
 
         $check_sql = "SELECT 1 FROM tbl_users WHERE username = '$cUsername' LIMIT 1";
         $check_result = mysqli_query($con, $check_sql);
@@ -119,50 +119,63 @@ if (isset($input['accountSubmit']) && is_array($input['items'])) {
         ]);
         exit;
     }
+
     $values = [];
     $valuesLog = [];
-
     $account_username = $_SESSION['username'] ?? 'unknown';
     $action = "Account Registration";
     $dts = date('Y-m-d H:i:s');
 
-    foreach ($items as $item) {
-        $employeeName = mysqli_real_escape_string($con, $item['employeeName'] ?? '');
-        $username = mysqli_real_escape_string($con, $item['username'] ?? '');
-        $password = mysqli_real_escape_string($con, strtolower($item['username'] ?? ''));
-        $badgeNumber = mysqli_real_escape_string($con, $item['badgeNumber'] ?? '');
-        $designation = mysqli_real_escape_string($con, $item['designation'] ?? '');
-        $accountType = mysqli_real_escape_string($con, $item['accountType'] ?? '');
-        $costCenter = mysqli_real_escape_string($con, $item['costCenter'] ?? '');
-        $supervisorOne = mysqli_real_escape_string($con, $item['supervisorOne'] ?? '');
-        $supervisorTwo = mysqli_real_escape_string($con, $item['supervisorTwo'] ?? '');
+    mysqli_begin_transaction($con);
 
-        $values[] = "('$employeeName', '$username', '$password', '$badgeNumber', '$designation', '$accountType', '$costCenter', '$supervisorOne', '$supervisorTwo', 2)";
-        $description = mysqli_real_escape_string($con, "$account_username has created an account for $employeeName.");
-        $valuesLog[] = "('$account_username', '$action', '$description', '$dts')";
-    }
+    try {
+        foreach ($items as $item) {
+            $employeeName = mysqli_real_escape_string($con, $item['employeeName'] ?? '');
+            $username = mysqli_real_escape_string($con, $item['username'] ?? '');
+            $password = mysqli_real_escape_string($con, strtolower($item['username'] ?? ''));
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $badgeNumber = mysqli_real_escape_string($con, $item['badgeNumber'] ?? '');
+            $designation = mysqli_real_escape_string($con, $item['designation'] ?? '');
+            $accountType = mysqli_real_escape_string($con, $item['accountType'] ?? '');
+            $costCenter = mysqli_real_escape_string($con, $item['costCenter'] ?? '');
+            $supervisorOne = mysqli_real_escape_string($con, $item['supervisorOne'] ?? '');
+            $supervisorTwo = mysqli_real_escape_string($con, $item['supervisorTwo'] ?? '');
 
-    if (empty($values)) {
-        echo json_encode(["message" => "No valid data to insert."]);
-        exit;
-    }
+            $values[] = "('$employeeName', '$username', '$hashed_password', '$badgeNumber', '$designation', '$accountType', '$costCenter', '$supervisorOne', '$supervisorTwo', 2)";
 
-    $sql = "INSERT INTO tbl_users (employee_name, username, password, badge_number, designation, account_type,cost_center,supervisor_one,supervisor_two ,usertype) VALUES " . implode(", ", $values);
-    $sql_log = "INSERT INTO tbl_log (username, action, description, dts) VALUES " . implode(", ", $valuesLog);
+            $description = mysqli_real_escape_string($con, "$account_username has created an account for $employeeName.");
+            $valuesLog[] = "('$account_username', '$action', '$description', '$dts')";
+        }
 
-    $result1 = mysqli_query($con, $sql);
-    $result2 = mysqli_query($con, $sql_log);
+        if (!empty($values)) {
+            $sql = "INSERT INTO tbl_users (employee_name, username, password, badge_number, designation, account_type, cost_center, supervisor_one, supervisor_two, usertype) VALUES " . implode(", ", $values);
+            $result1 = mysqli_query($con, $sql);
 
-    if ($result1 && $result2) {
-        echo json_encode(["message" => "Account registrations completed successfully."]);
-    } else {
+            $sql_log = "INSERT INTO tbl_log (username, action, description, dts) VALUES " . implode(", ", $valuesLog);
+            $result2 = mysqli_query($con, $sql_log);
+
+            if ($result1 && $result2) {
+                mysqli_commit($con);
+                echo json_encode(["message" => "Account registrations completed successfully."]);
+            } else {
+                mysqli_rollback($con);
+                echo json_encode([
+                    "message" => "Insert failed",
+                    "error" => mysqli_error($con)
+                ]);
+            }
+        } else {
+            echo json_encode(["message" => "No valid data to insert."]);
+        }
+    } catch (Exception $e) {
+        mysqli_rollback($con);
         echo json_encode([
-            "message" => "Insert failed",
-            "error" => mysqli_error($con)
+            "message" => "An error occurred.",
+            "error" => $e->getMessage()
         ]);
     }
-
 }
+
 
 // DELETE ACCOUNTS
 if (isset($_POST['deleteacc_submit'])) {

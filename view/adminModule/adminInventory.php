@@ -23,6 +23,11 @@ include "navBar.php";
         #modalEditItemList tr td select {
             min-width: max-content;
         }
+
+        .text-orange-dark {
+            color: #e67e22 !important;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -38,16 +43,11 @@ include "navBar.php";
             <div class="px-3 my-3 d-flex flex-wrap justify-content-between align-items-center">
                 <input type="text" id="search_inventory" class="form-control w-25" placeholder="Search Part Number"
                     autocomplete="off" />
-
                 <button type="button" class="btn btn-success m-1" data-bs-toggle="modal"
                     data-bs-target="#materialRegistrationModal">Material Registration</button>
 
                 <button type="button" class="btn btn-secondary m-1" data-bs-toggle="modal"
                     data-bs-target="#addToStockModal">Add to Stock</button>
-
-
-
-
                 <button class="btn btn-primary" id="edit_material-btn">Edit Material(s)</button>
                 <?php if ($_SESSION['user'] !== 'Kitting'): ?>
                     <button class="btn btn-danger" id="delete_material-btn">Delete Material(s)</button>
@@ -101,12 +101,13 @@ include "navBar.php";
                                     style="background-color: #900008; color: white; vertical-align: middle;">
                                     <th>Part Number</th>
                                     <th>Part Description</th>
-                                    <th>Quantity</th>
                                     <th>Batch Number</th>
+                                    <th>Lot ID</th>
+                                    <th>Item Code</th>
+                                    <th>Quantity</th>
                                     <th>Has Expiration Date?</th>
                                     <th>Expiration Date</th>
-                                    <th>Kitting ID</th>
-                                    <th>Lot ID</th>
+                                    <th>Badge ID</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -151,7 +152,7 @@ include "navBar.php";
                         </div>
                         <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
                             <a href="../../public/Material_Registration.xlsx" download class="btn btn-outline-success">
-                                📥 Download Template
+                                Download Template
                             </a>
                         </div>
 
@@ -281,7 +282,6 @@ include "navBar.php";
         var today = new Date().toISOString().split('T')[0];
         $('#exp_date').attr('min', today);
 
-        // Minimum value of Minimum Requirement should equal to 1
         $('#new_min_invent_req').on('input', function () {
             this.value = this.value.replace(/[^0-9]/g, '');
         }).on('blur', function () {
@@ -290,7 +290,6 @@ include "navBar.php";
             }
         });
 
-        // EXPORT BUTTON
         $('#export-btn').click(function () {
             var visibleRows = $('#data-table-inventory .table-row');
             var filteredRows = [];
@@ -301,23 +300,62 @@ include "navBar.php";
                 }
             });
 
-            var table = $('<table></table>');
+            var wb = XLSX.utils.book_new();
+            var table1 = $('<table></table>');
             var headerRow = $('#data-table thead').clone(true);
-            var ths = headerRow.find('th');
-            ths.first().remove();
-            table.append(headerRow);
+            headerRow.find('th').first().remove();
+            table1.append(headerRow);
 
             $(filteredRows).each(function () {
                 var newRow = $(this).clone(true);
-                var tds = newRow.find('td');
-                tds.first().remove();
-                table.append(newRow);
+                newRow.find('td').first().remove();
+                table1.append(newRow);
             });
 
-            var wb = XLSX.utils.table_to_book(table[0], { sheet: "Filtered Data" });
-            XLSX.writeFile(wb, "Inventory.xlsx");
+            var ws1 = XLSX.utils.table_to_sheet(table1[0]);
+            XLSX.utils.book_append_sheet(wb, ws1, "Total Inventory");
+
+            $.ajax({
+                url: '../../controller/get_extra_fields.php',
+                method: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    var dataSheet2 = [];
+
+                    dataSheet2.push([
+                        "Part Name",
+                        "Batch Number",
+                        "Lot ID",
+                        "Item Code",
+                        "Quantity",
+                        "Expiration Date",
+                        "Badge ID"
+                    ]);
+
+                    response.forEach(function (item) {
+                        dataSheet2.push([
+                            item.part_name || '',
+                            item.batch_number || '',
+                            item.lot_id || '',
+                            item.item_code || '',
+                            item.part_qty || '',
+                            item.exp_date || '',
+                            item.kitting_id || '',
+                        ]);
+                    });
+
+                    var ws2 = XLSX.utils.aoa_to_sheet(dataSheet2);
+                    XLSX.utils.book_append_sheet(wb, ws2, "Stocks");
+
+                    XLSX.writeFile(wb, "Inventory.xlsx");
+                },
+                error: function () {
+                    alert("Failed to fetch extra data.");
+                }
+            });
         });
 
+        // Search Inventory
         $('#search_inventory').on('input', function () {
             var searchTerm = $(this).val().toLowerCase();
             $('#data-table-inventory tr').each(function () {
@@ -330,6 +368,7 @@ include "navBar.php";
             });
         });
 
+        // Live Table
         function updateTable(data) {
             let checkedItems = {};
             $('#data-table-inventory input[type="checkbox"]:checked').each(function () {
@@ -355,7 +394,7 @@ include "navBar.php";
                     if (totalPartQty === 0) {
                         rowClass = 'text-danger fw-bold';
                     } else if (minInventReq > 0 && totalPartQty < minInventReq) {
-                        rowClass = 'text-warning';
+                        rowClass = 'text-orange-dark';
                     }
 
                     const isChecked = checkedItems[item.part_name] ? 'checked' : '';
@@ -398,13 +437,11 @@ include "navBar.php";
                 updateTable(data);
             };
 
-            source.onerror = function (err) {
-                console.error("SSE connection error:", err);
-            };
         } else {
             console.warn("SSE not supported — fallback to polling");
         }
 
+        // Upload Excel Files
         $('#uploadBox').on('click', function () {
             $('#excelFile').click();
         });
@@ -449,6 +486,7 @@ include "navBar.php";
             addStockRow();
         });
 
+        // Material Excel Upload Btn
         $("#btnUpload").on("click", function () {
             const fileInput = $("#excelFile");
             const file = $("#excelFile")[0].files[0];
@@ -469,7 +507,7 @@ include "navBar.php";
                 const workbook = XLSX.read(data, { type: "array" });
                 const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 }).slice(1);
                 rows.forEach(row => addRow({
-                    new_part_number: (row[0] || '').trim(),
+                    new_part_number: row[0],
                     new_part_desc: row[1],
                     new_option: row[2],
                     new_category: row[3],
@@ -482,8 +520,6 @@ include "navBar.php";
             };
             reader.readAsArrayBuffer(file);
         });
-
-
 
         // Submit Material Registration
         $("#btnSubmit").on("click", function (e) {
@@ -558,6 +594,7 @@ include "navBar.php";
             });
         });
 
+        // Add Row Material Registration
         function addRow(data = {}) {
             const row = $("<tr></tr>");
             row.append(`
@@ -642,9 +679,10 @@ include "navBar.php";
             $("#itemTable tbody").append(row);
         }
 
-
+        // Counter Add to Stock
         let rowCounter = 0;
 
+        // Add Row add to Stock
         function addStockRow() {
             rowCounter++;
             const rowId = 'row_' + rowCounter;
@@ -673,10 +711,16 @@ include "navBar.php";
                     <input type="text" class="form-control partDescription" name="addPartDesc" placeholder="Part Description" readonly>
                 </td>
                 <td>
-                    <input type="number" class="form-control" name="addPartQty" placeholder="Part Quantity" min="0" step="1" >
+                    <input type="text" class="form-control" name="addBatchNumber" placeholder="Batch Number">
                 </td>
                 <td>
-                    <input type="text" class="form-control" name="addBatchNumber" placeholder="Batch Number">
+                    <input type="text" class="form-control" name="addLotID" placeholder="Lot ID" >
+                </td>
+                <td>
+                    <input type="text" class="form-control" name="addItemCode" placeholder="Item Code" >
+                </td>
+                <td>
+                    <input type="number" class="form-control" name="addPartQty" placeholder="Part Quantity" min="0" step="1" >
                 </td>
                 <td>
                     <select class="form-select" name="addExpDateOption">
@@ -690,11 +734,9 @@ include "navBar.php";
                 </td>
                 </td>
                 <td>
-                    <input type="text" class="form-control" name="addKittingID" placeholder="Kitting ID" >
+                    <input type="text" class="form-control" name="addKittingID" placeholder="Badge ID" >
                 </td>
-                <td>
-                    <input type="text" class="form-control" name="addLotID" placeholder="Lot ID" >
-                </td>
+          
                 <td>
                     <button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button>
                 </td>
@@ -703,32 +745,40 @@ include "navBar.php";
             $("#itemStockTable tbody").append(row);
         }
 
+        // Has Expiration Date?
         $(document).on('change', 'select[name="addExpDateOption"]', function () {
             toggleExpDateInput(this);
         });
 
+        // Has Expiration Date? Function
         function toggleExpDateInput(select) {
             var row = $(select).closest('tr');
             var expInput = row.find('.expDateInput');
 
             if ($(select).val() === 'yes') {
+                var today = new Date().toISOString().split('T')[0];
                 expInput.prop('type', 'date');
                 expInput.prop('readonly', false);
                 expInput.prop('disabled', false);
+                expInput.attr('min', today);
                 expInput.val('');
             } else if ($(select).val() === 'no') {
                 expInput.prop('type', 'text');
                 expInput.val('NA');
                 expInput.prop('readonly', true);
                 expInput.prop('disabled', false);
+                expInput.removeAttr('min');
             } else {
                 expInput.val('');
                 expInput.prop('type', 'text');
                 expInput.prop('readonly', true);
                 expInput.prop('disabled', true);
+                expInput.removeAttr('min');
             }
         }
 
+
+        // Fetch Material Description
         $(document).on('change', '.partSelect', function () {
             var partId = $(this).find('option:selected').data('id');
             var rowId = $(this).data('row-id');
@@ -761,6 +811,7 @@ include "navBar.php";
             }
         });
 
+        // Add to Stock Button
         $('#addtoStockButton').on("click", function (e) {
             e.preventDefault();
 
@@ -803,6 +854,9 @@ include "navBar.php";
                             break;
                         case 'addLotID':
                             item['lot_id'] = value;
+                            break;
+                        case 'addItemCode':
+                            item['item_code'] = value;
                             break;
                     }
                 });
@@ -855,6 +909,7 @@ include "navBar.php";
             });
         });
 
+        // Update Material Button
         $("#edit_material-btn").click(function () {
             $("#modalEditItemList").empty();
 
@@ -970,7 +1025,7 @@ include "navBar.php";
             $("#editMaterialModal").modal("show");
         });
 
-
+        // Update Material Submit
         $("#updateForm").submit(function (e) {
             e.preventDefault();
 
@@ -1005,7 +1060,7 @@ include "navBar.php";
             });
         });
 
-
+        // Delete Material Button
         $("#delete_material-btn").click(function () {
             $("#modalRejectItemList").empty();
 
@@ -1053,7 +1108,7 @@ include "navBar.php";
             $("#deleteModal").modal("show");
         });
 
-
+        // Delete Material Submit
         $("#deleteForm").submit(function (e) {
             e.preventDefault();
 

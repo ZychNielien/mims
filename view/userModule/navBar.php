@@ -1,14 +1,12 @@
 <?php
-// SESSION 
+
 session_start();
 
-// Navigation Page Active
 $directoryURI = $_SERVER['REQUEST_URI'];
 $path = parse_url($directoryURI, PHP_URL_PATH);
 $components = explode("/", $path);
 $page = $components[4];
 
-// Prevent Supervisor and Kitting
 if ($_SESSION['user'] == 'Supervisor' || $_SESSION['user'] == 'Kitting') {
     $_SESSION['status'] = "The link is for user only.";
     $_SESSION['status_code'] = "error";
@@ -16,7 +14,6 @@ if ($_SESSION['user'] == 'Supervisor' || $_SESSION['user'] == 'Kitting') {
     exit();
 }
 
-// Prevent users from logging in without proper authentication.
 if (!isset($_SESSION['username'])) {
     $_SESSION['status'] = "Access Denied. Please log in as an user.";
     $_SESSION['status_code'] = "error";
@@ -47,25 +44,20 @@ if (!isset($_SESSION['username'])) {
 
 <body class="bg-light">
 
-    <!-- Navigation Tab -->
     <nav class="navbar navbar-expand-lg" style="background-color: #900008;">
 
-        <!-- Navigation Container -->
         <div class="container d-flex justify-evenly  w-100">
 
-            <!-- Navigation Logo -->
             <div class="w-50">
                 <img src="../../public/img/AIMSLogo.png" class="w-75" alt="">
             </div>
 
-            <!-- Navigation Toggle Menu -->
             <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarMobileToggle" aria-controls="navbarMobileToggle" aria-expanded="false"
                 aria-label="Toggle navigation">
                 <i class="bi bi-list font-bold"></i>
             </button>
 
-            <!-- Navigation List -->
             <div class="collapse navbar-collapse" id="navbarMobileToggle">
 
                 <ul class="navbar-nav me-auto mt-2 mb-2 mb-lg-0 text-white">
@@ -96,7 +88,6 @@ if (!isset($_SESSION['username'])) {
 
                 </ul>
 
-                <!-- Notification Bell -->
                 <div class="btn-group float-end mx-3">
                     <div class="notification-bell" id="notification-bell" data-bs-toggle="dropdown"
                         aria-expanded="false" style="z-index: 1000;">
@@ -107,7 +98,6 @@ if (!isset($_SESSION['username'])) {
                     </ul>
                 </div>
 
-                <!-- Users Settings -->
                 <div class="btn-group float-end">
                     <a href="#" class="dropdown-toggle text-decoration-none text-light" data-bs-toggle="dropdown">
                         <i class="bi bi-person-circle"></i>
@@ -145,13 +135,13 @@ if (!isset($_SESSION['username'])) {
                                 value="<?php echo $_SESSION['username'] ?>" required>
                         </div>
                         <div class="mb-3 position-relative">
-                            <label for="old_password" class="form-label">Password</label>
+                            <label for="old_password" class="form-label">Old Password</label>
                             <input type="password" class="form-control" id="old_password" name="old_password" required>
                             <i class="bi bi-eye-slash" id="toggle_old_password"
                                 style="position: absolute; right: 10px; top: 40px; cursor: pointer;"></i>
                         </div>
                         <div class="mb-3 position-relative">
-                            <label for="password" class="form-label">Password</label>
+                            <label for="password" class="form-label">New Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
                             <i class="bi bi-eye-slash" id="toggle_password"
                                 style="position: absolute; right: 10px; top: 40px; cursor: pointer;"></i>

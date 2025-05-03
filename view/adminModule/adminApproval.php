@@ -16,16 +16,13 @@ include "navBar.php";
 </head>
 <section>
 
-    <!-- Title Div -->
     <div class="welcomeDiv my-4">
         <h2 class="text-center" style="color: #900008; font-weight: bold;">Withdrawal Authorization
         </h2>
     </div>
 
-    <!-- Main Container -->
     <div class="mx-5">
 
-        <!-- Approval Buttons -->
         <div class="d-flex justify-content-start gap-3 w-100">
             <div>
                 <button class="btn btn-success" id="approve-btn">Approve</button>
@@ -59,7 +56,11 @@ include "navBar.php";
                 <?php
                 $userName = $_SESSION['username'];
                 $approver = $_SESSION['user'];
-                $sql = "SELECT tr.*, ti.approver FROM tbl_requested tr LEFT JOIN tbl_inventory ti ON tr.part_name = ti.part_name WHERE status = 'Pending' AND ti.approver = '$approver' ORDER BY dts DESC";
+                $sql = "SELECT tr.*, ti.approver, ts.item_code FROM tbl_requested tr 
+                            LEFT JOIN tbl_inventory ti ON tr.part_name = ti.part_name
+                            LEFT JOIN tbl_stock ts ON tr.part_name = ts.part_name AND tr.exp_date = ts.exp_date AND tr.batch_number = ts.batch_number 
+                            WHERE tr.status = 'Pending' AND ti.approver = '$approver' 
+                            ORDER BY dts DESC";
                 $sql_query = mysqli_query($con, $sql);
 
                 if (mysqli_num_rows($sql_query) > 0) {
@@ -67,12 +68,15 @@ include "navBar.php";
                         ?>
                         <tr class=" text-center">
                             <td data-label="Action">
-                                <input type="checkbox" class="select-row" data-id="<?php echo $sqlRow['id']; ?>"
-                                    data-qty="<?php echo $sqlRow['part_qty']; ?>"
-                                    data-part_name="<?php echo $sqlRow['part_name']; ?>"
-                                    data-req_by="<?php echo $sqlRow['req_by']; ?>"
-                                    data-exp_date="<?php echo $sqlRow['exp_date']; ?>"
-                                    data-batch_number="<?php echo $sqlRow['batch_number']; ?>">
+                                <input type="checkbox" class="select-row"
+                                    data-id="<?php echo htmlspecialchars($sqlRow['id']); ?>"
+                                    data-qty="<?php echo htmlspecialchars($sqlRow['part_qty']); ?>"
+                                    data-part_name="<?php echo htmlspecialchars($sqlRow['part_name']); ?>"
+                                    data-req_by="<?php echo htmlspecialchars($sqlRow['req_by']); ?>"
+                                    data-exp_date="<?php echo htmlspecialchars($sqlRow['exp_date']); ?>"
+                                    data-batch_number="<?php echo htmlspecialchars($sqlRow['batch_number']); ?>"
+                                    data-item_code="<?php echo htmlspecialchars($sqlRow['item_code']); ?>">
+
                             </td>
                             <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts']; ?></td>
                             <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
@@ -116,7 +120,7 @@ include "navBar.php";
                                     <tr style="vertical-align: middle;">
                                         <th>Requested By</th>
                                         <th>Part Number</th>
-                                        <th>Requested Quantity</th>
+                                        <th>Item Code</th>
                                         <th>Approved Quantity</th>
                                         <th>Batch Number</th>
                                         <th>Actual Batch Number</th>
@@ -153,6 +157,8 @@ include "navBar.php";
                                     <tr>
                                         <th>Requested By</th>
                                         <th>Part Number</th>
+                                        <th>Item Code</th>
+                                        <th>Batch Number</th>
                                         <th>Requested Quantity</th>
                                         <th>Rejection Reason</th>
                                     </tr>
@@ -205,6 +211,7 @@ include "navBar.php";
                 let partName = $(this).data("part_name");
                 let qty = $(this).data("qty");
                 let batch_number = $(this).data("batch_number");
+                let item_code = $(this).data("item_code");
 
                 let row = `
                     <tr class=" text-center" style="vertical-align: middle;">
@@ -213,8 +220,9 @@ include "navBar.php";
                         <td style="display:none;"> 
                         <input type="hidden" name="part_names[]" value="${partName}">
                         <input type="hidden" name="request_bys[]" value="${reqBy}">
+                        <input type="hidden" name="item_codes[]" value="${item_code}">
                         </td>
-                        <td>${qty}</td>
+                        <td>${item_code}</td>
                         <td><input type="number" name="quantities[]" value="${qty}" max="${qty}" class="form-control" min="1" required></td>
                         <td>${batch_number}</td>
                         <td>
@@ -299,17 +307,23 @@ include "navBar.php";
                 let partName = $(this).data("part_name");
                 let qty = $(this).data("qty");
                 let exp_date = $(this).data("exp_date");
+                let batch_number = $(this).data("batch_number");
+                let item_code = $(this).data("item_code");
 
                 let row = `
                     <tr class=" text-center" style="vertical-align: middle;">
                         <td>${reqBy}</td>
                         <td>${partName} <input type="hidden" name="ids[]" value="${id}"></td>
+                        <td>${item_code}</td>
+                        <td>${batch_number}</td>
                         <td>${qty}</td>
                         <td style="display:none;"> 
                             <input type="hidden" name="part_names[]" value="${partName}">
                             <input type="hidden" name="request_bys[]" value="${reqBy}">
                             <input type="hidden" name="quantities[]" value="${qty}">
                             <input type="hidden" name="exp_dates[]" value="${exp_date}">
+                            <input type="hidden" name="item_codes[]" value="${item_code}">
+                            <input type="hidden" name="batch_numbers[]" value="${batch_number}">
                         </td>
                         <td>
                             <input type="text" name="reasons[]" class="form-control" placeholder="Reason for rejection">

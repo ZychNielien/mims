@@ -41,15 +41,12 @@ ob_end_flush();
 
 <section>
 
-    <!-- Main Container -->
     <div class="mx-5">
 
-        <!-- Title Div -->
         <div class="welcomeDiv my-4">
             <h2 class="text-center" style="color: #900008; font-weight: bold;">Account Registration</h2>
         </div>
 
-        <!-- Navitaion Tab -->
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="approval-tab" data-bs-toggle="tab"
@@ -73,7 +70,6 @@ ob_end_flush();
             </li>
         </ul>
 
-        <!-- Tab Contents -->
         <div class="tab-content" id="myTabContent">
 
             <!-- ACCOUNT APPROVAL -->
@@ -164,15 +160,11 @@ ob_end_flush();
             <!-- ACCOUNT PASSWORD -->
             <div class="tab-pane fade" id="password-tab-pane" role="tabpanel" aria-labelledby="password-tab">
 
-                <!-- Account Password Search Inout -->
                 <div class="d-flex justify-between-center w-100 my-3">
-
                     <input type="text" id="search_pass" class="form-control w-50 mx-auto"
                         placeholder="Search username here" autocomplete="off" />
-
                 </div>
 
-                <!-- Accounts Password Table -->
                 <table class="table table-striped w-100">
 
                     <thead>
@@ -226,7 +218,7 @@ ob_end_flush();
                         } else {
                             ?>
                             <tr>
-                                <td colspan="8" class="text-center">No users found</td>
+                                <td colspan="8" class="text-center">No users found.</td>
                             </tr>
                             <?php
                         }
@@ -240,25 +232,18 @@ ob_end_flush();
             <!-- ACCOUNT CREATION -->
             <div class="tab-pane fade" id="account-tab-pane" role="tabpanel" aria-labelledby="account-tab">
 
-                <!-- Account Creation and Register Button -->
                 <div class="d-flex justify-content-evenly  align-items-center w-100 p-3">
                     <input type="text" id="search_account" class="form-control w-25 me-2" placeholder="Search here"
                         autocomplete="off" />
-
                     <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal"
                         data-bs-target="#accountModal">
                         Account Registration
                     </button>
-
                     <button class="btn btn-primary w-auto" id="update_acc-btn">Update Accounts</button>
-
                     <button class="btn btn-danger w-auto" id="delete_acc-btn">Delete Accounts</button>
-
                 </div>
 
-                <!-- Accounts Table -->
                 <table class="table table-striped w-100">
-
                     <thead>
                         <tr class="text-center" style="background-color: #900008; color: white;">
                             <th scope="col"><input type="checkbox" id="select-all-account"></th>
@@ -271,7 +256,6 @@ ob_end_flush();
                             <th scope="col">Account Type</th>
                         </tr>
                     </thead>
-
                     <tbody id="data-table-account">
                         <?php
                         $userName = $_SESSION['username'];
@@ -318,38 +302,27 @@ ob_end_flush();
                         }
                         ?>
                     </tbody>
-
                 </table>
-
             </div>
 
             <!-- COST CENTER TAB -->
             <div class="tab-pane fade" id="costcenter-tab-pane" role="tabpanel" aria-labelledby="costcenter-tab">
-
-                <!-- Search and Cost Center Button -->
                 <div class="d-flex justify-content-between align-items-center w-100 p-3">
-
                     <input type="text" id="search_cost" class="form-control w-25 me-2" placeholder="Search here"
                         autocomplete="off" />
-
                     <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal"
                         data-bs-target="#costCenterModal">
                         Cost Center / Supervisor
                     </button>
-
                     <button class="btn btn-primary w-auto" id="update_cost-btn">
                         Update Cost Center / Supervisor
                     </button>
-
                     <button class="btn btn-danger w-auto" id="delete_cost-btn">
                         Delete Cost Center / Supervisor
                     </button>
-
                 </div>
 
-                <!-- Cost Center Table -->
                 <table class="table table-striped w-100">
-
                     <thead>
                         <tr class="text-center"
                             style="background-color: #900008; color: white; vertical-align: middle;">
@@ -364,13 +337,10 @@ ob_end_flush();
                             <th scope="col">Badge No.</th>
                         </tr>
                     </thead>
-
                     <tbody id="data-table-cost">
                         <?php
-
                         $sql_ccs = "SELECT * FROM `tbl_ccs`";
                         $sql_ccs_query = mysqli_query($con, $sql_ccs);
-
                         if (mysqli_num_rows($sql_ccs_query) > 0) {
                             while ($ccs_row = mysqli_fetch_assoc($sql_ccs_query)) {
                                 ?>
@@ -404,13 +374,11 @@ ob_end_flush();
                                     </td>
 
                                 </tr>
-
                                 <?php
                             }
                         }
                         ?>
                     </tbody>
-
                 </table>
             </div>
 
@@ -833,24 +801,12 @@ ob_end_flush();
             });
         });
 
-        // Search Input for Accounts Tab
-        // $('#search_account').on('input', function () {
-        //     var searchTerm = $(this).val().toLowerCase();
-        //     $('#data-table-account tr').each(function () {
-        //         var rowText = $(this).text().toLowerCase();
-        //         if (rowText.indexOf(searchTerm) === -1) {
-        //             $(this).hide();
-        //         } else {
-        //             $(this).show();
-        //         }
-        //     });
-        // });
-
+        // Search Input for Account Tab
         $('#search_account').on('input', function () {
             var searchTerm = $(this).val().toLowerCase();
             $('#data-table-account tr').each(function () {
-                var firstTdText = $(this).find('td:first').text().toLowerCase();
-                if (firstTdText.indexOf(searchTerm) === -1) {
+                var secondTdText = $(this).find('td:eq(1)').text().toLowerCase();
+                if (secondTdText.indexOf(searchTerm) === -1) {
                     $(this).hide();
                 } else {
                     $(this).show();
@@ -1792,6 +1748,7 @@ ob_end_flush();
 
             let data = [];
             let valid = true;
+            let usernameInvalid = false;
 
             $("#accountTable tbody tr").each(function () {
                 let item = {};
@@ -1804,9 +1761,16 @@ ob_end_flush();
                     item[name] = value;
 
                     const isOptional = (name === 'supervisorTwo');
-                    if (!value && !isOptional) {
+
+                    if (!input[0].checkValidity() && !isOptional) {
                         valid = false;
                         input.addClass("is-invalid");
+
+                        if (name === 'username' && value && !/^[a-zA-Z0-9]+$/.test(value)) {
+                            usernameInvalid = true;
+                            input.addClass("is-invalid");
+                        }
+
                     } else {
                         input.removeClass("is-invalid");
                     }
@@ -1814,6 +1778,14 @@ ob_end_flush();
 
                 data.push(item);
             });
+
+            if (usernameInvalid) {
+                return Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Username',
+                    text: 'Username must contain only letters and numbers. Spaces and special characters are not allowed.'
+                });
+            }
 
             if (!valid) {
                 return Swal.fire("Error!", "Missing Inputs", "error");
@@ -1859,6 +1831,7 @@ ob_end_flush();
             });
         });
 
+
         let costCounter = 0;
 
         // Account Registration Button
@@ -1871,7 +1844,8 @@ ob_end_flush();
                     <input type="text" name="employeeName" class="form-control" placeholder="Employee Name" autocomplete="off" required>
                 </td>
                 <td>
-                    <input type="text" name="username" class="form-control" placeholder="Username" autocomplete="off" required>
+                    <input type="text" name="username" class="form-control" placeholder="Username" autocomplete="off" pattern="^[a-zA-Z0-9]+$"
+                                    title="Username must contain only letters and numbers. Spaces and special characters are not allowed." required>
                 </td>
                 <td>
                     <input type="text" name="badgeNumber" class="form-control" placeholder="Badge Number" autocomplete="off" required>

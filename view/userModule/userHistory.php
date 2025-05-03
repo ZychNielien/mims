@@ -15,27 +15,26 @@ include "navBar.php";
 
 <section>
 
-    <!-- Welcome Div -->
     <div class="welcomeDiv my-2">
         <h2 class="text-center">Welcome, <?php echo $_SESSION['username'] ?>!</h2>
     </div>
 
     <div class="mx-5">
 
-        <!-- Navigation Tab for all Request Tab -->
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <button class="nav-link active" id="approved-tab" data-bs-toggle="tab"
                     data-bs-target="#approved-tab-pane" type="button" role="tab" aria-controls="approved-tab-pane"
-                    aria-selected="true">Approved</button>
+                    aria-selected="true">Approved Request</button>
                 <button class="nav-link" id="rejected-tab" data-bs-toggle="tab" data-bs-target="#rejected-tab-pane"
-                    type="button" role="tab" aria-controls="rejected-tab-pane" aria-selected="false">Rejected</button>
+                    type="button" role="tab" aria-controls="rejected-tab-pane" aria-selected="false">Rejected
+                    Request</button>
                 <button class="nav-link" id="returned-tab" data-bs-toggle="tab" data-bs-target="#returned-tab-pane"
-                    type="button" role="tab" aria-controls="returned-tab-pane" aria-selected="false">Returned</button>
+                    type="button" role="tab" aria-controls="returned-tab-pane" aria-selected="false">Returned
+                    Request</button>
             </div>
         </nav>
 
-        <!-- Requests Tab -->
         <div class="tab-content mt-3" id="nav-tabContent">
 
             <!-- Approve Request Tab -->
@@ -44,10 +43,8 @@ include "navBar.php";
 
                 <div class="mx-3">
 
-                    <!-- Approve Request Title -->
                     <h3 class="text-center fw-bold" style="color: #900008;">History of Approved Requests</h3>
 
-                    <!-- Approve Request Date Selection -->
                     <div class="d-flex justify-content-evenly mb-3 text-center">
                         <div>
                             <button class="btn btn-primary" id="return-btn">Return Request</button>
@@ -62,7 +59,6 @@ include "navBar.php";
                         </div>
                     </div>
 
-                    <!-- Approve Request Table -->
                     <table class="table table-striped w-100">
                         <thead>
                             <tr class="text-center"
@@ -85,6 +81,8 @@ include "navBar.php";
 
                         </tbody>
                     </table>
+
+                    <div id="pagination"></div>
                 </div>
             </div>
 
@@ -93,10 +91,8 @@ include "navBar.php";
 
                 <div class="mx-3">
 
-                    <!-- Rejected Request Title -->
                     <h3 class="text-center fw-bold" style="color: #900008;">History of Rejected Requests</h3>
 
-                    <!-- Rejected Request Date Selection -->
                     <div class="d-flex justify-content-evenly mb-3 text-center">
                         <div>
                             <label for="start_date_reject" class="me-2 fw-bold">Start Date:</label>
@@ -108,7 +104,6 @@ include "navBar.php";
                         </div>
                     </div>
 
-                    <!-- Rejected Request Table -->
                     <table class="table table-striped w-100">
                         <thead>
                             <tr class="text-center"
@@ -129,6 +124,8 @@ include "navBar.php";
 
                         </tbody>
                     </table>
+
+                    <div id="pagination-reject"></div>
                 </div>
             </div>
 
@@ -137,10 +134,8 @@ include "navBar.php";
 
                 <div class="mx-3">
 
-                    <!-- Returned Request Title -->
                     <h3 class="text-center fw-bold" style="color: #900008;">History of Returned Requests</h3>
 
-                    <!-- Returned Request Date Selection -->
                     <div class="d-flex justify-content-evenly mb-3 text-center items-center">
                         <div>
                             <label for="start_date_return" class="me-2 fw-bold">Start Date:</label>
@@ -152,7 +147,6 @@ include "navBar.php";
                         </div>
                     </div>
 
-                    <!-- Returned Request Table -->
                     <table class="table table-striped w-100">
 
                         <thead>
@@ -175,6 +169,8 @@ include "navBar.php";
                         </tbody>
 
                     </table>
+
+                    <div id="pagination-return"></div>
 
                 </div>
 
@@ -236,27 +232,93 @@ include "navBar.php";
         filterDataReject();
         filterDataReturn();
 
-        // Approve Request Date Selection
-        $('#start_date_approve, #end_date_approve').on('change', function () {
+        // Select Return
+        $('#select-all-return').on('change', function () {
+            let isChecked = $(this).prop('checked');
+
+            $('.select-return').each(function () {
+                if (!$(this).prop('disabled')) {
+                    $(this).prop('checked', isChecked);
+                }
+            });
+        });
+
+        // Approved Request Pagination
+        $(document).on('click', '.page-link-approve', function (e) {
+            e.preventDefault();
+
+            let page = $(this).attr('href').split('=')[1];
+
             let startDate = $('#start_date_approve').val();
             let endDate = $('#end_date_approve').val();
 
-            if (startDate && endDate) {
-                filterDataApprove(startDate, endDate);
-            }
+            filterDataApprove(startDate, endDate, page);
         });
 
-        // Approve Request AJAX
-        function filterDataApprove(startDate, endDate) {
+        // Approve Request Fetch Data Tables
+        function filterDataApprove(startDate, endDate, page = 1) {
             $.ajax({
                 url: '../../controller/withdrawal_approved.php',
                 method: 'GET',
                 data: {
                     start_date: startDate,
-                    end_date: endDate
+                    end_date: endDate,
+                    page: page
                 },
                 success: function (response) {
-                    $('#data-table-approve').html(response);
+                    let data = JSON.parse(response);
+
+                    $('#data-table-approve').html(data.table);
+                    $('#pagination').html(data.pagination);
+                },
+                error: function (xhr, status, error) {
+                    console.log("Error: ", error);
+                    alert('Error fetching data.');
+                }
+            });
+        }
+
+        let startDate = $('#start_date_approve').val();
+        let endDate = $('#end_date_approve').val();
+
+        // Approve Request Date Selection
+        $('#start_date_approve, #end_date_approve').on('change', function () {
+
+            startDate = $('#start_date_approve').val();
+            endDate = $('#end_date_approve').val();
+
+            filterDataApprove(startDate, endDate, 1);
+        });
+
+        filterDataApprove(startDate, endDate, 1);
+
+        // Rejected Request Pagination
+        $(document).on('click', '.page-link-reject', function (e) {
+            e.preventDefault();
+
+            let page = $(this).attr('href').split('=')[1];
+
+            let startDateReject = $('#start_date_reject').val();
+            let endDateReject = $('#end_date_reject').val();
+
+            filterDataReject(startDateReject, endDateReject, page);
+        });
+
+        // Rejected Request Fetch Data Tables
+        function filterDataReject(startDateReject, endDateReject, page = 1) {
+            $.ajax({
+                url: '../../controller/withdrawal_rejected.php',
+                method: 'GET',
+                data: {
+                    start_date: startDateReject,
+                    end_date: endDateReject,
+                    page: page
+                },
+                success: function (response) {
+                    let data = JSON.parse(response);
+
+                    $('#data-table-reject').html(data.table);
+                    $('#pagination-reject').html(data.pagination);
                 },
                 error: function (xhr, status, error) {
                     console.log("Error: ", error);
@@ -267,25 +329,44 @@ include "navBar.php";
 
         // Rejected Request Date Selection
         $('#start_date_reject, #end_date_reject').on('change', function () {
-            let startDate = $('#start_date_reject').val();
-            let endDate = $('#end_date_reject').val();
+            let startDateReject = $('#start_date_reject').val();
+            let endDateReject = $('#end_date_reject').val();
 
-            if (startDate && endDate) {
-                filterDataReject(startDate, endDate);
-            }
+            filterDataReject(startDateReject, endDateReject, 1);
         });
 
-        // Reject Request AJAX
-        function filterDataReject(startDate, endDate) {
+        let startDateReject = $('#start_date_reject').val();
+        let endDateReject = $('#end_date_reject').val();
+
+        filterDataReject(startDateReject, endDateReject, 1);
+
+        // Return Request Pagination
+        $(document).on('click', '.page-link-return', function (e) {
+            e.preventDefault();
+
+            let page = $(this).attr('href').split('=')[1];
+
+            let startDateReturn = $('#start_date_return').val();
+            let endDateReturn = $('#end_date_return').val();
+
+            filterDataReturn(startDateReturn, endDateReturn, page);
+        });
+
+        // Return Request Fetch Data Tables
+        function filterDataReturn(startDateReturn, endDateReturn, page = 1) {
             $.ajax({
-                url: '../../controller/withdrawal_rejected.php',
+                url: '../../controller/withdrawal_returned.php',
                 method: 'GET',
                 data: {
-                    start_date: startDate,
-                    end_date: endDate
+                    start_date: startDateReturn,
+                    end_date: endDateReturn,
+                    page: page
                 },
                 success: function (response) {
-                    $('#data-table-reject').html(response);
+                    let data = JSON.parse(response);
+
+                    $('#data-table-return').html(data.table);
+                    $('#pagination-return').html(data.pagination);
                 },
                 error: function (xhr, status, error) {
                     console.log("Error: ", error);
@@ -296,38 +377,16 @@ include "navBar.php";
 
         // Return Request Date Selection
         $('#start_date_return, #end_date_return').on('change', function () {
-            let startDate = $('#start_date_return').val();
-            let endDate = $('#end_date_return').val();
+            let startDateReturn = $('#start_date_return').val();
+            let endDateReturn = $('#end_date_return').val();
 
-            if (startDate && endDate) {
-                filterDataReturn(startDate, endDate);
-            }
+            filterDataReturn(startDateReturn, endDateReturn, 1);
         });
 
-        // Return Request AJAX
-        function filterDataReturn(startDate, endDate) {
-            $.ajax({
-                url: '../../controller/withdrawal_returned.php',
-                method: 'GET',
-                data: {
-                    start_date: startDate,
-                    end_date: endDate
-                },
-                success: function (response) {
-                    $('#data-table-return').html(response);
-                },
-                error: function (xhr, status, error) {
-                    console.log("Error: ", error);
-                    alert('Error fetching data.');
-                }
-            });
-        }
+        let startDateReturn = $('#start_date_return').val();
+        let endDateReturn = $('#end_date_return').val();
 
-
-        // Select Return
-        $('#select-all-return').on('change', function () {
-            $('.select-return').prop('checked', $(this).prop('checked'));
-        });
+        filterDataReturn(startDateReturn, endDateReturn, 1);
 
         // Return Withdrawal Request Button
         $("#return-btn").click(function () {

@@ -22,9 +22,9 @@ while (true) {
     mysqli_query($con, $update_expired_sql);
 
     $sql = "SELECT ti.*, ts.exp_date,
-           IFNULL(MIN(CASE WHEN ts.status = 'Active' AND ts.part_qty > 0 THEN ts.exp_date END), '') AS least_exp_date, 
-           IFNULL(SUM(CASE WHEN ts.status = 'Active' THEN ts.part_qty END), 0) AS total_part_qty,
-           SUM(CASE WHEN ts.status = 'Expired' THEN ts.part_qty ELSE 0 END) AS expired_qty
+            IFNULL(MIN(CASE WHEN ts.status = 'Active' AND ts.part_qty > 0 THEN ts.exp_date END), '') AS least_exp_date, 
+            IFNULL(SUM(CASE WHEN ts.status = 'Active' THEN ts.part_qty END), 0) AS total_part_qty,
+            SUM(CASE WHEN ts.status = 'Expired' THEN ts.part_qty ELSE 0 END) AS expired_qty
             FROM tbl_inventory ti
             LEFT JOIN tbl_stock ts ON ti.part_name = ts.part_name
             GROUP BY ti.part_name, ti.part_desc, ti.min_invent_req

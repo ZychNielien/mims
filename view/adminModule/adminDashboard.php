@@ -18,7 +18,6 @@ include "navBar.php";
 
 <section class="w-100 d-flex flex-column" style="max-height: 90%;">
 
-    <!-- Title Div -->
     <div class="welcomeDiv my-2">
         <h2 class="text-center" style="color: #900008; font-weight: bold;">Welcome,
             <?php echo $_SESSION['username']; ?>!
@@ -33,24 +32,20 @@ include "navBar.php";
     <!-- Top Material Consumption / Withdrawal Container -->
     <div class="container combineContainer my-4 w-50">
 
-        <!-- Top Material Consumption / Withdrawal Selections -->
         <div class="d-flex flex-wrap justify-content-evenly align-center w-100">
 
-            <!-- Start Date -->
             <div class="text-center">
                 <label for="start_date">Start Date</label>
                 <input type="date" id="start_date" class="form-control"
                     value="<?php echo isset($_GET['start_date']) ? $_GET['start_date'] : ''; ?>">
             </div>
 
-            <!-- End Date -->
             <div class="text-center">
                 <label for="end_date">End Date</label>
                 <input type="date" id="end_date" class="form-control"
                     value="<?php echo isset($_GET['end_date']) ? $_GET['end_date'] : ''; ?>">
             </div>
 
-            <!-- Cost Center -->
             <div class="text-center">
                 <label for="cost_center">Cost Center</label>
                 <select class="form-select" id="cost_center">
@@ -72,7 +67,6 @@ include "navBar.php";
                 </select>
             </div>
 
-            <!-- Station Code -->
             <div class="text-center">
                 <label for="station_code">Station Code</label>
                 <select class="form-select" id="station_code" name="station_code">
@@ -97,12 +91,10 @@ include "navBar.php";
 
         </div>
 
-        <!-- Excel Export -->
         <div class="d-flex justify-content-center">
             <button id="with_export_btn" class="btn btn-success mt-2">Export to Excel</button>
         </div>
 
-        <!-- Top Material Consumption / Withdrawal Graph -->
         <div id="chart-container" class="my-4">
             <canvas id="combinedChart"></canvas>
         </div>
@@ -117,19 +109,16 @@ include "navBar.php";
     <!-- Cost Center With Highest Withdrawal Selections -->
     <div class="d-flex flex-wrap justify-content-evenly align-center w-100 ">
 
-        <!-- Start Date -->
         <div class="text-center">
             <label for="startDate" class="m-0">Start Date:</label>
             <input type="date" id="startDate" class="form-control">
         </div>
 
-        <!-- End Date -->
         <div class="text-center">
             <label for="endDate" class="m-0">End Date:</label>
             <input type="date" id="endDate" class="form-control">
         </div>
 
-        <!-- Part Number -->
         <div class="text-center">
             <label for="endDate" class="m-0">Part Number:</label>
             <?php
@@ -150,7 +139,6 @@ include "navBar.php";
             </select>
         </div>
 
-        <!-- Export Excel -->
         <div class="text-center">
             <button id="export-btn" class="btn btn-success mt-2">Export to Excel</button>
         </div>
@@ -160,14 +148,12 @@ include "navBar.php";
     <!-- Cost Center With Highest Withdrawal Graph Container -->
     <div class="container full-container my-4">
 
-        <!-- Row for the Chart & Ranking Table -->
         <div class="row d-flex flex-wrap justify-content-between">
-            <!-- Cost Center With Highest Withdrawal Graph -->
+
             <div class="col-lg-8 col-md-12 barContainer mb-4">
                 <canvas id="barChart" style="min-height: 400px;"></canvas>
             </div>
 
-            <!-- Cost Center With Highest Withdrawal Table -->
             <div class="col-lg-4 col-md-12 tableContainer mb-4">
                 <div class="table-responsive" style="max-height: 550px; overflow-y: auto;">
                     <table id="rankingTable" class="table table-bordered">
@@ -210,7 +196,6 @@ include "navBar.php";
 
 </section>
 
-<!-- Excel Script -->
 <script src="../../public/js/excel.js"></script>
 
 <script>
