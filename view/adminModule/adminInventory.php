@@ -55,7 +55,6 @@ include "navBar.php";
                 <button id="export-btn" class="btn btn-success my-1">Export to Excel</button>
 
             </div>
-
             <table class="table table-striped" id="data-table" data-username="<?php echo $_SESSION['user']; ?>">
 
                 <thead>
@@ -73,9 +72,18 @@ include "navBar.php";
                 </thead>
 
                 <tbody id="data-table-inventory">
+                    <!-- Dynamic rows will be added here -->
                 </tbody>
 
             </table>
+
+            <!-- Add the spinner inside the button or separately (but typically it's inside the button) -->
+            <button id="load-more-btn" class="btn btn-primary">
+                <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                    style="display: none;"></span>
+                Load More
+            </button>
+
 
 
         </div>
@@ -360,8 +368,8 @@ include "navBar.php";
         $('#search_inventory').on('input', function () {
             var searchTerm = $(this).val().toLowerCase();
             $('#data-table-inventory tr').each(function () {
-                var firstTdText = $(this).find('td:first').text().toLowerCase();
-                if (firstTdText.indexOf(searchTerm) === -1) {
+                var rowText = $(this).text().toLowerCase();
+                if (rowText.indexOf(searchTerm) === -1) {
                     $(this).hide();
                 } else {
                     $(this).show();
@@ -370,6 +378,10 @@ include "navBar.php";
         });
 
         // Live Table
+        const LIMIT = 20;
+        let currentPage = 0;
+        let isLoading = false;
+
         function updateTable(data) {
             let checkedItems = {};
             $('#data-table-inventory input[type="checkbox"]:checked').each(function () {
@@ -377,71 +389,90 @@ include "navBar.php";
                 checkedItems[partName] = true;
             });
 
-            $('#data-table-inventory').empty();
+            if (data.length === 0 && currentPage === 0) {
+                const noDataRow = `
+            <tr>
+                <td colspan="7" class="text-center text-muted">No materials found.</td>
+            </tr>
+        `;
+                $('#data-table-inventory').html(noDataRow);
+                $('#load-more-btn').hide();
+                return;
+            }
 
             if (data.length === 0) {
-                var noDataRow = `
-                    <tr>
-                        <td colspan="7" class="text-center">No parts found</td>
-                    </tr>
-                `;
-                $('#data-table-inventory').append(noDataRow);
+                $('#load-more-btn').hide();
+                return;
+            }
+
+            $.each(data, function (index, item) {
+                let rowClass = '';
+                const totalPartQty = parseFloat(item.total_part_qty);
+                const minInventReq = parseFloat(item.min_invent_req);
+
+                if (totalPartQty === 0) {
+                    rowClass = 'text-danger fw-bold';
+                } else if (minInventReq > 0 && totalPartQty < minInventReq) {
+                    rowClass = 'text-orange-dark';
+                }
+
+                const isChecked = checkedItems[item.part_name] ? 'checked' : '';
+
+                const row = `
+            <tr class="table-row text-center" style="vertical-align: middle;">
+                <td data-label="Action">
+                    <input type="checkbox" class="select-row" data-id="${item.id}"
+                        data-part_name="${item.part_name}"
+                        data-part_desc="${item.part_desc}"
+                        data-part_category="${item.part_category}"
+                        data-cost_center="${item.cost_center}"
+                        data-part_option="${item.part_option}" 
+                        data-location="${item.location}"
+                        data-min_invent_req="${item.min_invent_req}" 
+                        data-unit="${item.unit}"
+                        data-approver="${item.approver}"
+                    ${isChecked}>
+                </td>
+                <td data-label="Part Name" class="${rowClass}">${item.part_name}</td>
+                <td data-label="Part Desc" class="${rowClass}">${item.part_desc}</td>
+                <td data-label="Item Code" class="${rowClass}">${item.item_code ? item.item_code : ''}</td>
+                <td data-label="Min Invent Req" class="${rowClass}">${item.min_invent_req} ${item.unit}(s)</td>
+                <td data-label="Exp Date" class="${rowClass}">${item.least_exp_date}</td>
+                <td data-label="Part Qty" class="${rowClass}">${item.total_part_qty} ${item.unit}(s)</td>
+            </tr>
+        `;
+
+                $('#data-table-inventory').append(row);
+            });
+
+            currentPage++;
+
+            // Hide Load More if fewer than LIMIT results
+            if (data.length < LIMIT) {
+                $('#load-more-btn').hide();
             } else {
-                $.each(data, function (index, item) {
-                    var rowClass = '';
-                    var totalPartQty = parseFloat(item.total_part_qty);
-                    var minInventReq = parseFloat(item.min_invent_req);
-
-                    if (totalPartQty === 0) {
-                        rowClass = 'text-danger fw-bold';
-                    } else if (minInventReq > 0 && totalPartQty < minInventReq) {
-                        rowClass = 'text-orange-dark';
-                    }
-
-                    const isChecked = checkedItems[item.part_name] ? 'checked' : '';
-
-
-                    var row = `
-                        <tr class="table-row text-center" style="vertical-align: middle;" data-part-qty="${item.part_qty}" data-min-invent-req="${item.min_invent_req}">
-
-                            <td data-label="Action">
-                                <input type="checkbox" class="select-row" data-id="${item.id}"
-                                    data-part_name="${item.part_name}"
-                                    data-part_desc="${item.part_desc}"
-                                    data-part_category="${item.part_category}"
-                                    data-cost_center="${item.cost_center}"
-                                    data-part_option="${item.part_option}" 
-                                    data-location="${item.location}"
-                                    data-min_invent_req="${item.min_invent_req}" 
-                                    data-unit="${item.unit}"
-                                    data-approver="${item.approver}"
-                                ${isChecked}>
-                            </td>
-                            <td data-label="Part Name" class="${rowClass}">${item.part_name}</td>
-                            <td data-label="Part Desc" class="${rowClass}">${item.part_desc}</td>
-                            <td data-label="Item Code" class="${rowClass}">${item.item_code ? item.item_code : ''}</td>
-                            <td data-label="Min Invent Req" class="${rowClass}">${item.min_invent_req} ${item.unit}(s)</td>
-                            <td data-label="Exp Date" class="${rowClass}">${item.least_exp_date}</td>
-                            <td data-label="Part Qty" class="${rowClass}">${item.total_part_qty} ${item.unit}(s)</td>
-                        </tr>
-                    `;
-
-                    $('#data-table-inventory').append(row);
-                });
+                $('#load-more-btn').show();
             }
         }
 
-        if (!!window.EventSource) {
-            const source = new EventSource('../../controller/check_inventory.php');
+        $(document).ready(function () {
+            $('#load-more-btn').trigger('click'); // Auto-load on first visit
+        });
 
-            source.onmessage = function (event) {
-                const data = JSON.parse(event.data);
+        $('#load-more-btn').on('click', function () {
+            if (isLoading) return;
+
+            isLoading = true;
+            $('#spinner').show();
+            $(this).prop('disabled', true);
+
+            $.get(`../../controller/check_inventory.php?page=${currentPage}`, function (data) {
                 updateTable(data);
-            };
-
-        } else {
-            console.warn("SSE not supported — fallback to polling");
-        }
+                isLoading = false;
+                $('#spinner').hide();
+                $('#load-more-btn').prop('disabled', false);
+            });
+        });
 
         // Upload Excel Files
         $('#uploadBox').on('click', function () {
