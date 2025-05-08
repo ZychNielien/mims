@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 27, 2025 at 09:07 AM
+-- Generation Time: May 08, 2025 at 09:49 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -248,6 +248,7 @@ CREATE TABLE `tbl_requested` (
   `part_qty` int(11) NOT NULL,
   `exp_date` text NOT NULL,
   `batch_number` varchar(255) NOT NULL,
+  `item_code` varchar(255) NOT NULL,
   `machine_no` varchar(50) NOT NULL,
   `with_reason` text NOT NULL,
   `req_by` varchar(50) NOT NULL,
@@ -261,6 +262,7 @@ CREATE TABLE `tbl_requested` (
   `return_reason` text NOT NULL,
   `dts_return` varchar(255) NOT NULL,
   `return_qty` int(11) NOT NULL,
+  `return_purpose` varchar(255) NOT NULL,
   `received_by` varchar(255) NOT NULL,
   `dts_receive` varchar(255) NOT NULL,
   `approved_qty` int(11) NOT NULL,
@@ -306,6 +308,7 @@ CREATE TABLE `tbl_stock` (
   `part_qty` varchar(255) NOT NULL,
   `exp_date` varchar(255) NOT NULL,
   `batch_number` varchar(255) NOT NULL,
+  `item_code` varchar(255) NOT NULL,
   `kitting_id` varchar(255) NOT NULL,
   `lot_id` varchar(255) NOT NULL,
   `dts` varchar(255) NOT NULL,
@@ -364,15 +367,16 @@ CREATE TABLE `tbl_users` (
   `cost_center` varchar(255) NOT NULL,
   `supervisor_one` varchar(255) NOT NULL,
   `supervisor_two` varchar(255) NOT NULL,
-  `forgot_pass` int(11) NOT NULL DEFAULT 0
+  `forgot_pass` int(11) NOT NULL DEFAULT 0,
+  `reason` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `tbl_users`
 --
 
-INSERT INTO `tbl_users` (`id`, `username`, `password`, `usertype`, `employee_name`, `badge_number`, `designation`, `account_type`, `cost_center`, `supervisor_one`, `supervisor_two`, `forgot_pass`) VALUES
-(1, 'Nikka', '$2y$10$zvEEuBnA2UTQWrNCOlWHQO1D8Dhc7eO5nihsi.0SS./J9FihqtJrO', 2, 'Marinel Nikka Zagala', '10001', 'Supervisor', 'Supervisor', 'MASMOB', 'Arthur Abitria Jr.', 'Marinel Zagala', 0);
+INSERT INTO `tbl_users` (`id`, `username`, `password`, `usertype`, `employee_name`, `badge_number`, `designation`, `account_type`, `cost_center`, `supervisor_one`, `supervisor_two`, `forgot_pass`, `reason`) VALUES
+(1, 'Nikka', '$2y$10$TEKz97kTdgP6X0CkfhyQkup4/u28RlYufAYPRop7fByOk5zEaCUzC', 2, ' Marinel Nikka Zagala', '10001', 'Supervisor', 'Supervisor', 'MASMOD', 'Luisa Pelobello', 'Dianne Salvatierra', 0, '');
 
 -- --------------------------------------------------------
 
