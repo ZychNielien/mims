@@ -1,5 +1,4 @@
 <?php
-// Database Connection
 include "../model/dbconnection.php";
 header('Content-Type: application/json');
 
@@ -8,22 +7,35 @@ $response = array();
 if (isset($_GET['part_id']) && !empty($_GET['part_id'])) {
     $part_id = mysqli_real_escape_string($con, $_GET['part_id']);
 
-    $query = "SELECT part_desc, part_option FROM tbl_inventory WHERE id = '$part_id'";
+    $query = "SELECT DISTINCT ti.part_desc, ti.part_option, ts.item_code
+                FROM tbl_inventory ti
+                LEFT JOIN tbl_stock ts ON ti.part_name = ts.part_name
+                WHERE ti.id = '$part_id'";
+
     $result = mysqli_query($con, $query);
 
+    $response['item_codes'] = [];
+    $response['part_desc'] = null;
+    $response['part_option'] = null;
+
     if ($result) {
-        if (mysqli_num_rows($result) > 0) {
-            $row = mysqli_fetch_assoc($result);
-            $response['part_desc'] = $row['part_desc'];
-            $response['part_option'] = $row['part_option'];
-        } else {
-            $response['part_desc'] = null;
+        while ($row = mysqli_fetch_assoc($result)) {
+            // Only set description and option once
+            if (!$response['part_desc']) {
+                $response['part_desc'] = $row['part_desc'];
+                $response['part_option'] = $row['part_option'];
+            }
+
+            // Add unique item codes to array (avoid duplicates)
+            if (!in_array($row['item_code'], $response['item_codes'])) {
+                $response['item_codes'][] = $row['item_code'];
+            }
         }
     } else {
-        $response['error'] = 'Failed to retrieve data from database';
+        $response['error'] = 'Database query failed';
     }
 } else {
-    $response['error'] = 'part_id is required';
+    $response['error'] = 'Missing part_id';
 }
 
 echo json_encode($response);

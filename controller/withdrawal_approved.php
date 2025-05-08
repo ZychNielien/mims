@@ -44,24 +44,25 @@ if (mysqli_num_rows($sql_query) > 0) {
         $tableRows .= "<tr class='table-row text-center' style='vertical-align: middle;'>
             <td>
                 <input type='checkbox' class='select-return' data-id='{$sqlRow['id']}'
-                    data-approved_qty='{$sqlRow['approved_qty']}' data-req_by='{$sqlRow['req_by']}'
+                    data-approved_qty='{$sqlRow['approved_qty']}' data-req_by='{$sqlRow['req_by']}' data-item_code='{$sqlRow['item_code']}' data-batch_number='{$sqlRow['batch_number']}'
                     data-part_name='{$sqlRow['part_name']}' {$isDisabled} />
             </td>
             <td data-label='Date / Time / Shift'>{$sqlRow['dts_approve']}</td>
             <td data-label='Lot Id'>{$sqlRow['lot_id']}</td>
             <td data-label='Part Name'>{$sqlRow['part_name']}</td>
             <td data-label='Part Desc'>{$sqlRow['part_desc']}</td>
+            <td data-label='Part Name'>{$sqlRow['item_code']}</td>
+            <td data-label='Batch Number'>{$sqlRow['batch_number']}</td>
             <td data-label='Part Qty'>{$sqlRow['part_qty']}</td>
             <td data-label='Machine Number'>{$sqlRow['machine_no']}</td>
             <td data-label='Withdrawal Reason'>{$sqlRow['with_reason']}</td>
             <td data-label='Approved Qty'>{$sqlRow['approved_qty']}</td>
-            <td data-label='Batch Number'>{$sqlRow['batch_number']}</td>
             <td data-label='Approved Reason'>{$sqlRow['approved_reason']}</td>
             <td data-label='Return Qty'>{$sqlRow['approved_by']}</td>
         </tr>";
     }
 } else {
-    $tableRows = "<tr><td colspan='12' class='text-center'>No approved request found</td></tr>";
+    $tableRows = "<tr><td colspan='13' class='text-center'>No approved request found</td></tr>";
 }
 
 $pagination = '';

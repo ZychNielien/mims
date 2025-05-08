@@ -21,13 +21,13 @@ while (true) {
     $update_expired_sql = "UPDATE tbl_stock SET status = 'Expired' WHERE exp_date <= '$today' AND status != 'Expired'";
     mysqli_query($con, $update_expired_sql);
 
-    $sql = "SELECT ti.*, ts.exp_date,
+    $sql = "SELECT ti.*, ts.exp_date,ts.item_code,
             IFNULL(MIN(CASE WHEN ts.status = 'Active' AND ts.part_qty > 0 THEN ts.exp_date END), '') AS least_exp_date, 
             IFNULL(SUM(CASE WHEN ts.status = 'Active' THEN ts.part_qty END), 0) AS total_part_qty,
             SUM(CASE WHEN ts.status = 'Expired' THEN ts.part_qty ELSE 0 END) AS expired_qty
             FROM tbl_inventory ti
             LEFT JOIN tbl_stock ts ON ti.part_name = ts.part_name
-            GROUP BY ti.part_name, ti.part_desc, ti.min_invent_req
+            GROUP BY ti.part_name, ti.part_desc, ti.min_invent_req, ts.item_code
             ORDER BY ti.part_name ASC";
 
     $sql_query = mysqli_query($con, $sql);
@@ -41,6 +41,7 @@ while (true) {
             $part_desc = $sql_row['part_desc'];
             $part_category = $sql_row['part_category'];
             $approver = $sql_row['approver'];
+            $item_code = $sql_row['item_code'];
 
             if ($min_invent_req) {
                 $inventoryData[] = [
@@ -58,7 +59,8 @@ while (true) {
                     'approver' => $sql_row['approver'],
                     'least_exp_date' => $sql_row['least_exp_date'],
                     'total_part_qty' => $total_qty,
-                    'expired_qty' => $expired_qty
+                    'expired_qty' => $expired_qty,
+                    'item_code' => $item_code
                 ];
             }
         }
@@ -66,5 +68,5 @@ while (true) {
 
     sendSSEData($inventoryData);
 
-    sleep(5);
+    sleep(2);
 }

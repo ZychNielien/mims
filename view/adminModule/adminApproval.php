@@ -44,6 +44,7 @@ include "navBar.php";
                     <th scope="col">Lot ID</th>
                     <th scope="col">Part Number</th>
                     <th scope="col">Item Description</th>
+                    <th scope="col">Item Code</th>
                     <th scope="col">Qty.</th>
                     <th scope="col">Batch Number</th>
                     <th scope="col">Machine No.</th>
@@ -58,7 +59,7 @@ include "navBar.php";
                 $approver = $_SESSION['user'];
                 $sql = "SELECT tr.*, ti.approver, ts.item_code FROM tbl_requested tr 
                             LEFT JOIN tbl_inventory ti ON tr.part_name = ti.part_name
-                            LEFT JOIN tbl_stock ts ON tr.part_name = ts.part_name AND tr.exp_date = ts.exp_date AND tr.batch_number = ts.batch_number 
+                            LEFT JOIN tbl_stock ts ON tr.part_name = ts.part_name AND tr.exp_date = ts.exp_date AND tr.batch_number = ts.batch_number AND tr.item_code = ts.item_code
                             WHERE tr.status = 'Pending' AND ti.approver = '$approver' 
                             ORDER BY dts DESC";
                 $sql_query = mysqli_query($con, $sql);
@@ -82,6 +83,7 @@ include "navBar.php";
                             <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
                             <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
                             <td data-label="Part Desc"><?php echo $sqlRow['part_desc']; ?></td>
+                            <td data-label="Part Desc"><?php echo $sqlRow['item_code']; ?></td>
                             <td data-label="Quantity"><?php echo $sqlRow['part_qty']; ?></td>
                             <td data-label="Quantity"><?php echo $sqlRow['batch_number']; ?></td>
                             <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
@@ -189,7 +191,7 @@ include "navBar.php";
             $('.select-row').prop('checked', $(this).prop('checked'));
         });
 
-        // Approve Account Button
+        // Approve Request Button
         $("#approve-btn").click(function () {
             $("#modalItemList").empty();
 
@@ -223,14 +225,13 @@ include "navBar.php";
                         <input type="hidden" name="item_codes[]" value="${item_code}">
                         </td>
                         <td>${item_code}</td>
-                        <td><input type="number" name="quantities[]" value="${qty}" max="${qty}" class="form-control" min="1" required></td>
+                        <td><input type="number" name="quantities[]" value="${qty}" max="${qty}" class="form-control" min="1" step="1" required></td>
                         <td>${batch_number}</td>
                         <td>
-                            <input type="text" name="batch_numbers[]" class="form-control" placeholder="Actual Batch Number">
-
+                            <input type="text" name="batch_numbers[]" class="form-control" placeholder="Actual Batch Number" autocomplete="off">
                         </td>
                         <td>
-                        <input type="text" name="reasons[]" class="form-control" placeholder="Reason (Optional)">
+                        <input type="text" name="reasons[]" class="form-control" placeholder="Reason (Optional)" autocomplete="off">
 
                         </td>
                     </tr>
@@ -241,7 +242,7 @@ include "navBar.php";
             $("#approvalModal").modal("show");
         });
 
-        // Approve Account Submit
+        // Approve Request Submit
         $("#approvalForm").submit(function (e) {
             e.preventDefault();
 
@@ -285,7 +286,7 @@ include "navBar.php";
             });
         });
 
-        // Reject Account Button
+        // Reject Request Button
         $("#reject-btn").click(function () {
             $("#modalRejectItemList").empty();
 
@@ -336,7 +337,7 @@ include "navBar.php";
             $("#rejectModal").modal("show");
         });
 
-        // Reject Accounts Submit
+        // Reject Request Submit
         $("#rejectForm").submit(function (e) {
             e.preventDefault();
 

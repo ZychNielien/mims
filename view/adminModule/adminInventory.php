@@ -65,6 +65,7 @@ include "navBar.php";
                         </th>
                         <th>Part Number</th>
                         <th>Part Description</th>
+                        <th>Item Code</th>
                         <th>Minimum Inventory Requirement</th>
                         <th>Earliest Expiration Date</th>
                         <th>Existing Inventory</th>
@@ -418,6 +419,7 @@ include "navBar.php";
                             </td>
                             <td data-label="Part Name" class="${rowClass}">${item.part_name}</td>
                             <td data-label="Part Desc" class="${rowClass}">${item.part_desc}</td>
+                            <td data-label="Item Code" class="${rowClass}">${item.item_code ? item.item_code : ''}</td>
                             <td data-label="Min Invent Req" class="${rowClass}">${item.min_invent_req} ${item.unit}(s)</td>
                             <td data-label="Exp Date" class="${rowClass}">${item.least_exp_date}</td>
                             <td data-label="Part Qty" class="${rowClass}">${item.total_part_qty} ${item.unit}(s)</td>
@@ -711,16 +713,16 @@ include "navBar.php";
                     <input type="text" class="form-control partDescription" name="addPartDesc" placeholder="Part Description" readonly>
                 </td>
                 <td>
-                    <input type="text" class="form-control" name="addBatchNumber" placeholder="Batch Number">
+                    <input type="text" class="form-control" name="addBatchNumber" placeholder="Batch Number" style="text-transform: uppercase;" autocomplete="OFF">
                 </td>
                 <td>
-                    <input type="text" class="form-control" name="addLotID" placeholder="Lot ID" >
+                    <input type="text" class="form-control" name="addLotID" placeholder="Lot ID" style="text-transform: uppercase;" autocomplete="OFF">
                 </td>
                 <td>
-                    <input type="text" class="form-control" name="addItemCode" placeholder="Item Code" >
+                    <input type="text" class="form-control" name="addItemCode" placeholder="Item Code" style="text-transform: uppercase;" autocomplete="OFF">
                 </td>
                 <td>
-                    <input type="number" class="form-control" name="addPartQty" placeholder="Part Quantity" min="0" step="1" >
+                    <input type="number" class="form-control" name="addPartQty" placeholder="PART QUANTITY" min="0" step="1" >
                 </td>
                 <td>
                     <select class="form-select" name="addExpDateOption">
@@ -734,7 +736,7 @@ include "navBar.php";
                 </td>
                 </td>
                 <td>
-                    <input type="text" class="form-control" name="addKittingID" placeholder="Badge ID" >
+                    <input type="text" class="form-control" name="addKittingID" placeholder="Badge ID" style="text-transform: uppercase;" autocomplete="OFF">
                 </td>
           
                 <td>

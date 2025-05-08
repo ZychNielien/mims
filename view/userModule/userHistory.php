@@ -15,11 +15,7 @@ include "navBar.php";
 
 <section>
 
-    <div class="welcomeDiv my-2">
-        <h2 class="text-center">Welcome, <?php echo $_SESSION['username'] ?>!</h2>
-    </div>
-
-    <div class="mx-5">
+    <div class="mx-5 my-3">
 
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -68,11 +64,12 @@ include "navBar.php";
                                 <th scope="col">Lot ID</th>
                                 <th scope="col">Part Number</th>
                                 <th scope="col">Item Description</th>
+                                <th scope="col">Item Code</th>
+                                <th scope="col">Batch Number</th>
                                 <th scope="col">Qty.</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Approved Qty</th>
-                                <th scope="col">Batch Number</th>
                                 <th scope="col">Approved Reason</th>
                                 <th scope="col">Approved By</th>
                             </tr>
@@ -112,8 +109,9 @@ include "navBar.php";
                                 <th scope="col">Lot ID</th>
                                 <th scope="col">Part Number</th>
                                 <th scope="col">Item Description</th>
-                                <th scope="col">Qty.</th>
+                                <th scope="col">Item Code</th>
                                 <th scope="col">Batch Number</th>
+                                <th scope="col">Qty.</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Rejected Reason</th>
@@ -155,11 +153,13 @@ include "navBar.php";
                                 <th scope="col">Returned Date/Time</th>
                                 <th scope="col">Lot ID</th>
                                 <th scope="col">Part Number</th>
-                                <th scope="col">Approved Qty.</th>
+                                <th scope="col">Item Code</th>
                                 <th scope="col">Batch Number</th>
+                                <th scope="col">Approved Qty.</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Return Qty</th>
+                                <th scope="col">Return Type</th>
                                 <th scope="col">Return Reason</th>
                                 <th scope="col">Received By</th>
                             </tr>
@@ -194,8 +194,10 @@ include "navBar.php";
                                 <thead class="text-center text-white" style="background-color: #900008;">
                                     <tr>
                                         <th>Part Number</th>
-                                        <th>Approved Quantity</th>
+                                        <th>Item Code</th>
+                                        <th>Batch Number</th>
                                         <th>Returning Quantity</th>
+                                        <th>Return Type</th>
                                         <th>Reason for Returning</th>
                                     </tr>
                                 </thead>
@@ -409,17 +411,27 @@ include "navBar.php";
                 let partName = $(this).data("part_name");
                 let approved_qty = $(this).data("approved_qty");
                 let req_by = $(this).data("req_by");
+                let item_code = $(this).data("item_code");
+                let batch_number = $(this).data("batch_number");
 
                 let row = `
                     <tr class="text-center" style="vertical-align: middle;">
                         <td>${partName}</td>
-                        <td>${approved_qty}</td>
+                        <td>${item_code}</td>
+                        <td>${batch_number}</td>
                         <td><input type="number" name="quantities[]" value="${approved_qty}" class="form-control" min="1" max="${approved_qty}" required></td>
+                        <td>
+                            <select class="form-select" name="return_purposes[]" required>
+                                <option value="">Purpose of Return</option>
+                                <option value="Partial">Partial</option>
+                                <option value="Scrap">Scrap</option>
+                            </select>
+                        </td>
                         <td><input type="text" name="reasons[]" class="form-control" placeholder="Reason for Returning ${partName}" autocomplete="off" required></td>
                         <td style="display:none;"> 
-                            <input type="hidden" name="ids[]" value="${id}">
-                            <input type="hidden" name="part_names[]" value="${partName}">
-                            <input type="hidden" name="req_bys[]" value="${req_by}">
+                            <input type="text" name="ids[]" value="${id}">
+                            <input type="text" name="part_names[]" value="${partName}">
+                            <input type="text" name="req_bys[]" value="${req_by}">
                         </td>
                     </tr>
 

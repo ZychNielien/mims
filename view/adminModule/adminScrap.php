@@ -63,6 +63,7 @@ include "navBar.php";
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Returned By</th>
                                 <th scope="col">Return Qty</th>
+                                <th scope="col">Return Type</th>
                                 <th scope="col">Return Reason</th>
                             </tr>
                         </thead>
@@ -88,7 +89,8 @@ include "navBar.php";
                                                 data-batch_number="<?php echo $sqlRow['batch_number']; ?>"
                                                 data-exp_date="<?php echo $sqlRow['exp_date']; ?>"
                                                 data-return_reason="<?php echo $sqlRow['return_reason']; ?>"
-                                                data-return_purpose="<?php echo $sqlRow['return_purpose']; ?>" />
+                                                data-return_purpose="<?php echo $sqlRow['return_purpose']; ?>"
+                                                data-item_code="<?php echo $sqlRow['item_code']; ?>" />
                                         </td>
                                         <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts_return']; ?></td>
                                         <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
@@ -99,6 +101,7 @@ include "navBar.php";
                                         <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                                         <td data-label="Return By"><?php echo $sqlRow['req_by']; ?></td>
                                         <td data-label="Return Qty"><?php echo $sqlRow['return_qty']; ?></td>
+                                        <td data-label="Return Type"><?php echo $sqlRow['return_purpose']; ?></td>
                                         <td data-label="Return Reason"><?php echo $sqlRow['return_reason']; ?></td>
                                     </tr>
                                     <?php
@@ -106,7 +109,7 @@ include "navBar.php";
                             } else {
                                 ?>
                                 <tr>
-                                    <td colspan="11" class="text-center">No items found</td>
+                                    <td colspan="12" class="text-center">No items found</td>
                                 </tr>
                                 <?php
                             }
@@ -179,7 +182,7 @@ include "navBar.php";
                             } else {
                                 ?>
                                 <tr>
-                                    <td colspan="11" class="text-center">No items found</td>
+                                    <td colspan="13" class="text-center">No items found</td>
                                 </tr>
                                 <?php
                             }
@@ -252,7 +255,7 @@ include "navBar.php";
                             } else {
                                 ?>
                                 <tr>
-                                    <td colspan="11" class="text-center">No items found</td>
+                                    <td colspan="13" class="text-center">No items found</td>
                                 </tr>
                                 <?php
                             }
@@ -287,6 +290,7 @@ include "navBar.php";
                                 <tr>
                                     <th>Returning By</th>
                                     <th>Part Number</th>
+                                    <th>Item Code</th>
                                     <th>Batch Number</th>
                                     <th>Returning Reason</th>
                                     <th>Receiving Quantity</th>
@@ -342,11 +346,13 @@ include "navBar.php";
                 let return_qty = $(this).data("return_qty");
                 let return_reason = $(this).data("return_reason");
                 let return_purpose = $(this).data("return_purpose");
+                let item_code = $(this).data("item_code");
 
                 let row = `
                     <tr class="text-center" style="vertical-align: middle;">
                         <td>${req_by}</td>
                         <td>${partName}</td>
+                        <td>${item_code}</td>
                         <td>${batch_number}</td>
                         <td>${return_reason}</td>
                         <td><input type="number" name="quantities[]" value="${return_qty}" class="form-control" min="1" max="${return_qty}" required></td>
@@ -360,6 +366,7 @@ include "navBar.php";
                         </td>
                         <td style="display:none;"> 
                             <input type="hidden" name="actualBNs[]" value="${batch_number}">
+                            <input type="hidden" name="item_codes[]" value="${item_code}">
                             <input type="hidden" name="ids[]" value="${id}">
                             <input type="hidden" name="part_names[]" value="${partName}">
                             <input type="hidden" name="req_bys[]" value="${req_by}">

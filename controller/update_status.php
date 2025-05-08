@@ -45,7 +45,9 @@ if (isset($_POST['approve_submit'])) {
                     break;
                 }
 
-                $updateQuery = "UPDATE tbl_requested SET approved_qty='$quantity', approved_reason='$reason', status='Approved' , approved_by = '$username' , dts_approve = '$dts' WHERE id='$id'";
+                $updateQuery = "UPDATE tbl_requested 
+                                SET approved_qty='$quantity', approved_reason='$reason', status='Approved' , approved_by = '$username' , dts_approve = '$dts' 
+                                WHERE id='$id'";
 
                 if (!mysqli_query($con, $updateQuery)) {
                     $success = false;
@@ -64,7 +66,9 @@ if (isset($_POST['approve_submit'])) {
                     if ($quantity < $part_qty) {
                         $stockDiff = $part_qty - $quantity;
 
-                        $updateStockQuery = "UPDATE tbl_stock SET part_qty = part_qty + '$stockDiff' WHERE part_name = '$part_name' AND exp_date = '$exp_date' AND batch_number = '$batch_number' AND item_code = '$item_code'";
+                        $updateStockQuery = "UPDATE tbl_stock 
+                                            SET part_qty = part_qty + '$stockDiff' 
+                                            WHERE part_name = '$part_name' AND exp_date = '$exp_date' AND batch_number = '$batch_number' AND item_code = '$item_code'";
 
                         if (!mysqli_query($con, $updateStockQuery)) {
                             $success = false;
@@ -202,6 +206,7 @@ if (isset($_POST['receive_submit'])) {
         $exp_dates = $_POST['exp_dates'];
         $actualBNs = $_POST['actualBNs'];
         $return_purposes = $_POST['return_purposes'];
+        $item_codes = $_POST['item_codes'];
         $success = true;
 
         for ($i = 0; $i < count($ids); $i++) {
@@ -212,6 +217,7 @@ if (isset($_POST['receive_submit'])) {
             $part_name = mysqli_real_escape_string($con, $part_names[$i]);
             $actualBN = mysqli_real_escape_string($con, $actualBNs[$i]);
             $return_purpose = mysqli_real_escape_string($con, $return_purposes[$i]);
+            $item_code = mysqli_real_escape_string($con, $item_codes[$i]);
             $quantity = intval($quantities[$i]);
             $mensahe = $username . ' has successfully received ' . $quantity . ' of ' . $part_name . '. Click here for more details.';
 
@@ -221,7 +227,7 @@ if (isset($_POST['receive_submit'])) {
                 if (mysqli_query($con, $update_sql)) {
 
                     if ($return_purpose === 'Partial') {
-                        $update_stock = "UPDATE `tbl_stock` SET part_qty = part_qty + $quantity WHERE part_name = '$part_name' AND exp_date='$exp_date'";
+                        $update_stock = "UPDATE `tbl_stock` SET part_qty = part_qty + $quantity WHERE part_name = '$part_name' AND exp_date='$exp_date' AND batch_number = '$actualBN' AND item_code = '$item_code'";
                         if (!mysqli_query($con, $update_stock)) {
                             $success = false;
                             break;

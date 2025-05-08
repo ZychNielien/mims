@@ -40,8 +40,9 @@ if (mysqli_num_rows($sql_query) > 0) {
                         <td data-label='Lot Id'>{$sqlRow['lot_id']}</td>
                         <td data-label='Part Name'>{$sqlRow['part_name']}</td>
                         <td data-label='Part Desc'>{$sqlRow['part_desc']}</td>
-                        <td data-label='Quantity'>{$sqlRow['part_qty']}</td>
+                        <td data-label='Part Name'>{$sqlRow['item_code']}</td>
                         <td data-label='Batch Number'>{$sqlRow['batch_number']}</td>
+                        <td data-label='Quantity'>{$sqlRow['part_qty']}</td>
                         <td data-label='Machine No'>{$sqlRow['machine_no']}</td>
                         <td data-label='Reason'>{$sqlRow['with_reason']}</td>
                         <td data-label='Status'>{$sqlRow['rejected_reason']}</td>
@@ -49,7 +50,7 @@ if (mysqli_num_rows($sql_query) > 0) {
                       </tr>";
     }
 } else {
-    $tableRows = "<tr><td colspan='10' class='text-center'>No rejected request found</td></tr>";
+    $tableRows = "<tr><td colspan='11' class='text-center'>No rejected request found</td></tr>";
 }
 
 $pagination = '';

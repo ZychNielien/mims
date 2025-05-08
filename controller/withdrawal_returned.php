@@ -43,17 +43,19 @@ if (mysqli_num_rows($sql_query) > 0) {
                 <td data-label='Date / Time / Shift'>{$sqlRow['dts_return']}</td>
                 <td data-label='Lot Id'>{$sqlRow['lot_id']}</td>
                 <td data-label='Part Name'>{$sqlRow['part_name']}</td>
+                <td data-label='Part Name'>{$sqlRow['item_code']}</td>
+                <td data-label='Batch Number'>{$sqlRow['batch_number']}</td>
                 <td data-label='Approved Qty'>{$sqlRow['approved_qty']}</td>
-                 <td data-label='Batch Number'>{$sqlRow['batch_number']}</td>
                 <td data-label='Machine Number'>{$sqlRow['machine_no']}</td>
                 <td data-label='Qithdrawal Reason'>{$sqlRow['with_reason']}</td>
                 <td data-label='Return Qty'>{$sqlRow['return_qty']}</td>
+                <td data-label='Return Type'>{$sqlRow['return_purpose']}</td>
                 <td data-label='Return Reason'>{$sqlRow['return_reason']}</td>
                 <td data-label='Receieved By'>{$sqlRow['received_by']}</td>
               </tr>";
     }
 } else {
-    $tableRows = "<tr><td colspan='11' class='text-center'>No returned request found</td></tr>";
+    $tableRows = "<tr><td colspan='12' class='text-center'>No returned request found</td></tr>";
 }
 
 $pagination = '';

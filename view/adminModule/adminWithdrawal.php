@@ -48,7 +48,23 @@ include "navBar.php";
                         $select_user_row = mysqli_fetch_assoc($select_user_query);
 
 
-                        $query = "SELECT id, part_name FROM tbl_inventory ORDER BY part_name ASC";
+                        $query = "SELECT 
+                                        ti.id,
+                                        ti.part_name,
+                                        ts.item_code,
+                                        SUM(ts.part_qty) AS total_qty
+                                    FROM 
+                                        tbl_inventory ti
+                                    LEFT JOIN 
+                                        tbl_stock ts ON ti.part_name = ts.part_name
+                                    GROUP BY 
+                                        ti.part_name
+                                    HAVING 
+                                        total_qty > 0
+                                    ORDER BY 
+                                        ti.part_name ASC, ts.item_code ASC";
+
+
                         $result = mysqli_query($con, $query);
                         ?>
                         <input type="hidden" value="<?php echo $select_user_row['cost_center'] ?>" name="cost_center">
@@ -77,8 +93,13 @@ include "navBar.php";
                                     readonly></textarea>
                             </div>
                             <div class="mb-1">
-                                <label for="part_option" class="form-label">Option</label>
+                                <label for="part_option" class="form-label">Material Type</label>
                                 <input type="text" class="form-control" id="part_option" name="part_option" readonly>
+                            </div>
+                            <div class="mb-1">
+                                <label for="part_item_code" class="form-label">Item Code</label>
+                                <select class="form-select" id="part_item_code" name="part_item_code" required>
+                                </select>
                             </div>
                             <div class="mb-1">
                                 <label for="part_qty" class="form-label">Item Quantity</label>
@@ -189,6 +210,8 @@ include "navBar.php";
                                 <th scope="col">Lot ID</th>
                                 <th scope="col">Part Number</th>
                                 <th scope="col">Item Description</th>
+                                <th scope="col">Item Code</th>
+                                <th scope="col">Batch Number</th>
                                 <th scope="col">Qty.</th>
                                 <th scope="col">Batch Number</th>
                                 <th scope="col">Machine No.</th>
@@ -209,6 +232,7 @@ include "navBar.php";
                                     ON tr.part_name = ts.part_name 
                                         AND tr.exp_date = ts.exp_date 
                                         AND tr.batch_number = ts.batch_number 
+                                        AND tr.item_code = ts.item_code
                                     WHERE tr.req_by = '$userName' 
                                         AND tr.status = 'Pending'  
                                     ORDER BY tr.dts DESC";
@@ -235,6 +259,8 @@ include "navBar.php";
                                         <td data-label="Lot Id"><?php echo $sqlRow['lot_id'] ?></td>
                                         <td data-label="Part Name"><?php echo $sqlRow['part_name'] ?></td>
                                         <td data-label="Part Desc"><?php echo $sqlRow['part_desc'] ?></td>
+                                        <td data-label="Item Code"><?php echo $sqlRow['item_code'] ?></td>
+                                        <td data-label="Batch Number"><?php echo $sqlRow['batch_number'] ?></td>
                                         <td data-label="Quantity"><?php echo $sqlRow['part_qty'] ?></td>
                                         <td data-label="Batch Number"><?php echo $sqlRow['batch_number'] ?></td>
                                         <td data-label="Machine No"><?php echo $sqlRow['machine_no'] ?></td>
@@ -289,11 +315,12 @@ include "navBar.php";
                             <th scope="col">Lot ID</th>
                             <th scope="col">Part Number</th>
                             <th scope="col">Item Description</th>
+                            <th scope="col">Item Code</th>
+                            <th scope="col">Batch Number</th>
                             <th scope="col">Qty.</th>
                             <th scope="col">Machine No.</th>
                             <th scope="col">Withdrawal Reason</th>
                             <th scope="col">Approved Qty</th>
-                            <th scope="col">Batch Number</th>
                             <th scope="col">Approved Reason</th>
                             <th scope="col">Approved By</th>
                         </tr>
@@ -336,8 +363,9 @@ include "navBar.php";
                             <th scope="col">Lot ID</th>
                             <th scope="col">Part Number</th>
                             <th scope="col">Item Description</th>
-                            <th scope="col">Qty.</th>
+                            <th scope="col">Item Code</th>
                             <th scope="col">Batch Number</th>
+                            <th scope="col">Qty.</th>
                             <th scope="col">Machine No.</th>
                             <th scope="col">Withdrawal Reason</th>
                             <th scope="col">Rejected Reason</th>
@@ -383,11 +411,13 @@ include "navBar.php";
                             <th scope="col">Returned Date/Time</th>
                             <th scope="col">Lot ID</th>
                             <th scope="col">Part Number</th>
-                            <th scope="col">Approved Qty.</th>
+                            <th scope="col">Item Code</th>
                             <th scope="col">Batch Number</th>
+                            <th scope="col">Approved Qty.</th>
                             <th scope="col">Machine No.</th>
                             <th scope="col">Withdrawal Reason</th>
                             <th scope="col">Return Qty</th>
+                            <th scope="col">Return Type</th>
                             <th scope="col">Return Reason</th>
                             <th scope="col">Received By</th>
                         </tr>
@@ -426,13 +456,14 @@ include "navBar.php";
                                     <th>Date / Time / Shift</th>
                                     <th>Lot ID</th>
                                     <th>Part Number</th>
+                                    <th>Item Code</th>
+                                    <th>Batch Number</th>
                                     <th>Part Quantity</th>
                                     <th>Machine Number</th>
                                     <th>Withdrawal Reason</th>
                                 </tr>
                             </thead>
                             <tbody id="modalItemList">
-                                <!-- Selected items will be injected here -->
                             </tbody>
                         </table>
                     </div>
@@ -497,9 +528,10 @@ include "navBar.php";
                             <thead class="text-center text-white" style="background-color: #900008;">
                                 <tr>
                                     <th>Part Number</th>
-                                    <th>Approved Quantity</th>
+                                    <th>Item Code</th>
+                                    <th>Batch Number</th>
                                     <th>Returning Quantity</th>
-                                    <th>Purpose of Return</th>
+                                    <th>Return Type</th>
                                     <th>Reason for Returning</th>
                                 </tr>
                             </thead>
@@ -537,7 +569,6 @@ include "navBar.php";
 
             if (partId) {
                 var partName = $(this).find('option:selected').data('part_name');
-
                 $('#part_name').val(partName);
 
                 $.ajax({
@@ -558,6 +589,16 @@ include "navBar.php";
                         } else {
                             $('#part_option').val('No option available');
                         }
+
+                        if (data.item_codes && data.item_codes.length > 0) {
+                            $('#part_item_code').empty();
+                            $('#part_item_code').append('<option value="">Select Item Code</option>');
+                            data.item_codes.forEach(function (code) {
+                                $('#part_item_code').append('<option value="' + code + '">' + code + '</option>');
+                            });
+                        } else {
+                            $('#part_item_code').empty().append('<option value="">No item codes available</option>');
+                        }
                     },
                     error: function (xhr, status, error) {
                         console.error('AJAX error: ' + error);
@@ -568,6 +609,7 @@ include "navBar.php";
                 $('#part_desc').val('');
                 $('#part_option').val('');
                 $('#part_name').val('');
+                $('#part_item_code').empty().append('<option value="">Select Item Code</option>');
             }
         });
 
@@ -610,7 +652,9 @@ include "navBar.php";
                         <td>${dts}</td>
                         <td>${lot_id}</td>
                         <td>${partName}</td>
-                        <td><input type="number" name="quantities[]" value="${qty}" class="form-control" min="1" max="${total_qty + qty}" required></td>
+                        <td>${item_code}</td>
+                        <td>${batch_number}</td>
+                        <td><input type="number" name="quantities[]" value="${qty}" class="form-control" min="1" max="${total_qty + qty}" step="1" required></td>
                         <td>                    
                             <select class="form-select" name="machines[]" required>
                                 <option value="">Select Machine</option>
@@ -963,11 +1007,14 @@ include "navBar.php";
                 let partName = $(this).data("part_name");
                 let approved_qty = $(this).data("approved_qty");
                 let req_by = $(this).data("req_by");
+                let item_code = $(this).data("item_code");
+                let batch_number = $(this).data("batch_number");
 
                 let row = `
                     <tr class="text-center" style="vertical-align: middle;">
                         <td>${partName}</td>
-                        <td>${approved_qty}</td>
+                        <td>${item_code}</td>
+                        <td>${batch_number}</td>
                         <td><input type="number" name="quantities[]" value="${approved_qty}" class="form-control" min="1" max="${approved_qty}" required></td>
                         <td>
                             <select class="form-select" name="return_purposes[]" required>

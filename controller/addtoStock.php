@@ -23,7 +23,7 @@ if (isset($_POST['stock_data'])) {
         $today = date('Y-m-d');
         $dts = date('Y-m-d H:i:s');
 
-        $sqlSelect = "SELECT part_qty FROM `tbl_stock` WHERE part_name = '$part_name' AND exp_date = '$exp_date' AND status = 'Active'";
+        $sqlSelect = "SELECT part_qty FROM `tbl_stock` WHERE part_name = '$part_name' AND exp_date = '$exp_date' AND batch_number = '$batch_number' AND item_code = '$item_code' AND status = 'Active'";
         $sqlSelect_query = mysqli_query($con, $sqlSelect);
 
         if (!$sqlSelect_query) {

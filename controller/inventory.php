@@ -20,11 +20,12 @@ if (isset($_POST['mat_req_part'])) {
     $status = 'Pending';
     $cost_center = $_POST['cost_center'];
     $part_option = $_POST['part_option'];
+    $part_item_code = $_POST['part_item_code'];
 
-    $check_sql = "SELECT ts.part_name, ts.part_qty, ts.exp_date, ti.min_invent_req, ts.batch_number, ti.approver
+    $check_sql = "SELECT ts.part_name, ts.part_qty, ts.exp_date, ti.min_invent_req, ts.batch_number, ti.approver, ts.item_code
                     FROM tbl_stock ts
                     LEFT JOIN tbl_inventory ti ON ts.part_name = ti.part_name
-                    WHERE ts.part_name = '$part_id' AND status = 'Active'
+                    WHERE ts.part_name = '$part_id' AND ts.item_code = '$part_item_code' AND ts.status = 'Active'
                     ORDER BY ts.exp_date ASC";
 
     $check_sql_query = mysqli_query($con, $check_sql);
@@ -37,6 +38,7 @@ if (isset($_POST['mat_req_part'])) {
             'part_qty' => $checkedRow['part_qty'],
             'exp_date' => $checkedRow['exp_date'],
             'batch_number' => $checkedRow['batch_number'],
+            'item_code' => $checkedRow['item_code'],
             'approver' => $checkedRow['approver'],
 
         ];
@@ -49,6 +51,7 @@ if (isset($_POST['mat_req_part'])) {
             $part_qty_in_stock = $data['part_qty'];
             $expiration_date = $data['exp_date'];
             $batch_number = $data['batch_number'];
+            $item_code = $data['item_code'];
 
             if ($part_qty_remaining > 0 && $part_qty_in_stock > 0) {
                 $quantity_to_deduct = min($part_qty_remaining, $part_qty_in_stock);
@@ -57,14 +60,14 @@ if (isset($_POST['mat_req_part'])) {
 
                 $update_stock_sql = "UPDATE tbl_stock 
                                      SET part_qty = part_qty - $quantity_to_deduct
-                                     WHERE part_name = '$part_id' AND exp_date = '$expiration_date'";
+                                     WHERE part_name = '$part_id' AND exp_date = '$expiration_date' AND batch_number = '$batch_number' AND item_code = '$part_item_code'";
 
                 if (!mysqli_query($con, $update_stock_sql)) {
                     echo "Error updating stock: " . mysqli_error($con) . "<br>";
                 }
 
-                $sql = "INSERT INTO `tbl_requested` (dts, part_name, lot_id, part_desc, station_code, part_qty, machine_no, with_reason, req_by, status, cost_center, part_option, exp_date, batch_number) 
-                        VALUES ('$dts', '$part_id', '$lot_id', '$part_desc', '$station_code', '$quantity_to_deduct', '$machine_no', '$with_reason', '$req_by', '$status', '$cost_center', '$part_option', '$expiration_date','$batch_number')";
+                $sql = "INSERT INTO `tbl_requested` (dts, part_name, lot_id, part_desc, station_code, part_qty, machine_no, with_reason, req_by, status, cost_center, part_option, exp_date, batch_number, item_code) 
+                        VALUES ('$dts', '$part_id', '$lot_id', '$part_desc', '$station_code', '$quantity_to_deduct', '$machine_no', '$with_reason', '$req_by', '$status', '$cost_center', '$part_option', '$expiration_date','$batch_number','$part_item_code')";
 
                 if (!mysqli_query($con, $sql)) {
                     echo "Error inserting request: " . mysqli_error($con) . "<br>";

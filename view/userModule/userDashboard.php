@@ -55,7 +55,22 @@ if ($sql_machine_query) {
                 $select_user_query = mysqli_query($con, $select_user);
                 $select_user_row = mysqli_fetch_assoc($select_user_query);
 
-                $query = "SELECT id, part_name FROM tbl_inventory ORDER BY part_name ASC";
+                $query = "SELECT 
+                                ti.id,
+                                ti.part_name,
+                                ts.item_code,
+                                SUM(ts.part_qty) AS total_qty
+                            FROM 
+                                tbl_inventory ti
+                            LEFT JOIN 
+                                tbl_stock ts ON ti.part_name = ts.part_name
+                            GROUP BY 
+                                ti.part_name
+                            HAVING 
+                                total_qty > 0
+                            ORDER BY 
+                                ti.part_name ASC, ts.item_code ASC";
+
                 $result = mysqli_query($con, $query);
 
                 ?>
@@ -85,16 +100,21 @@ if ($sql_machine_query) {
                         <textarea class="form-control" id="part_desc" rows="2" name="part_desc" readonly></textarea>
                     </div>
                     <div class="mb-1">
-                        <label for="part_option" class="form-label">Option</label>
+                        <label for="part_option" class="form-label">Material Type</label>
                         <input type="text" class="form-control" id="part_option" name="part_option" readonly>
                     </div>
                     <div class="mb-1">
-                        <label for="part_qty" class="form-label">ITEM QUANTITY</label>
+                        <label for="part_item_code" class="form-label">Item Code</label>
+                        <select class="form-select" id="part_item_code" name="part_item_code" required>
+                        </select>
+                    </div>
+                    <div class="mb-1">
+                        <label for="part_qty" class="form-label">Item Quantity</label>
                         <input type="number" class="form-control" id="part_qty" name="part_qty" required
                             placeholder="Enter Item Quantity">
                     </div>
                     <div class="mb-1">
-                        <label for="station_code" class="form-label">STATION CODE</label>
+                        <label for="station_code" class="form-label">Station Code</label>
                         <select class="form-select" id="station_code" name="station_code" required>
                             <option value="">Select Station Code</option>
                             <?php
@@ -120,7 +140,7 @@ if ($sql_machine_query) {
                             name="req_by">
                     </div>
                     <div class="mb-1">
-                        <label for="machine_no" class="form-label">MACHINE NUMBER</label>
+                        <label for="machine_no" class="form-label">Machine Number</label>
                         <select class="form-select" id="machine_no" name="machine_no" required>
                             <option value="">Select Machine Number</option>
 
@@ -144,12 +164,12 @@ if ($sql_machine_query) {
                         </select>
                     </div>
                     <div class="mb-1">
-                        <label for="lot_id" class="form-label">LOT ID</label>
+                        <label for="lot_id" class="form-label">Lot ID</label>
                         <input type="text" class="form-control" id="lot_id" name="lot_id" required
                             placeholder="Enter Lot ID" autocomplete="off">
                     </div>
                     <div class="mb-3">
-                        <label for="with_reason" class="form-label">WITHDRAWAL REASON</label>
+                        <label for="with_reason" class="form-label">Withdrawal Reason</label>
                         <select class="form-select" id="with_reason" name="with_reason" required>
                             <option value="">Select Withdrawal Reason</option>
                             <?php
@@ -202,6 +222,8 @@ if ($sql_machine_query) {
                         <th scope="col">Lot ID</th>
                         <th scope="col">Part Number</th>
                         <th scope="col">Item Description</th>
+                        <th scope="col">Item Code</th>
+                        <th scope="col">Batch Number</th>
                         <th scope="col">Qty.</th>
                         <th scope="col">Machine No.</th>
                         <th scope="col">Withdrawal Reason</th>
@@ -212,10 +234,10 @@ if ($sql_machine_query) {
 
                     <?php
                     $userName = $_SESSION['username'];
-                    $sql = "SELECT tr.*, ts.item_code 
+                    $sql = "SELECT tr.*, ts.item_code, ts.part_qty AS total_qty  
                             FROM tbl_requested tr 
                             JOIN tbl_stock ts 
-                            ON tr.part_name = ts.part_name AND tr.exp_date = ts.exp_date AND tr.batch_number = ts.batch_number 
+                            ON tr.part_name = ts.part_name AND tr.exp_date = ts.exp_date AND tr.batch_number = ts.batch_number AND tr.item_code = ts.item_code
                             WHERE tr.req_by = '$userName' AND tr.status = 'Pending'  
                             ORDER BY tr.dts DESC";
                     $sql_query = mysqli_query($con, $sql);
@@ -232,6 +254,7 @@ if ($sql_machine_query) {
                                         data-lot_id="<?php echo $sqlRow['lot_id']; ?>"
                                         data-machine="<?php echo $sqlRow['machine_no']; ?>"
                                         data-withdrawal="<?php echo $sqlRow['with_reason']; ?>"
+                                        data-total_qty="<?php echo $sqlRow['total_qty']; ?>"
                                         data-item_code="<?php echo $sqlRow['item_code']; ?>"
                                         data-batch_number="<?php echo $sqlRow['batch_number']; ?>">
                                 </td>
@@ -239,6 +262,8 @@ if ($sql_machine_query) {
                                 <td data-label="Lot Id"><?php echo $sqlRow['lot_id'] ?></td>
                                 <td data-label="Part Name"><?php echo $sqlRow['part_name'] ?></td>
                                 <td data-label="Part Desc"><?php echo $sqlRow['part_desc'] ?></td>
+                                <td data-label="Item Code"><?php echo $sqlRow['item_code'] ?></td>
+                                <td data-label="Batch Number"><?php echo $sqlRow['batch_number'] ?></td>
                                 <td data-label="Quantity"><?php echo $sqlRow['part_qty'] ?></td>
                                 <td data-label="Machine No"><?php echo $sqlRow['machine_no'] ?></td>
                                 <td data-label="Reason"><?php echo $sqlRow['with_reason'] ?></td>
@@ -279,6 +304,8 @@ if ($sql_machine_query) {
                                     <th>Date / Time / Shift</th>
                                     <th>Lot ID</th>
                                     <th>Part Number</th>
+                                    <th>Item Code</th>
+                                    <th>Batch Number</th>
                                     <th>Part Quantity</th>
                                     <th>Machine Number</th>
                                     <th>Withdrawal Reason</th>
@@ -344,7 +371,6 @@ if ($sql_machine_query) {
 
             if (partId) {
                 var partName = $(this).find('option:selected').data('part_name');
-
                 $('#part_name').val(partName);
 
                 $.ajax({
@@ -353,8 +379,10 @@ if ($sql_machine_query) {
                     data: { part_id: partId },
                     dataType: 'json',
                     success: function (data) {
+                        $('#itemDetails').show();
+
                         if (data.part_desc) {
-                            $('#itemDetails').show();
+
                             $('#part_desc').val(data.part_desc);
                         } else {
                             $('#part_desc').val('No description available');
@@ -364,6 +392,16 @@ if ($sql_machine_query) {
                             $('#part_option').val(data.part_option);
                         } else {
                             $('#part_option').val('No option available');
+                        }
+
+                        if (data.item_codes && data.item_codes.length > 0) {
+                            $('#part_item_code').empty();
+                            $('#part_item_code').append('<option value="">Select Item Code</option>');
+                            data.item_codes.forEach(function (code) {
+                                $('#part_item_code').append('<option value="' + code + '">' + code + '</option>');
+                            });
+                        } else {
+                            $('#part_item_code').empty().append('<option value="">No item codes available</option>');
                         }
                     },
                     error: function (xhr, status, error) {
@@ -375,6 +413,7 @@ if ($sql_machine_query) {
                 $('#part_desc').val('');
                 $('#part_option').val('');
                 $('#part_name').val('');
+                $('#part_item_code').empty().append('<option value="">Select Item Code</option>');
             }
         });
 
@@ -408,6 +447,7 @@ if ($sql_machine_query) {
                 let machine = $(this).data("machine");
                 let withdrawal = $(this).data("withdrawal");
                 let dts = $(this).data("dts");
+                let total_qty = $(this).data("total_qty");
                 let withdraw_options = '<?php echo $withdraw_option; ?>';
                 let machine_options = '<?php echo $machine_option; ?>';
                 let batch_number = $(this).data("batch_number");
@@ -418,7 +458,9 @@ if ($sql_machine_query) {
                 <td>${dts}</td>
                 <td>${lot_id}</td>
                 <td>${partName}</td>
-                <td><input type="number" name="quantities[]" value="${qty}" class="form-control" min="1" required></td>
+                <td>${item_code}</td>
+                <td>${batch_number}</td>
+                <td><input type="number" name="quantities[]" value="${qty}" class="form-control" min="1" max="${total_qty + qty}" step="1" required></td>
                 <td>                    
                     <select class="form-select" name="machines[]" required>
                         <option value="">Select Machine</option>
