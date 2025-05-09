@@ -62,8 +62,7 @@ include "navBar.php";
                                     HAVING 
                                         total_qty > 0
                                     ORDER BY 
-                                        ti.part_name ASC, ts.item_code ASC";
-
+                                        REGEXP_REPLACE(ti.part_name, '[0-9]+$', ''), CAST(REGEXP_SUBSTR(ti.part_name, '[0-9]+$') AS UNSIGNED)";
 
                         $result = mysqli_query($con, $query);
                         ?>

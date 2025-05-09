@@ -68,8 +68,8 @@ if ($sql_machine_query) {
                                 ti.part_name
                             HAVING 
                                 total_qty > 0
-                            ORDER BY 
-                                ti.part_name ASC, ts.item_code ASC";
+                           ORDER BY 
+                                REGEXP_REPLACE(ti.part_name, '[0-9]+$', ''), CAST(REGEXP_SUBSTR(ti.part_name, '[0-9]+$') AS UNSIGNED)";
 
                 $result = mysqli_query($con, $query);
 
@@ -245,7 +245,7 @@ if ($sql_machine_query) {
                     if (mysqli_num_rows($sql_query) > 0) {
                         while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
                             ?>
-                            <tr class="text-center">
+                            <tr class="text-center" style="vertical-align: middle;">
                                 <td>
                                     <input type="checkbox" class="select-row" data-id="<?php echo $sqlRow['id']; ?>"
                                         data-qty="<?php echo $sqlRow['part_qty']; ?>" data-dts="<?php echo $sqlRow['dts']; ?>"

@@ -1831,7 +1831,6 @@ ob_end_flush();
             });
         });
 
-
         let costCounter = 0;
 
         // Account Registration Button

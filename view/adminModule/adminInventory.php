@@ -78,7 +78,7 @@ include "navBar.php";
             </table>
 
             <!-- Add the spinner inside the button or separately (but typically it's inside the button) -->
-            <button id="load-more-btn" class="btn btn-primary">
+            <button id="load-more-btn" class="btn btn-outline-primary mb-3">
                 <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
                     style="display: none;"></span>
                 Load More
@@ -281,12 +281,199 @@ include "navBar.php";
 </body>
 
 <script>
+    const LIMIT = 20;
+    let currentPage = 0;
+    let isLoading = false;
+    let loadedKeys = new Set(); // ✅ Track loaded rows
+    let searchTerm = ''; // ✅ Track the search term
+
+    // Automatically load the first page when the page loads
+    $(document).ready(function () {
+        loadPage(currentPage); // Load the first page on page load
+
+        // Listen for search input changes
+        $('#search_inventory').on('input', function () {
+            searchTerm = $(this).val().toLowerCase();
+            filterTableRows();
+        });
+    });
+
+    function loadPage(page) {
+        if (isLoading) return;
+        isLoading = true;
+
+        // Show spinner while loading
+        $('#spinner').show();
+        $('#load-more-btn').prop('disabled', true); // Disable Load More button
+
+        $.get(`../../controller/check_inventory.php?page=${page}&limit=${LIMIT}`, function (data) {
+            updateTable(data, false);
+            isLoading = false;
+
+            // Hide spinner once data is loaded
+            $('#spinner').hide();
+            $('#load-more-btn').prop('disabled', false); // Enable Load More button
+        });
+    }
+
+    function updateTable(data, isLiveUpdate = false) {
+        let checkedItems = {};
+
+        // Track checked checkboxes by part name
+        $('#data-table-inventory input[type="checkbox"]:checked').each(function () {
+            const partName = $(this).closest('tr').find('td[data-label="Part Name"]').text().trim();
+            checkedItems[partName] = true;
+        });
+
+        // Only clear if it's a manual load (not live update) and on first page
+        if (!isLiveUpdate && currentPage === 0) {
+            $('#data-table-inventory').empty();
+            loadedKeys.clear(); // ✅ Clear tracked keys only when reloading manually
+        }
+
+        if (data.length === 0) {
+            if (!isLiveUpdate && currentPage === 0) {
+                $('#data-table-inventory').html(`
+                <tr>
+                    <td colspan="7" class="text-center text-muted">No materials found.</td>
+                </tr>
+            `);
+            }
+            $('#load-more-btn').hide();
+            return;
+        }
+
+        const seen = new Set();
+        const uniqueData = [];
+
+        // De-duplicate by part_name + item_code
+        for (const item of data) {
+            const key = `${item.part_name}__${item.item_code || ''}`;
+            if (!seen.has(key)) {
+                seen.add(key);
+                uniqueData.push(item);
+            }
+        }
+
+        $.each(uniqueData, function (index, item) {
+            const key = `${item.part_name}__${item.item_code || ''}`;
+            const existingRow = $(`#data-table-inventory tr[data-key="${key}"]`);
+
+            // ✅ During live update, only update existing rows, don't add new ones
+            if (isLiveUpdate && !loadedKeys.has(key)) {
+                return;
+            }
+
+            // ✅ If not a live update, mark this key as loaded
+            if (!isLiveUpdate) {
+                loadedKeys.add(key);
+            }
+
+            const totalPartQty = parseFloat(item.total_part_qty);
+            const minInventReq = parseFloat(item.min_invent_req);
+            let rowClass = '';
+
+            if (totalPartQty === 0) {
+                rowClass = 'text-danger fw-bold';
+            } else if (minInventReq > 0 && totalPartQty < minInventReq) {
+                rowClass = 'text-orange-dark';
+            }
+
+            const isChecked = checkedItems[item.part_name] ? 'checked' : '';
+
+            const row = `
+            <tr class="table-row text-center" style="vertical-align: middle;" data-key="${key}">
+                <td data-label="Action">
+                    <input type="checkbox" class="select-row" data-id="${item.id}"
+                        data-part_name="${item.part_name}"
+                        data-part_desc="${item.part_desc}"
+                        data-part_category="${item.part_category}"
+                        data-cost_center="${item.cost_center}"
+                        data-part_option="${item.part_option}" 
+                        data-location="${item.location}"
+                        data-min_invent_req="${item.min_invent_req}" 
+                        data-unit="${item.unit}"
+                        data-approver="${item.approver}"
+                        ${isChecked}>
+                </td>
+                <td data-label="Part Name" class="${rowClass}">${item.part_name}</td>
+                <td data-label="Part Desc" class="${rowClass}">${item.part_desc}</td>
+                <td data-label="Item Code" class="${rowClass}">${item.item_code || ''}</td>
+                <td data-label="Min Invent Req" class="${rowClass}">${item.min_invent_req} ${item.unit}(s)</td>
+                <td data-label="Exp Date" class="${rowClass}">${item.least_exp_date}</td>
+                <td data-label="Part Qty" class="${rowClass}">${item.total_part_qty} ${item.unit}(s)</td>
+            </tr>
+        `;
+
+            if (existingRow.length > 0) {
+                if (isLiveUpdate) {
+                    existingRow.replaceWith(row); // Replace only if it's a live update
+                }
+            } else {
+                $('#data-table-inventory').append(row); // Add row only during manual load
+            }
+        });
+
+        // ✅ Handle Load More button only during manual loads
+        if (!isLiveUpdate) {
+            if (uniqueData.length < LIMIT) {
+                $('#load-more-btn').hide();
+            } else {
+                $('#load-more-btn').show();
+                currentPage++; // Advance page only during manual loads
+            }
+        }
+
+        // ✅ After table update, apply the filter if search term is present
+        filterTableRows();
+    }
+
+    function filterTableRows() {
+        $('#data-table-inventory tr').each(function () {
+            const partName = $(this).find('td').eq(1).text().toLowerCase(); // Only 2nd <td>
+            if (partName.indexOf(searchTerm) === -1) {
+                $(this).hide();
+            } else {
+                $(this).show();
+            }
+        });
+    }
+
+
+    // Load more button click handler
+    $('#load-more-btn').on('click', function () {
+        loadPage(currentPage);
+    });
+
+    // SSE for live updates
+    if (!!window.EventSource) {
+        const source = new EventSource('../../controller/check_inventory.php');
+
+        source.onopen = function () {
+            // Connected
+        };
+
+        source.onmessage = function (event) {
+            try {
+                const data = JSON.parse(event.data);
+                updateTable(data, true);
+            } catch (err) {
+                console.error("❌ Failed to parse SSE data:", event.data, err);
+            }
+        };
+    } else {
+        console.warn("❌ SSE not supported by this browser.");
+    }
+
 
     $(document).ready(function () {
 
         $('#select-all').on('change', function () {
-            $('.select-row').prop('checked', $(this).prop('checked'));
+            const isChecked = $(this).prop('checked');
+
+            $('#data-table-inventory tr:visible .select-row').prop('checked', isChecked);
         });
+
 
         var today = new Date().toISOString().split('T')[0];
         $('#exp_date').attr('min', today);
@@ -365,114 +552,17 @@ include "navBar.php";
         });
 
         // Search Inventory
+        let debounceTimeout;
+        let searchTerm = '';
+
         $('#search_inventory').on('input', function () {
-            var searchTerm = $(this).val().toLowerCase();
-            $('#data-table-inventory tr').each(function () {
-                var rowText = $(this).text().toLowerCase();
-                if (rowText.indexOf(searchTerm) === -1) {
-                    $(this).hide();
-                } else {
-                    $(this).show();
-                }
-            });
+            clearTimeout(debounceTimeout);
+            debounceTimeout = setTimeout(function () {
+                searchTerm = $('#search_inventory').val().toLowerCase();
+                filterTableRows(); // Call the updated function
+            }, 300);
         });
 
-        // Live Table
-        const LIMIT = 20;
-        let currentPage = 0;
-        let isLoading = false;
-
-        function updateTable(data) {
-            let checkedItems = {};
-            $('#data-table-inventory input[type="checkbox"]:checked').each(function () {
-                const partName = $(this).closest('tr').find('td[data-label="Part Name"]').text().trim();
-                checkedItems[partName] = true;
-            });
-
-            if (data.length === 0 && currentPage === 0) {
-                const noDataRow = `
-            <tr>
-                <td colspan="7" class="text-center text-muted">No materials found.</td>
-            </tr>
-        `;
-                $('#data-table-inventory').html(noDataRow);
-                $('#load-more-btn').hide();
-                return;
-            }
-
-            if (data.length === 0) {
-                $('#load-more-btn').hide();
-                return;
-            }
-
-            $.each(data, function (index, item) {
-                let rowClass = '';
-                const totalPartQty = parseFloat(item.total_part_qty);
-                const minInventReq = parseFloat(item.min_invent_req);
-
-                if (totalPartQty === 0) {
-                    rowClass = 'text-danger fw-bold';
-                } else if (minInventReq > 0 && totalPartQty < minInventReq) {
-                    rowClass = 'text-orange-dark';
-                }
-
-                const isChecked = checkedItems[item.part_name] ? 'checked' : '';
-
-                const row = `
-            <tr class="table-row text-center" style="vertical-align: middle;">
-                <td data-label="Action">
-                    <input type="checkbox" class="select-row" data-id="${item.id}"
-                        data-part_name="${item.part_name}"
-                        data-part_desc="${item.part_desc}"
-                        data-part_category="${item.part_category}"
-                        data-cost_center="${item.cost_center}"
-                        data-part_option="${item.part_option}" 
-                        data-location="${item.location}"
-                        data-min_invent_req="${item.min_invent_req}" 
-                        data-unit="${item.unit}"
-                        data-approver="${item.approver}"
-                    ${isChecked}>
-                </td>
-                <td data-label="Part Name" class="${rowClass}">${item.part_name}</td>
-                <td data-label="Part Desc" class="${rowClass}">${item.part_desc}</td>
-                <td data-label="Item Code" class="${rowClass}">${item.item_code ? item.item_code : ''}</td>
-                <td data-label="Min Invent Req" class="${rowClass}">${item.min_invent_req} ${item.unit}(s)</td>
-                <td data-label="Exp Date" class="${rowClass}">${item.least_exp_date}</td>
-                <td data-label="Part Qty" class="${rowClass}">${item.total_part_qty} ${item.unit}(s)</td>
-            </tr>
-        `;
-
-                $('#data-table-inventory').append(row);
-            });
-
-            currentPage++;
-
-            // Hide Load More if fewer than LIMIT results
-            if (data.length < LIMIT) {
-                $('#load-more-btn').hide();
-            } else {
-                $('#load-more-btn').show();
-            }
-        }
-
-        $(document).ready(function () {
-            $('#load-more-btn').trigger('click'); // Auto-load on first visit
-        });
-
-        $('#load-more-btn').on('click', function () {
-            if (isLoading) return;
-
-            isLoading = true;
-            $('#spinner').show();
-            $(this).prop('disabled', true);
-
-            $.get(`../../controller/check_inventory.php?page=${currentPage}`, function (data) {
-                updateTable(data);
-                isLoading = false;
-                $('#spinner').hide();
-                $('#load-more-btn').prop('disabled', false);
-            });
-        });
 
         // Upload Excel Files
         $('#uploadBox').on('click', function () {
@@ -726,7 +816,7 @@ include "navBar.php";
                     <select class="form-select partSelect" name="addPartNumber" data-row-id="${rowId}" required>
                         <option value="">Part Number</option> 
                         <?php
-                        $select_ccid = "SELECT id, part_name FROM tbl_inventory";
+                        $select_ccid = "SELECT id, part_name FROM tbl_inventory ORDER BY REGEXP_REPLACE(part_name, '[0-9]+$', ''), CAST(REGEXP_SUBSTR(part_name, '[0-9]+$') AS UNSIGNED)";
                         $select_ccid_query = mysqli_query($con, $select_ccid);
                         if (mysqli_num_rows($select_ccid_query) > 0) {
                             while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {

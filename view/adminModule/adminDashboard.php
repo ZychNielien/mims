@@ -122,7 +122,9 @@ include "navBar.php";
         <div class="text-center">
             <label for="endDate" class="m-0">Part Number:</label>
             <?php
-            $query = "SELECT id, part_name FROM tbl_inventory ORDER BY part_name ASC";
+            $query = "SELECT id, part_name 
+                    FROM tbl_inventory 
+                    ORDER BY REGEXP_REPLACE(part_name, '[0-9]+$', ''), CAST(REGEXP_SUBSTR(part_name, '[0-9]+$') AS UNSIGNED)";
             $result = mysqli_query($con, $query);
             ?>
             <select class="form-select" id="mat_partSelect">
