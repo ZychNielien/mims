@@ -23,7 +23,7 @@ ob_end_flush();
 
 <head>
 
-    <title>Acoount Registration</title>
+    <title>Acount Registration</title>
     <link rel="stylesheet" href="../../public/css/table.css">
     <link rel="stylesheet" href="../../public/css/sweetalert.min.css">
     <script src="../../public/js/sweetalert2@11.js"></script>
