@@ -45,7 +45,7 @@ if (isset($_POST['stock_data'])) {
                 exit;
             }
 
-            $sql_received = "INSERT INTO `tbl_history` (dts, part_desc, part_name, part_qty, exp_date, kitting_id, lot_id, updated_by, status, batch_number) 
+            $sql_received = "INSERT INTO `tbl_history` (dts, part_desc, part_name, part_qty, exp_date, kitting_id, lot_id, updated_by, status, batch_number, item_code) 
                              VALUES ('$dts', '$part_desc', '$part_name', '$part_qty', '$exp_date', '$kitting_id', '$lot_id', '$username', 'Received' , '$batch_number')";
 
             if (!mysqli_query($con, $sql_received)) {
@@ -75,8 +75,8 @@ if (isset($_POST['stock_data'])) {
                 exit;
             }
 
-            $sql_received = "INSERT INTO `tbl_history` (dts, part_desc, part_name, part_qty, exp_date, kitting_id, lot_id, updated_by, status) 
-                             VALUES ('$dts', '$part_desc', '$part_name', '$part_qty', '$exp_date', '$kitting_id', '$lot_id', '$username', 'Received')";
+            $sql_received = "INSERT INTO `tbl_history` (dts, part_desc, part_name, part_qty, exp_date, kitting_id, lot_id, updated_by, status, batch_number,item_code) 
+                             VALUES ('$dts', '$part_desc', '$part_name', '$part_qty', '$exp_date', '$kitting_id', '$lot_id', '$username', 'Received', '$batch_number', '$item_code')";
 
             if (!mysqli_query($con, $sql_received)) {
                 echo json_encode(['error' => 'Error in INSERT history query: ' . mysqli_error($con)]);

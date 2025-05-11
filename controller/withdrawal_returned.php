@@ -7,82 +7,58 @@ $userName = $_SESSION['username'];
 $startDate = isset($_GET['start_date']) ? $_GET['start_date'] : '';
 $endDate = isset($_GET['end_date']) ? $_GET['end_date'] : '';
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-$itemsPerPage = 100;
-
-$countSql = "SELECT COUNT(*) as total FROM tbl_requested WHERE req_by = '$userName' AND status = 'returned'";
-
-if ($startDate && $endDate) {
-    $startDateTime = $startDate . ' 00:00:00';
-    $endDateTime = $endDate . ' 23:59:59';
-    $countSql .= " AND dts_return BETWEEN '$startDateTime' AND '$endDateTime'";
-}
-
-$countResult = mysqli_query($con, $countSql);
-$totalRows = mysqli_fetch_assoc($countResult)['total'];
-$totalPages = ceil($totalRows / $itemsPerPage);
-
+$itemsPerPage = 50;
 $offset = ($page - 1) * $itemsPerPage;
 
 $sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'returned'";
 
+
 if ($startDate && $endDate) {
+    $startDateTime = $startDate . ' 00:00:00';
+    $endDateTime = $endDate . ' 23:59:59';
     $sql .= " AND dts_return BETWEEN '$startDateTime' AND '$endDateTime'";
 }
 
+$sql .= " ORDER BY dts_return DESC LIMIT " . ($itemsPerPage + 1) . " OFFSET $offset";
 
-$sql .= " ORDER BY dts_return DESC LIMIT $itemsPerPage OFFSET $offset";
-
-$sql_query = mysqli_query($con, $sql);
+$result = mysqli_query($con, $sql);
 
 $tableRows = '';
+$count = 0;
+$hasMore = false;
 
-if (mysqli_num_rows($sql_query) > 0) {
-
-    while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
-        $tableRows .= "<tr class='table-row text-center'>
-                <td data-label='Date / Time / Shift'>{$sqlRow['dts_return']}</td>
-                <td data-label='Lot Id'>{$sqlRow['lot_id']}</td>
-                <td data-label='Part Name'>{$sqlRow['part_name']}</td>
-                <td data-label='Part Name'>{$sqlRow['item_code']}</td>
-                <td data-label='Batch Number'>{$sqlRow['batch_number']}</td>
-                <td data-label='Approved Qty'>{$sqlRow['approved_qty']}</td>
-                <td data-label='Machine Number'>{$sqlRow['machine_no']}</td>
-                <td data-label='Qithdrawal Reason'>{$sqlRow['with_reason']}</td>
-                <td data-label='Return Qty'>{$sqlRow['return_qty']}</td>
-                <td data-label='Return Type'>{$sqlRow['return_purpose']}</td>
-                <td data-label='Return Reason'>{$sqlRow['return_reason']}</td>
-                <td data-label='Receieved By'>{$sqlRow['received_by']}</td>
-              </tr>";
+while ($sqlRow = mysqli_fetch_assoc($result)) {
+    $count++;
+    if ($count > $itemsPerPage) {
+        $hasMore = true;
+        break;
     }
-} else {
+
+    $tableRows .= "
+        <tr class='table-row text-center'>
+            <td data-label='Date / Time / Shift'>{$sqlRow['dts_return']}</td>
+            <td data-label='Lot Id'>{$sqlRow['lot_id']}</td>
+            <td data-label='Part Name'>{$sqlRow['part_name']}</td>
+            <td data-label='Part Name'>{$sqlRow['item_code']}</td>
+            <td data-label='Batch Number'>{$sqlRow['batch_number']}</td>
+            <td data-label='Approved Qty'>{$sqlRow['approved_qty']}</td>
+            <td data-label='Machine Number'>{$sqlRow['machine_no']}</td>
+            <td data-label='Qithdrawal Reason'>{$sqlRow['with_reason']}</td>
+            <td data-label='Return Qty'>{$sqlRow['return_qty']}</td>
+            <td data-label='Return Type'>{$sqlRow['return_purpose']}</td>
+            <td data-label='Return Reason'>{$sqlRow['return_reason']}</td>
+            <td data-label='Receieved By'>{$sqlRow['received_by']}</td>
+        </tr>
+    ";
+}
+
+if ($count === 0) {
     $tableRows = "<tr><td colspan='12' class='text-center'>No returned request found</td></tr>";
 }
 
-$pagination = '';
-if ($totalPages > 1) {
-    $pagination .= '<ul class="pagination justify-content-center">';
-
-    if ($page > 1) {
-        $pagination .= '<li class="page-item"><a class="page-link page-link-return" href="?page=' . ($page - 1) . '&start_date=' . $startDate . '&end_date=' . $endDate . '">&laquo; Prev</a></li>';
-    }
-
-    for ($i = 1; $i <= $totalPages; $i++) {
-        $pagination .= '<li class="page-item' . ($i == $page ? ' active' : '') . '"><a class="page-link page-link-return" href="?page=' . $i . '&start_date=' . $startDate . '&end_date=' . $endDate . '">' . $i . '</a></li>';
-    }
-
-    if ($page < $totalPages) {
-        $pagination .= '<li class="page-item"><a class="page-link page-link-return" href="?page=' . ($page + 1) . '&start_date=' . $startDate . '&end_date=' . $endDate . '">Next &raquo;</a></li>';
-    }
-
-    $pagination .= '</ul>';
-}
-
-$response = [
+echo json_encode([
     'table' => $tableRows,
-    'pagination' => $pagination,
-    'total_pages' => $totalPages
-];
-
-echo json_encode($response);
+    'has_more' => $hasMore
+]);
 
 ?>

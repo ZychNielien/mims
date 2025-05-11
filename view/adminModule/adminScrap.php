@@ -126,8 +126,20 @@ include "navBar.php";
             <div class="tab-pane fade" id="nav-returned" role="tabpanel" aria-labelledby="nav-returned-tab">
 
                 <div class="mx-3 my-4">
+                    <div class="d-flex flex-wrap justify-content-evenly align-items-end text-center mb-2">
+                        <div>
+                            <label for="start-date" class="me-2 fw-bold">Start Date:</label>
+                            <input type="date" class="form-control" id="start-date" />
+                        </div>
+                        <div>
+                            <label for="end-date" class="me-2 fw-bold">End Date:</label>
+                            <input type="date" class="form-control" id="end-date" />
+                        </div>
+                        <div>
+                            <button id="export-btn-return" class="btn btn-success">Export to Excel</button>
 
-                    <button id="export-btn-return" class="btn btn-success mb-2">Export to Excel</button>
+                        </div>
+                    </div>
 
                     <table class="table table-striped w-100" id="data-table-return">
 
@@ -187,6 +199,9 @@ include "navBar.php";
                                 <?php
                             }
                             ?>
+                            <tr class="no-results text-center" style="display: none;">
+                                <td colspan="13">No results founds</td>
+                            </tr>
                         </tbody>
 
                     </table>
@@ -200,7 +215,20 @@ include "navBar.php";
 
                 <div class="mx-3 my-4">
 
-                    <button id="export-btn-scrap" class="btn btn-success mb-2">Export to Excel</button>
+                    <div class="d-flex flex-wrap justify-content-evenly align-items-end text-center mb-2">
+                        <div>
+                            <label for="start-date-scrap" class="me-2 fw-bold">Start Date:</label>
+                            <input type="date" class="form-control" id="start-date-scrap" />
+                        </div>
+                        <div>
+                            <label for="end-date-scrap" class="me-2 fw-bold">End Date:</label>
+                            <input type="date" class="form-control" id="end-date-scrap" />
+                        </div>
+                        <div>
+                            <button id="export-btn-scrap" class="btn btn-success">Export to Excel</button>
+                        </div>
+                    </div>
+
 
                     <table class="table table-striped w-100" id="data-table-scrap">
 
@@ -260,6 +288,9 @@ include "navBar.php";
                                 <?php
                             }
                             ?>
+                            <tr class="no-results text-center" style="display: none;">
+                                <td colspan="13">No results founds</td>
+                            </tr>
                         </tbody>
 
                     </table>
@@ -443,6 +474,38 @@ include "navBar.php";
 
             var wb = XLSX.utils.table_to_book(table[0], { sheet: "Scrap Data" });
             XLSX.writeFile(wb, "scrap_materials.xlsx");
+        });
+
+        function filterRows(tableSelector, startDateSelector, endDateSelector) {
+            var startDate = $(startDateSelector).val();
+            var endDate = $(endDateSelector).val();
+            var hasVisible = false;
+
+            $(tableSelector + ' tbody tr').not('.no-results').each(function () {
+                var rowDateText = $(this).find('td').eq(0).text().trim();
+                var rowDate = rowDateText.split(' ')[0];
+
+                var showRow = true;
+                if (startDate && rowDate < startDate) showRow = false;
+                if (endDate && rowDate > endDate) showRow = false;
+
+                $(this).toggle(showRow);
+                if (showRow) hasVisible = true;
+            });
+
+            if (!hasVisible) {
+                $(tableSelector + ' tbody .no-results').show();
+            } else {
+                $(tableSelector + ' tbody .no-results').hide();
+            }
+        }
+
+        $('#start-date, #end-date').on('input', function () {
+            filterRows('#data-table-return', '#start-date', '#end-date');
+        });
+
+        $('#start-date-scrap, #end-date-scrap').on('input', function () {
+            filterRows('#data-table-scrap', '#start-date-scrap', '#end-date-scrap');
         });
 
     });

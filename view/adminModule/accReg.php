@@ -76,21 +76,12 @@ ob_end_flush();
             <div class="tab-pane fade" id="approval-tab-pane" role="tabpanel" aria-labelledby="approval-tab">
 
                 <div class="d-flex justify-content-evenly  align-items-center w-100 p-3">
-
-
                     <input type="text" id="search" class="form-control w-25 me-2" placeholder="Search here"
                         autocomplete="off" />
-
-
                     <button class="btn btn-success w-auto " id="approve_acc-btn">Approve Accounts</button>
-
                     <button class="btn btn-danger w-auto" id="reject_acc-btn">Reject Accounts</button>
-
-
-
                 </div>
 
-                <!-- Approval Table -->
                 <table class="table table-striped w-100">
 
                     <thead>
@@ -151,9 +142,11 @@ ob_end_flush();
                             <?php
                         }
                         ?>
+                        <tr class="no-results text-center" style="display: none;">
+                            <td colspan="8">No results found.</td>
+                        </tr>
                     </tbody>
                 </table>
-
 
             </div>
 
@@ -223,6 +216,9 @@ ob_end_flush();
                             <?php
                         }
                         ?>
+                        <tr class="no-results text-center" style="display: none;">
+                            <td colspan="8">No results found.</td>
+                        </tr>
                     </tbody>
 
                 </table>
@@ -242,6 +238,18 @@ ob_end_flush();
                     <button class="btn btn-primary w-auto" id="update_acc-btn">Update Accounts</button>
                     <button class="btn btn-danger w-auto" id="delete_acc-btn">Delete Accounts</button>
                 </div>
+                <?php
+                $userName = $_SESSION['username'];
+                $limit = 50;
+                $offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
+                $sql = "SELECT *
+                               FROM tbl_users WHERE usertype = '2' LIMIT $limit OFFSET $offset";
+                $sql_query = mysqli_query($con, $sql);
+
+                $total_query = mysqli_query($con, "SELECT COUNT(*) AS total FROM tbl_users WHERE usertype = '2'");
+                $total_row = mysqli_fetch_assoc($total_query);
+                $total_records = $total_row['total'];
+                ?>
 
                 <table class="table table-striped w-100">
                     <thead>
@@ -258,10 +266,7 @@ ob_end_flush();
                     </thead>
                     <tbody id="data-table-account">
                         <?php
-                        $userName = $_SESSION['username'];
-                        $sql = "SELECT *
-                                FROM tbl_users WHERE usertype = '2'";
-                        $sql_query = mysqli_query($con, $sql);
+
 
                         if (mysqli_num_rows($sql_query) > 0) {
                             while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
@@ -296,13 +301,21 @@ ob_end_flush();
                         } else {
                             ?>
                             <tr>
-                                <td colspan="7" class="text-center">No users found</td>
+                                <td colspan="8" class="text-center">No users found</td>
                             </tr>
                             <?php
                         }
                         ?>
+                        <tr class="no-results text-center" style="display: none;">
+                            <td colspan="8">No results found.</td>
+                        </tr>
                     </tbody>
                 </table>
+
+                <div id="loading-msg" class="text-center text-muted mt-3" style="display: none;">
+                    Loading more records...
+                </div>
+
             </div>
 
             <!-- COST CENTER TAB -->
@@ -378,6 +391,9 @@ ob_end_flush();
                             }
                         }
                         ?>
+                        <tr class="no-results text-center" style="display: none;">
+                            <td colspan="9">No results found.</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -726,14 +742,16 @@ ob_end_flush();
                             <label for="forgot_pass_one" class="form-label">New Password</label>
                             <input type="password" class="form-control" id="forgot_pass_one" name="new_pass"
                                 placeholder="Enter new password" required>
-                            <i class="bi bi-eye-slash" id="toggle-new-password"
+                            <i class="bi bi-eye-slash" id="toggle-new-password" data-toggle="password"
+                                data-target="#forgot_pass_one"
                                 style="position: absolute; right: 30px; top: 55px; cursor: pointer; background-color: white;"></i>
                         </div>
                         <div class="mb-3">
                             <label for="forgot_pass_two" class="form-label">Re-enter Password</label>
                             <input type="password" class="form-control" id="forgot_pass_two" name="con_pass"
                                 placeholder="Re-enter password" required>
-                            <i class="bi bi-eye-slash" id="toggle-con-password"
+                            <i class="bi bi-eye-slash" id="toggle-con-password" data-toggle="password"
+                                data-target="#forgot_pass_two"
                                 style="position: absolute; right: 30px; top: 140px; cursor: pointer;  background-color: white;"></i>
                         </div>
 
@@ -760,147 +778,145 @@ ob_end_flush();
         $(`#${activeTab}-tab`).addClass('active');
         $(`#${activeTab}-tab-pane`).addClass('show active');
 
-        // Search Input for Approval Tab
-        $('#search').on('input', function () {
-            var searchTerm = $(this).val().toLowerCase();
-            $('#data-table tr').each(function () {
-                var rowText = $(this).text().toLowerCase();
-                if (rowText.indexOf(searchTerm) === -1) {
-                    $(this).hide();
-                } else {
-                    $(this).show();
-                }
-            });
-        });
+        let offset = <?php echo $offset; ?>;
+        let limit = <?php echo $limit; ?>;
+        let totalRecords = <?php echo $total_records; ?>;
+        let isLoading = false;
+        let noMoreData = false;
 
-        // Select all for Approval Tab
-        $('#select-all').on('change', function () {
-            $('.select-row').prop('checked', $(this).prop('checked'));
-        });
+        $(window).scroll(function () {
+            if (noMoreData || isLoading) return;
 
-        // Select all for Accounts Tab
-        $('#select-all-account').on('change', function () {
-            $('.select-acc').prop('checked', $(this).prop('checked'));
-        });
+            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                if (offset + limit < totalRecords) {
+                    isLoading = true;
+                    $('#loading-msg').show();
+                    offset += limit;
 
-        // Select all for Cost Center Tab
-        $('#select-all-cost').on('change', function () {
-            $('.select-cost').prop('checked', $(this).prop('checked'));
-        });
+                    $.ajax({
+                        url: '<?php echo $_SERVER['PHP_SELF']; ?>',
+                        type: 'GET',
+                        data: { offset: offset },
+                        success: function (response) {
+                            let newRows = $(response).find('#data-table-account').children();
 
-        // Search Input for Change Pass Tab
-        $('#search_pass').on('input', function () {
-            var searchTerm = $(this).val().toLowerCase();
-            $('#data-table-pass tr').each(function () {
-                var rowText = $(this).text().toLowerCase();
-                if (rowText.indexOf(searchTerm) === -1) {
-                    $(this).hide();
-                } else {
-                    $(this).show();
-                }
-            });
-        });
+                            if (newRows.length === 0 || newRows.text().includes('No items found')) {
+                                noMoreData = true;
+                            } else {
+                                $('#data-table-account').append(newRows);
+                            }
 
-        // Search Input for Account Tab
-        $('#search_account').on('input', function () {
-            var searchTerm = $(this).val().toLowerCase();
-            $('#data-table-account tr').each(function () {
-                var secondTdText = $(this).find('td:eq(1)').text().toLowerCase();
-                if (secondTdText.indexOf(searchTerm) === -1) {
-                    $(this).hide();
-                } else {
-                    $(this).show();
-                }
-            });
-        });
-
-        // Search Input for Cost Center Tab
-        $('#search_cost').on('input', function () {
-            var searchTerm = $(this).val().toLowerCase();
-            $('#data-table-cost tr').each(function () {
-                var rowText = $(this).text().toLowerCase();
-                if (rowText.indexOf(searchTerm) === -1) {
-                    $(this).hide();
-                } else {
-                    $(this).show();
-                }
-            });
-        });
-
-        // Cost Center Automatic Supervisor Show
-        $(document).on('change', '#create_cost_center', function () {
-
-            var costCenterId = $('#create_cost_center option:selected').data('id');
-
-            if (costCenterId) {
-                $.ajax({
-                    url: '../../controller/fetch_supervisors.php',
-                    method: 'GET',
-                    data: { cost_center_id: costCenterId },
-                    dataType: 'json',
-                    success: function (response) {
-                        if (response.supervisor_one) {
-                            $('#create_supervisor_one').val(response.supervisor_one);
-                        } else {
-                            $('#create_supervisor_one').val('');
+                            $('#loading-msg').hide();
+                            isLoading = false;
                         }
+                    });
+                } else {
+                    noMoreData = true;
+                }
+            }
+        });
 
-                        if (response.supervisor_two) {
-                            $('#create_supervisor_two').val(response.supervisor_two);
-                        } else {
-                            $('#create_supervisor_two').val('');
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.log('AJAX Error: ' + status + ' - ' + error);
+        // Checkbox Input Function
+        function bindSelectAll(masterSelector, targetClass) {
+            $(masterSelector).on('change', function () {
+                const isChecked = $(this).prop('checked');
+                $(targetClass + ':visible').prop('checked', isChecked);
+            });
+        }
+
+        // Checkbox Input Function for Account Approval
+        bindSelectAll('#select-all', '.select-row');
+
+        // Checkbox Input Function for Accounts
+        bindSelectAll('#select-all-account', '.select-acc');
+
+        // Checkbox Input Function for Cost Center
+        bindSelectAll('#select-all-cost', '.select-cost');
+
+        // Search Input Function
+        function bindSearch(inputSelector, tableSelector, columnIndex = null) {
+            $(inputSelector).on('input', function () {
+                var searchTerm = $(this).val().toLowerCase();
+                var foundAny = false;
+
+                $(tableSelector + ' tr').each(function () {
+                    var textToSearch;
+                    if (columnIndex !== null) {
+                        textToSearch = $(this).find('td').eq(columnIndex).text().toLowerCase();
+                    } else {
+                        textToSearch = $(this).text().toLowerCase();
+                    }
+
+                    if (textToSearch.indexOf(searchTerm) !== -1) {
+                        $(this).show();
+                        foundAny = true;
+                    } else {
+                        $(this).hide();
                     }
                 });
-            } else {
-                $('#create_supervisor_one').val('');
-                $('#create_supervisor_two').val('');
-            }
+
+                if (!foundAny) {
+                    $(tableSelector + ' tr.no-results').show();
+                } else {
+                    $(tableSelector + ' tr.no-results').hide();
+                }
+            });
+        }
+
+        // Search Input Function for Account Approval
+        bindSearch('#search', '#data-table', 1);
+
+        // Search Input Function for Change Password
+        bindSearch('#search_pass', '#data-table-pass');
+
+        // Search Input Function for Accounts
+        bindSearch('#search_account', '#data-table-account', 1);
+
+        // Search Input Function for Cost Center
+        bindSearch('#search_cost', '#data-table-cost', 1);
+
+
+        // Show Password
+        $('[data-toggle="password"]').on('click', function () {
+            var inputSelector = $(this).data('target');
+            var input = $(inputSelector);
+            var isPassword = input.attr('type') === 'password';
+
+            input.attr('type', isPassword ? 'text' : 'password');
+            $(this).toggleClass('bi-eye bi-eye-slash');
         });
 
-        // Cost Center Edit Automatic Supervisors Show
-        $(document).on('change', '#edit_cost_center', function () {
-            var costCenterId = $('#edit_cost_center option:selected').data('id');
+        // Fetch Supervisor Function
+        function fetchSupervisors(costCenterSelector, supervisorOneSelector, supervisorTwoSelector) {
+            $(document).on('change', costCenterSelector, function () {
+                var costCenterId = $(this).find('option:selected').data('id');
 
-            if (costCenterId) {
-                $.ajax({
-                    url: '../../controller/fetch_supervisors.php',
-                    method: 'GET',
-                    data: { cost_center_id: costCenterId },
-                    dataType: 'json',
-                    success: function (response) {
-                        if (response.supervisor_one) {
-                            $('#create_edit_supervisor_one').val(response.supervisor_one);
-                        } else {
-                            $('#create_edit_supervisor_one').val('');
+                if (costCenterId) {
+                    $.ajax({
+                        url: '../../controller/fetch_supervisors.php',
+                        method: 'GET',
+                        data: { cost_center_id: costCenterId },
+                        dataType: 'json',
+                        success: function (response) {
+                            $(supervisorOneSelector).val(response.supervisor_one || '');
+                            $(supervisorTwoSelector).val(response.supervisor_two || '');
+                        },
+                        error: function (xhr, status, error) {
+                            console.log('AJAX Error:', status, error);
                         }
+                    });
+                } else {
+                    $(supervisorOneSelector).val('');
+                    $(supervisorTwoSelector).val('');
+                }
+            });
+        }
 
-                        if (response.supervisor_two) {
-                            $('#create_edit_supervisor_two').val(response.supervisor_two);
-                        } else {
-                            $('#create_edit_supervisor_two').val('');
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        console.log('AJAX Error: ' + status + ' - ' + error);
-                    }
-                });
-            } else {
-                $('#create_edit_supervisor_one').val('');
-                $('#create_edit_supervisor_two').val('');
-            }
-        });
+        // Fetch Supervisor Function for Create Account
+        fetchSupervisors('#create_cost_center', '#create_supervisor_one', '#create_supervisor_two');
 
-        // Prevent No Designation
-        $('#designation').on('change', function () {
-            if (this.value === '0') {
-                alert("Please select a valid designation.");
-                this.value = '';
-            }
-        });
+        // Fetch Supervisor Function for Update Account
+        fetchSupervisors('#edit_cost_center', '#create_edit_supervisor_one', '#create_edit_supervisor_two');
 
         // Update Account Password Data
         $('.edit-pass').on('click', function () {
@@ -911,94 +927,48 @@ ob_end_flush();
             $('#forgot_pass_username').val(forgot_pass_username);
         });
 
-        // Show Password Script
-        $('#toggle-password').on('click', function () {
-            var passwordField = $('#passwordred');
-            var icon = $(this);
-            if (passwordField.attr('type') === "password") {
-                passwordField.attr('type', 'text');
-                icon.removeClass('bi-eye-slash').addClass('bi-eye');
-            } else {
-                passwordField.attr('type', 'password');
-                icon.removeClass('bi-eye').addClass('bi-eye-slash');
-            }
-        });
+        // Account Approval Function
+        function handleAccountAction({
+            buttonSelector,
+            modalSelector,
+            listContainerSelector,
+            isApproval = false
+        }) {
+            $(buttonSelector).click(function () {
+                const $listContainer = $(listContainerSelector);
+                $listContainer.empty();
 
-        $('#toggle-new-password').on('click', function () {
-            var new_password = $('#forgot_pass_one');
-            var icon = $(this);
-            if (new_password.attr('type') === "password") {
-                new_password.attr('type', 'text');
-                icon.removeClass('bi-eye-slash').addClass('bi-eye');
-            } else {
-                new_password.attr('type', 'password');
-                icon.removeClass('bi-eye').addClass('bi-eye-slash');
-            }
-        });
+                const selectedItems = $(".select-row:checked");
 
-        $('#toggle-con-password').on('click', function () {
-            var con_password = $('#forgot_pass_two');
-            var icon = $(this);
-            if (con_password.attr('type') === "password") {
-                con_password.attr('type', 'text');
-                icon.removeClass('bi-eye-slash').addClass('bi-eye');
-            } else {
-                con_password.attr('type', 'password');
-                icon.removeClass('bi-eye').addClass('bi-eye-slash');
-            }
-        });
+                if (selectedItems.length === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: `No items selected`,
+                        text: `Please select at least one account to ${isApproval ? 'approve' : 'reject'}.`,
+                        confirmButtonText: 'Ok'
+                    });
+                    return;
+                }
 
-        // Show Confirm Password Script
-        $('#toggle-confirm-password').on('click', function () {
-            var confirmPasswordField = $('#confirm_passwordred');
-            var icon = $(this);
-            if (confirmPasswordField.attr('type') === "password") {
-                confirmPasswordField.attr('type', 'text');
-                icon.removeClass('bi-eye-slash').addClass('bi-eye');
-            } else {
-                confirmPasswordField.attr('type', 'password');
-                icon.removeClass('bi-eye').addClass('bi-eye-slash');
-            }
-        });
+                selectedItems.each(function () {
+                    const id = $(this).data("id");
+                    const employeeName = $(this).data("employee_name");
+                    const badgeNumber = $(this).data("badge_number");
+                    const costCenter = $(this).data("cost_center");
+                    const designation = $(this).data("designation") || '';
+                    const accType = $(this).data("account_type") || '';
 
-        // Account Approval Button
-        $("#approve_acc-btn").click(function () {
-            $("#modalAccountApprovalList").empty();
+                    let row = '';
 
-            let selectedItems = $(".select-row:checked");
-
-            if (selectedItems.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No accounts selected',
-                    text: 'Please select at least one account to approve.',
-                    confirmButtonText: 'Ok'
-                });
-                return;
-            }
-
-            selectedItems.each(function () {
-                let id = $(this).data("id");
-                let employeeName = $(this).data("employee_name");
-                let badgeNumber = $(this).data("badge_number");
-                let costCenter = $(this).data("cost_center");
-                let designation = $(this).data("designation");
-                let accType = $(this).data("account_type");
-
-                let row = `
-                    <tr class=" text-center" style="vertical-align: middle;">
-                        <td>
-                            ${employeeName}
-                        </td>
-                        <td>
-                            ${badgeNumber}
-                        </td>
-                        <td>
-                            ${costCenter}
-                        </td>
+                    if (isApproval) {
+                        row = `
+                    <tr class="text-center" style="vertical-align: middle;">
+                        <td>${employeeName}</td>
+                        <td>${badgeNumber}</td>
+                        <td>${costCenter}</td>
                         <td>
                             <select class="form-select" name="designations[]" required>
-                                <option value="${!designation ? 'selected' : ''}">Select Designation</option>
+                                <option value="" ${!designation ? 'selected' : ''}>Select Designation</option>
                                 <option value="Supervisor" ${designation === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
                                 <option value="Kitting" ${designation === 'Kitting' ? 'selected' : ''}>Kitting</option>
                                 <option value="Inspector" ${designation === 'Inspector' ? 'selected' : ''}>Inspector</option>
@@ -1007,151 +977,111 @@ ob_end_flush();
                         </td>
                         <td>
                             <select class="form-select" name="accounttypes[]" required>
-                                <option value="${!accType ? 'selected' : ''}">Select Account Type</option>
+                                <option value="" ${!accType ? 'selected' : ''}>Select Account Type</option>
                                 <option value="User" ${accType === 'User' ? 'selected' : ''}>User</option>
                                 <option value="Kitting" ${accType === 'Kitting' ? 'selected' : ''}>Kitting</option>
                                 <option value="Supervisor" ${accType === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
                             </select>
                         </td>
-                        <td style="display:none;"> 
+                        <td style="display:none;">
                             <input type="hidden" name="employeenames[]" value="${employeeName}">
                             <input type="hidden" name="ids[]" value="${id}">
                         </td>
-                    </tr>
-                    `;
-                $("#modalAccountApprovalList").append(row);
-            });
-
-            $("#accountApprovalModal").modal("show");
-        });
-
-        // Account Approval Submit
-        $("#approveAccForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-
-            formData += "&approveacc_submit=1";
-
-            $.ajax({
-                url: '../../controller/accounts.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Accounts approved successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            location.reload();
-                        });
+                    </tr>`;
                     } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                }
-            });
-        });
-
-        // Account Rejection Button
-        $("#reject_acc-btn").click(function () {
-            $("#modalAccountRejectionList").empty();
-
-            let selectedItems = $(".select-row:checked");
-
-            if (selectedItems.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No items selected',
-                    text: 'Please select at least one account to reject.',
-                    confirmButtonText: 'Ok'
-                });
-                return;
-            }
-
-            selectedItems.each(function () {
-                let id = $(this).data("id");
-                let employeeName = $(this).data("employee_name");
-                let badgeNumber = $(this).data("badge_number");
-                let costCenter = $(this).data("cost_center");
-                let designation = $(this).data("designation");
-                let accType = $(this).data("account_type");
-
-                let row = `
-                    <tr class=" text-center" style="vertical-align: middle;">
-                        <td>
-                            ${employeeName}
-                        </td>
-                        <td>
-                            ${badgeNumber}
-                        </td>
-                        <td>
-                            ${costCenter}
-                        </td>
-                        <td>
-                            ${designation}
-                        </td>
-                        <td>
-                            ${accType}
-                        </td>
+                        row = `
+                    <tr class="text-center" style="vertical-align: middle;">
+                        <td>${employeeName}</td>
+                        <td>${badgeNumber}</td>
+                        <td>${costCenter}</td>
+                        <td>${designation}</td>
+                        <td>${accType}</td>
                         <td>
                             <input type="text" class="form-control" name="reasons[]" placeholder="Reason for Account Rejection" autocomplete="OFF">
                         </td>
-                        <td style="display:none;"> 
+                        <td style="display:none;">
                             <input type="hidden" name="employeenames[]" value="${employeeName}">
                             <input type="hidden" name="ids[]" value="${id}">
                         </td>
-                    </tr>
-                `;
-                $("#modalAccountRejectionList").append(row);
-            });
-
-            $("#accRejectModal").modal("show");
-        });
-
-        // Account Rejection Submit
-        $("#rejectAccForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-
-            formData += "&rejectacc_submit=1";
-
-            $.ajax({
-                url: '../../controller/accounts.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Account rejected successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
+                    </tr>`;
                     }
-                }
+
+                    $listContainer.append(row);
+                });
+
+                $(modalSelector).modal("show");
             });
+        }
+
+        // Account Approval Function for Account Approval
+        handleAccountAction({
+            buttonSelector: "#approve_acc-btn",
+            modalSelector: "#accountApprovalModal",
+            listContainerSelector: "#modalAccountApprovalList",
+            isApproval: true
         });
+
+        // Account Approval Function for Account Rejection
+        handleAccountAction({
+            buttonSelector: "#reject_acc-btn",
+            modalSelector: "#accRejectModal",
+            listContainerSelector: "#modalAccountRejectionList",
+            isApproval: false
+        });
+
+        // Form Submission Function
+        function handleFormSubmission(formSelector, actionType, successMessage, redirectUrl, errorMessage) {
+            $(formSelector).submit(function (e) {
+                e.preventDefault();
+
+                let formData = $(this).serialize();
+                formData += `&${actionType}=1`;
+
+                $.ajax({
+                    url: '../../controller/accounts.php',
+                    type: "POST",
+                    data: formData,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: successMessage,
+                                confirmButtonText: 'Ok'
+                            }).then(() => {
+                                window.location.href = redirectUrl;
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.error || errorMessage,
+                                confirmButtonText: 'Ok'
+                            });
+                        }
+                    }
+                });
+            });
+        }
+
+        // Form Submission Function for Account Approval
+        handleFormSubmission("#approveAccForm", "approveacc_submit", "Accounts approved successfully!", "accReg.php?tab=approval", "An unexpected error occurred while approving.");
+
+        // Form Submission Function for Account Rejection
+        handleFormSubmission("#rejectAccForm", "rejectacc_submit", "Account rejected successfully!", "accReg.php?tab=approval", "An unexpected error occurred while rejecting.");
+
+        // Form Submission Function for Account Deletion
+        handleFormSubmission("#deleteAccForm", "deleteacc_submit", "Accounts deleted successfully!", "accReg.php?tab=account", "An unexpected error occurred while deleting.");
+
+        // Form Submission Function for Account Update
+        handleFormSubmission("#updateAccForm", "updateacc_submit", "Account updated successfully!", "accReg.php?tab=account", "An unexpected error occurred while updating.");
+
+        // Form Submission Function for Cost Center Deletion
+        handleFormSubmission("#deleteCostForm", "deletecost_submit", "Cost Center deleted successfully!", "accReg.php?tab=costcenter", "An unexpected error occurred while deleting.");
+
+        // Form Submission Function for Cost Center Update
+        handleFormSubmission("#updateCostForm", "updatecost_submit", "Cost Center updated successfully!", "accReg.php?tab=costcenter", "An unexpected error occurred while updating.");
 
         // Account Deletion Button
         $("#delete_acc-btn").click(function () {
@@ -1211,42 +1141,6 @@ ob_end_flush();
             });
 
             $("#accDeletionModal").modal("show");
-        });
-
-        // Account Deletion Submit
-        $("#deleteAccForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-
-            formData += "&deleteacc_submit=1";
-
-            $.ajax({
-                url: '../../controller/accounts.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Accounts deleted successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            window.location.href = 'accReg.php?tab=account';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                }
-            });
         });
 
         let rowCounter = 0;
@@ -1340,42 +1234,6 @@ ob_end_flush();
             });
 
             $("#accUpdateModal").modal("show");
-        });
-
-        // Update Account Submit
-        $("#updateAccForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-
-            formData += "&updateacc_submit=1";
-
-            $.ajax({
-                url: '../../controller/accounts.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Account updated successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            window.location.href = 'accReg.php?tab=account';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                }
-            });
         });
 
         // Cost Center Selection in Account Modification
@@ -1495,42 +1353,6 @@ ob_end_flush();
             $("#costDeletionModal").modal("show");
         });
 
-        // Cost Center Deletion Submit
-        $("#deleteCostForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-
-            formData += "&deletecost_submit=1";
-
-            $.ajax({
-                url: '../../controller/ccs.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Cost Center deleted successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            window.location.href = 'accReg.php?tab=costcenter';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                }
-            });
-        });
-
         // Cost Center Modification Button
         $("#update_cost-btn").click(function () {
             $("#modalCostUpdateList").empty();
@@ -1593,42 +1415,6 @@ ob_end_flush();
             });
 
             $("#costUpdateModal").modal("show");
-        });
-
-        // Cost Center Modification Submit
-        $("#updateCostForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-
-            formData += "&updatecost_submit=1";
-
-            $.ajax({
-                url: '../../controller/ccs.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Cost Center updated successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            window.location.href = 'accReg.php?tab=costcenter';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                }
-            });
         });
 
         // Cost Center Creation Submit

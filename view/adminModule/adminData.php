@@ -54,7 +54,8 @@ include "navBar.php";
 
                     <div class="d-flex justify-content-evenly  align-items-center w-100 p-3">
 
-                        <input type="text" class="form-control w-25 me-2" placeholder="Search here" autocomplete="off"
+                        <input type="text" class="form-control w-25 me-2 table-search"
+                            data-target-table="#data-table-machine" placeholder="Search here" autocomplete="off"
                             id="search_machine" placeholder="Machine Number" />
                         <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal"
                             data-bs-target="#addMachineModal">Register Machine</button>
@@ -67,7 +68,9 @@ include "navBar.php";
                         <thead>
                             <tr class="text-center"
                                 style="background-color: #900008; color: white; vertical-align: middle;">
-                                <th scope="col"><input type="checkbox" id="select-all-machine"></th>
+                                <th scope="col"><input type="checkbox" id="select-all-machine" class="select-all"
+                                        data-target-table="#data-table-machine" data-target-class=".select-machine">
+                                </th>
                                 <th>Machine Number</th>
                             </tr>
                         </thead>
@@ -106,7 +109,8 @@ include "navBar.php";
                 <div class="container">
                     <div class="d-flex justify-content-evenly  align-items-center w-100 p-3">
 
-                        <input type="text" class="form-control w-25 me-2" placeholder="Search here" autocomplete="off"
+                        <input type="text" class="form-control w-25 me-2 table-search"
+                            data-target-table="#data-table-station" placeholder="Search here" autocomplete="off"
                             id="search_station" placeholder="Station Code" />
                         <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal"
                             data-bs-target="#addStationModal">Register Station Code</button>
@@ -118,7 +122,9 @@ include "navBar.php";
                         <thead>
                             <tr class="text-center"
                                 style="background-color: #900008; color: white; vertical-align: middle;">
-                                <th scope="col"><input type="checkbox" id="select-all-station"></th>
+                                <th scope="col"><input type="checkbox" id="select-all-station" class="select-all"
+                                        data-target-table="#data-table-station" data-target-class=".select-station">
+                                </th>
                                 <th>Station Code</th>
                             </tr>
                         </thead>
@@ -159,7 +165,8 @@ include "navBar.php";
 
                     <div class="d-flex justify-content-evenly  align-items-center w-100 p-3">
 
-                        <input type="text" class="form-control w-25 me-2" placeholder="Search here" autocomplete="off"
+                        <input type="text" class="form-control w-25 me-2 table-search"
+                            data-target-table="#data-table-reason" placeholder="Search here" autocomplete="off"
                             id="search_withdraw" />
                         <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal"
                             data-bs-target="#addWithdrawModal">Register Withdrawal Reason</button>
@@ -173,7 +180,9 @@ include "navBar.php";
                         <thead>
                             <tr class="text-center"
                                 style="background-color: #900008; color: white; vertical-align: middle;">
-                                <th scope="col"><input type="checkbox" id="select-all-withdraw"></th>
+                                <th scope="col"><input type="checkbox" id="select-all-withdraw" class="select-all"
+                                        data-target-table="#data-table-reason" data-target-class=".select-withdraw">
+                                </th>
                                 <th>Withdrawal Reason</th>
                             </tr>
                         </thead>
@@ -207,7 +216,8 @@ include "navBar.php";
                 <div class="container">
                     <div class="d-flex justify-content-evenly  align-items-center w-100 p-3">
 
-                        <input type="text" class="form-control w-25 me-2" placeholder="Search here" autocomplete="off"
+                        <input type="text" class="form-control w-25 me-2 table-search"
+                            data-target-table="#data-table-unit" placeholder="Search here" autocomplete="off"
                             id="search_unit" />
                         <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal"
                             data-bs-target="#addUnitModal">Register Unit of Measure</button>
@@ -219,7 +229,8 @@ include "navBar.php";
                         <thead>
                             <tr class="text-center"
                                 style="background-color: #900008; color: white; vertical-align: middle;">
-                                <th scope="col"><input type="checkbox" id="select-all-unit"></th>
+                                <th scope="col"><input type="checkbox" id="select-all-unit" class="select-all"
+                                        data-target-table="#data-table-unit" data-target-class=".select-unit"></th>
                                 <th>Unit of Measure</th>
                             </tr>
                         </thead>
@@ -712,1076 +723,374 @@ include "navBar.php";
         $(`#${activeTab}-tab`).addClass('active');
         $(`#${activeTab}-tab-pane`).addClass('show active');
 
-        // Search Machine Number
-        $('#search_machine').on('input', function () {
+        // Search Input for Data Management
+        $('.table-search').on('input', function () {
             var searchTerm = $(this).val().toLowerCase();
-            $('#data-table-machine tr').each(function () {
+            var tableSelector = $(this).data('target-table');
+
+            $(tableSelector + ' tr').each(function () {
                 var rowText = $(this).text().toLowerCase();
-                if (rowText.indexOf(searchTerm) === -1) {
-                    $(this).hide();
-                } else {
-                    $(this).show();
-                }
+                $(this).toggle(rowText.indexOf(searchTerm) !== -1);
             });
         });
 
-        // Select all for Machine Number Tab
-        $('#select-all-machine').on('change', function () {
+        // Select All for Data Management
+        $('.select-all').on('change', function () {
             var isChecked = $(this).prop('checked');
+            var targetTable = $(this).data('target-table');
+            var targetClass = $(this).data('target-class');
 
-            $('#data-table-machine tr:visible').each(function () {
-                $(this).find('.select-machine').prop('checked', isChecked);
+            $(targetTable + ' tr:visible').each(function () {
+                $(this).find(targetClass).prop('checked', isChecked);
             });
         });
 
-        // Add Row Machine Button
+        // Form Submission for Data Management
+        function handleFormSubmission(formSelector, actionType, successMessage, redirectUrl, errorMessage) {
+            $(formSelector).submit(function (e) {
+                e.preventDefault();
+
+                let formData = $(this).serialize();
+                formData += `&${actionType}=1`;
+
+                $.ajax({
+                    url: '../../controller/data.php',
+                    type: "POST",
+                    data: formData,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: successMessage,
+                                confirmButtonText: 'Ok'
+                            }).then(() => {
+                                window.location.href = redirectUrl;
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.error || errorMessage,
+                                confirmButtonText: 'Ok'
+                            });
+                        }
+                    }
+                });
+            });
+        }
+
+        // Machine Number for Update
+        handleFormSubmission("#updateMachineForm", "updatemachine_submit", "Machines updated successfully!", "adminData.php?tab=machine", "An unexpected error occurred while updating.");
+
+        // Machine Number for Deletion
+        handleFormSubmission("#deleteMachineForm", "deletemachine_submit", "Machines deleted successfully!", "adminData.php?tab=machine", "An unexpected error occurred while deleting.");
+
+        // Station Code for Update
+        handleFormSubmission("#updateStationForm", "updatestation_submit", "Station Codes updated successfully!", "adminData.php?tab=station", "An unexpected error occurred while updating.");
+
+        // Station Code for Deletion
+        handleFormSubmission("#deleteStationForm", "deletestation_submit", "Station Codes deleted successfully!", "adminData.php?tab=station", "An unexpected error occurred while deleting.");
+
+        // Withdrawal Reasons for Update
+        handleFormSubmission("#updateWithdrawForm", "updatewithdraw_submit", "Withdrawal Reasons updated successfully!", "adminData.php?tab=withdraw", "An unexpected error occurred while updating.");
+
+        // Withdrawal Reasons for Deletion
+        handleFormSubmission("#deleteWithdrawForm", "deletewithdraw_submit", "Withdrawal Reasons deleted successfully!", "adminData.php?tab=withdraw", "An unexpected error occurred while deleting.");
+
+        // Measure of Units for Update
+        handleFormSubmission("#updateUnitForm", "updateunit_submit", "Unit of Measures updated successfully!", "adminData.php?tab=unit", "An unexpected error occurred while updating.");
+
+        // Measure of Units for Deletion
+        handleFormSubmission("#deleteUnitForm", "deleteunit_submit", "Unit of Measures deleted successfully!", "adminData.php?tab=unit", "An unexpected error occurred while deleting.");
+
+        // Open Modals for Data Management
+        function openModalForItems(config) {
+            const {
+                triggerBtn,
+                modalId,
+                tableBodyId,
+                checkboxClass,
+                dataKey,
+                inputName,
+                placeholderText,
+                isUpdate = true
+            } = config;
+
+            $(triggerBtn).click(function () {
+                const $tableBody = $(tableBodyId).empty();
+                const selectedItems = $(`.${checkboxClass}:checked`);
+
+                if (selectedItems.length === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: `No ${dataKey.replace('_', ' ')}s selected`,
+                        text: `Please select at least one ${dataKey.replace('_', ' ')} to ${isUpdate ? "update" : "delete"}.`,
+                        confirmButtonText: 'Ok'
+                    });
+                    return;
+                }
+
+                selectedItems.each(function () {
+                    const id = $(this).data("id");
+                    const value = $(this).data(dataKey);
+
+                    const row = isUpdate ? `
+                        <tr class="text-center" style="vertical-align: middle;">
+                            <td>
+                                <input type="text" class="form-control" name="${inputName}" autocomplete="off" value="${value}" required placeholder="${placeholderText}">
+                            </td>
+                            <td style="display:none;">
+                                <input type="hidden" name="ids[]" value="${id}">
+                            </td>
+                        </tr>` : `
+                        <tr class="text-center" style="vertical-align: middle;">
+                            <td>${value}</td>
+                            <td>
+                                <input type="text" class="form-control" name="reasons[]" autocomplete="off" placeholder="Reason for deletion">
+                            </td>
+                            <td style="display:none;">
+                                <input type="hidden" name="ids[]" value="${id}">
+                                <input type="hidden" name="${inputName}" value="${value}">
+                            </td>
+                        </tr>`;
+
+                    $tableBody.append(row);
+                });
+
+                $(modalId).modal("show");
+            });
+        }
+
+        // Machine Numbers for Update
+        openModalForItems({
+            triggerBtn: "#update_machine-btn",
+            modalId: "#updateMachineModal",
+            tableBodyId: "#modalUpdateMachineList",
+            checkboxClass: "select-machine",
+            dataKey: "machine_number",
+            inputName: "machineNumbers[]",
+            placeholderText: "Enter Machine Number",
+            isUpdate: true
+        });
+
+        // Machine Numbers for Deletion
+        openModalForItems({
+            triggerBtn: "#delete_machine-btn",
+            modalId: "#deleteMachineModal",
+            tableBodyId: "#modalDeleteMachineList",
+            checkboxClass: "select-machine",
+            dataKey: "machine_number",
+            inputName: "machineNumbers[]",
+            placeholderText: "Enter Machine Number",
+            isUpdate: false
+        });
+
+        // Station Codes for Update
+        openModalForItems({
+            triggerBtn: "#update_station-btn",
+            modalId: "#updateStationModal",
+            tableBodyId: "#modalUpdateStationList",
+            checkboxClass: "select-station",
+            dataKey: "station_code",
+            inputName: "stationCodes[]",
+            placeholderText: "Enter Station Code",
+            isUpdate: true
+        });
+
+        // Station Codes for Deletion
+        openModalForItems({
+            triggerBtn: "#delete_station-btn",
+            modalId: "#deleteStationModal",
+            tableBodyId: "#modalDeleteStationList",
+            checkboxClass: "select-station",
+            dataKey: "station_code",
+            inputName: "stationCodes[]",
+            placeholderText: "Enter Station Code",
+            isUpdate: false
+        });
+
+        // Withdrawal Reasons for Update
+        openModalForItems({
+            triggerBtn: "#update_withdraw-btn",
+            modalId: "#updateWithdrawModal",
+            tableBodyId: "#modalUpdateWithdrawList",
+            checkboxClass: "select-withdraw",
+            dataKey: "withdrawal_reason",
+            inputName: "withdrawReasons[]",
+            placeholderText: "Enter Withdrawal Reason",
+            isUpdate: true
+        });
+
+        // Withdrawal Reasons for Deletion
+        openModalForItems({
+            triggerBtn: "#delete_withdraw-btn",
+            modalId: "#deleteWithdrawModal",
+            tableBodyId: "#modalDeleteWithdrawList",
+            checkboxClass: "select-withdraw",
+            dataKey: "withdrawal_reason",
+            inputName: "withdrawReasons[]",
+            placeholderText: "Enter Withdrawal Reason",
+            isUpdate: false
+        });
+
+        // Unit of Measures for Update
+        openModalForItems({
+            triggerBtn: "#update_unit-btn",
+            modalId: "#updateUnitModal",
+            tableBodyId: "#modalUpdateUnitList",
+            checkboxClass: "select-unit",
+            dataKey: "unit",
+            inputName: "unitMeasures[]",
+            placeholderText: "Enter Unit of Measures",
+            isUpdate: true
+        });
+
+        // Unit of Measures for Deletion
+        openModalForItems({
+            triggerBtn: "#delete_unit-btn",
+            modalId: "#deleteUnitModal",
+            tableBodyId: "#modalDeleteUnitList",
+            checkboxClass: "select-unit",
+            dataKey: "unit",
+            inputName: "unitMeasures[]",
+            placeholderText: "Enter Unit of Measures",
+            isUpdate: false
+        });
+
+
+        // Add Row Function for Data Management
+        function addRow(tableId, inputName, placeholder) {
+            const row = $("<tr></tr>");
+            row.append(`
+                <td>
+                    <input type="text" name="${inputName}" class="form-control text-uppercase" placeholder="${placeholder}" autocomplete="off" required>
+                </td>
+                <td>
+                    <button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button>
+                </td>
+            `);
+            $(tableId).find("tbody").append(row);
+        }
+
+        // Submit Function for Data Management
+        function submitData(submitBtnId, tableId, submitParam, successCallback) {
+            $(submitBtnId).on("click", function (e) {
+                e.preventDefault();
+
+                let data = [];
+                let valid = true;
+
+                $(tableId).find("tbody tr").each(function () {
+                    let item = {};
+
+                    $(this).find("input").each(function () {
+                        const input = $(this);
+                        const name = input.attr("name");
+                        const value = input.val().trim();
+
+                        item[name] = value;
+
+                        if (!value) {
+                            valid = false;
+                            input.addClass("is-invalid");
+                        } else {
+                            input.removeClass("is-invalid");
+                        }
+                    });
+
+                    data.push(item);
+                });
+
+                if (!valid) {
+                    return Swal.fire("Error!", "Missing Inputs", "error");
+                }
+
+                if (data.length === 0) {
+                    return Swal.fire("Error!", "No data to submit.", "error");
+                }
+
+                $.ajax({
+                    url: "../../controller/data.php",
+                    method: "POST",
+                    contentType: "application/json",
+                    dataType: "json",
+                    data: JSON.stringify({
+                        [submitParam]: true,
+                        items: data
+                    }),
+
+                    success: res => {
+                        if (res.duplicates) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: `${submitParam} Duplicate(s)`,
+                                text: `The following already exist: ${res.duplicates.join(", ")}`
+                            });
+                        } else if (res.message) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: res.message
+                            }).then(() => {
+                                successCallback(res);
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: res.message || 'Something went wrong.'
+                            });
+                        }
+                    },
+
+                    error: (xhr, status, error) => {
+                        Swal.fire("Error!", "There was an issue with the server request. Please try again.", "error");
+                        console.error(error);
+                    }
+                });
+            });
+        }
+
+        // Add Row for Machine Numbers Tab
         $("#btnAddMachineRow").on("click", function () {
-            addMachineRow();
+            addRow("#machineTable", "machineNumber", "Machine Number");
         });
 
-        // Add Row Machine Number
-        function addMachineRow(data = {}) {
-            const row = $("<tr></tr>");
-            row.append(`
-                <td>
-                    <input type="text" name="machineNumber" class="form-control text-uppercase" placeholder="Machine Number" autocomplete="off" required>
-                </td>
-                 <td>
-                    <button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button>
-                </td>
-            `);
-            $("#machineTable tbody").append(row);
-        }
-
-        // Submit Machine Number
-        $("#machineSubmit").on("click", function (e) {
-            e.preventDefault();
-
-            let data = [];
-            let valid = true;
-
-            $("#machineTable tbody tr").each(function () {
-                let item = {};
-
-                $(this).find("input").each(function () {
-                    const input = $(this);
-                    const name = input.attr("name");
-                    const value = input.val().trim();
-
-                    item[name] = value;
-
-                    if (!value) {
-                        valid = false;
-                        input.addClass("is-invalid");
-                    } else {
-                        input.removeClass("is-invalid");
-                    }
-                });
-
-                data.push(item);
-            });
-
-            if (!valid) {
-                return Swal.fire("Error!", "Missing Inputs", "error");
-            }
-
-            if (data.length === 0) {
-                return Swal.fire("Error!", "No data to submit.", "error");
-            }
-
-            $.ajax({
-                url: "../../controller/data.php",
-                method: "POST",
-                contentType: "application/json",
-                dataType: "json",
-                data: JSON.stringify({
-                    machineSubmit: true,
-                    items: data
-                }),
-
-                success: res => {
-                    if (res.duplicates) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Duplicate Machine(s)',
-                            text: `The following already exist: ${res.duplicates.join(", ")}`
-                        });
-                    } else if (res.message === "Machine(s) added successfully") {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: res.message
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: res.message || 'Something went wrong.'
-                        });
-                    }
-                },
-
-                error: (xhr, status, error) => {
-                    Swal.fire("Error!", "There was an issue with the server request. Please try again.", "error");
-                    console.error(error);
-                }
-            });
-        });
-
-        // Update Machine Button
-        $("#update_machine-btn").click(function () {
-            $("#modalUpdateMachineList").empty();
-
-            let selectedItems = $(".select-machine:checked");
-
-            if (selectedItems.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No machines selected',
-                    text: 'Please select at least one machine to update.',
-                    confirmButtonText: 'Ok'
-                });
-                return;
-            }
-
-            selectedItems.each(function () {
-                let id = $(this).data("id");
-                let machineNumber = $(this).data("machine_number");
-
-                let row = `
-                    <tr class=" text-center" style="vertical-align: middle;">
-                        <td>
-                            <input type="text" class="form-control" name="machineNumbers[]" autocomplete="off" value="${machineNumber}" required placeholder="Enter Machine Number">
-                        </td>
-                        <td style="display:none;">
-                            <input type="hidden" name="ids[]" value="${id}">
-                        </td>
-
-                    </tr>
-                    `;
-                $("#modalUpdateMachineList").append(row);
-            });
-
-            $("#updateMachineModal").modal("show");
-        });
-
-        // Update Machine Submit
-        $("#updateMachineForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-
-            formData += "&updatemachine_submit=1";
-
-            $.ajax({
-                url: '../../controller/data.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Machines updated successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                }
-            });
-        });
-
-        // Delete Machine Button
-        $("#delete_machine-btn").click(function () {
-            $("#modalDeleteMachineList").empty();
-
-            let selectedItems = $(".select-machine:checked");
-
-            if (selectedItems.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No machines selected',
-                    text: 'Please select at least one machine to delete.',
-                    confirmButtonText: 'Ok'
-                });
-                return;
-            }
-
-            selectedItems.each(function () {
-                let id = $(this).data("id");
-                let machineNumber = $(this).data("machine_number");
-
-                let row = `
-                    <tr class=" text-center" style="vertical-align: middle;">
-                        <td>
-                            ${machineNumber}
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" name="reasons[]" autocomplete="off" placeholder="Reason for deletion">
-                        </td>
-                        <td style="display:none;">
-                            <input type="hidden" name="ids[]" value="${id}">
-                            <input type="hidden" class="form-control" name="machineNumbers[]" autocomplete="off" value="${machineNumber}" placeholder="Enter Machine Number">
-                        </td>
-
-                    </tr>
-                    `;
-                $("#modalDeleteMachineList").append(row);
-            });
-
-            $("#deleteMachineModal").modal("show");
-        });
-
-        // Delete Machine Submit
-        $("#deleteMachineForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-
-            formData += "&deletemachine_submit=1";
-
-            $.ajax({
-                url: '../../controller/data.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Machines deleted successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                }
-            });
-        });
-
-        // Search Station Code
-        $('#search_station').on('input', function () {
-            var searchTerm = $(this).val().toLowerCase();
-            $('#data-table-station tr').each(function () {
-                var rowText = $(this).text().toLowerCase();
-                if (rowText.indexOf(searchTerm) === -1) {
-                    $(this).hide();
-                } else {
-                    $(this).show();
-                }
-            });
-        });
-
-        // Select all for Station Code Tab
-        $('#select-all-station').on('change', function () {
-            var isChecked = $(this).prop('checked');
-
-            $('#data-table-station tr:visible').each(function () {
-                $(this).find('.select-station').prop('checked', isChecked);
-            });
-        });
-
-        // Add Row Station Code Button
+        // Add Row for Station Codes Tab
         $("#btnAddStationRow").on("click", function () {
-            addStationRow();
+            addRow("#stationTable", "stationCode", "Station Code");
         });
 
-        // Add Row Station Code
-        function addStationRow(data = {}) {
-            const row = $("<tr></tr>");
-            row.append(`
-                <td>
-                    <input type="text" name="stationCode" class="form-control text-uppercase" placeholder="Station Code" autocomplete="off" required>
-                </td>
-                 <td>
-                    <button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button>
-                </td>
-            `);
-            $("#stationTable tbody").append(row);
-        }
-
-        // Submit Station
-        $("#stationSubmit").on("click", function (e) {
-            e.preventDefault();
-
-            let data = [];
-            let valid = true;
-
-            $("#stationTable tbody tr").each(function () {
-                let item = {};
-
-                $(this).find("input").each(function () {
-                    const input = $(this);
-                    const name = input.attr("name");
-                    const value = input.val().trim();
-
-                    item[name] = value;
-
-                    if (!value) {
-                        valid = false;
-                        input.addClass("is-invalid");
-                    } else {
-                        input.removeClass("is-invalid");
-                    }
-                });
-
-                data.push(item);
-            });
-
-            if (!valid) {
-                return Swal.fire("Error!", "Missing Inputs", "error");
-            }
-
-            if (data.length === 0) {
-                return Swal.fire("Error!", "No data to submit.", "error");
-            }
-
-            $.ajax({
-                url: "../../controller/data.php",
-                method: "POST",
-                contentType: "application/json",
-                dataType: "json",
-                data: JSON.stringify({
-                    stationSubmit: true,
-                    items: data
-                }),
-
-                success: res => {
-                    if (res.duplicates) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Duplicate Station Code(s)',
-                            text: `The following already exist: ${res.duplicates.join(", ")}`
-                        });
-                    } else if (res.message === "Station Code(s) added successfully") {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: res.message
-                        }).then(() => {
-                            window.location.href = 'adminData.php?tab=station';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: res.message || 'Something went wrong.'
-                        });
-                    }
-                },
-
-                error: (xhr, status, error) => {
-                    Swal.fire("Error!", "There was an issue with the server request. Please try again.", "error");
-                    console.error(error);
-                }
-            });
-        });
-
-        // Update Station Code Button
-        $("#update_station-btn").click(function () {
-            $("#modalUpdateStationList").empty();
-
-            let selectedItems = $(".select-station:checked");
-
-            if (selectedItems.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No station code selected',
-                    text: 'Please select at least one station code to update.',
-                    confirmButtonText: 'Ok'
-                });
-                return;
-            }
-
-            selectedItems.each(function () {
-                let id = $(this).data("id");
-                let stationCode = $(this).data("station_code");
-
-                let row = `
-                    <tr class=" text-center" style="vertical-align: middle;">
-                        <td>
-                            <input type="text" class="form-control" name="stationCodes[]" autocomplete="off" value="${stationCode}" required placeholder="Enter Station Code">
-                        </td>
-                        <td style="display:none;">
-                            <input type="hidden" name="ids[]" value="${id}">
-                        </td>
-
-                    </tr>
-                    `;
-                $("#modalUpdateStationList").append(row);
-            });
-
-            $("#updateStationModal").modal("show");
-        });
-
-        // Update Station Code Submit
-        $("#updateStationForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-
-            formData += "&updatestation_submit=1";
-
-            $.ajax({
-                url: '../../controller/data.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Station Codes updated successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            window.location.href = 'adminData.php?tab=station';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                }
-            });
-        });
-
-        // Delete Station Code Button
-        $("#delete_station-btn").click(function () {
-            $("#modalDeleteStationList").empty();
-
-            let selectedItems = $(".select-station:checked");
-
-            if (selectedItems.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No station codes selected',
-                    text: 'Please select at least one station code to delete.',
-                    confirmButtonText: 'Ok'
-                });
-                return;
-            }
-
-            selectedItems.each(function () {
-                let id = $(this).data("id");
-                let stationCode = $(this).data("station_code");
-
-                let row = `
-                    <tr class=" text-center" style="vertical-align: middle;">
-                        <td>
-                            ${stationCode}
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" name="reasons[]" autocomplete="off" placeholder="Reason for deletion">
-                        </td>
-                        <td style="display:none;">
-                            <input type="hidden" name="ids[]" value="${id}">
-                            <input type="hidden" class="form-control" name="stationCodes[]" autocomplete="off" value="${stationCode}" placeholder="Enter Station Code">
-                        </td>
-
-                    </tr>
-                    `;
-                $("#modalDeleteStationList").append(row);
-            });
-
-            $("#deleteStationModal").modal("show");
-        });
-
-        // Delete Station Code Submit
-        $("#deleteStationForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-
-            formData += "&deletestation_submit=1";
-
-            $.ajax({
-                url: '../../controller/data.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Station Codes deleted successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            window.location.href = 'adminData.php?tab=station';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                }
-            });
-        });
-
-        // Search Withdrawal Reason
-        $('#search_withdraw').on('input', function () {
-            var searchTerm = $(this).val().toLowerCase();
-            $('#data-table-reason tr').each(function () {
-                var rowText = $(this).text().toLowerCase();
-                if (rowText.indexOf(searchTerm) === -1) {
-                    $(this).hide();
-                } else {
-                    $(this).show();
-                }
-            });
-        });
-
-        // Select all for Withdrawal Reason Tab
-        $('#select-all-withdraw').on('change', function () {
-            var isChecked = $(this).prop('checked');
-
-            $('#data-table-reason tr:visible').each(function () {
-                $(this).find('.select-withdraw').prop('checked', isChecked);
-            });
-        });
-
-        // Add Row Withdrawal Reason Button
+        // Add Row for Withdrawal Reasons Tab
         $("#btnAddWithdrawRow").on("click", function () {
-            addWithdrawRow();
+            addRow("#withdrawTable", "withdrawReason", "Withdrawal Reason");
         });
 
-        // Add Row Withdrawal Reason
-        function addWithdrawRow(data = {}) {
-            const row = $("<tr></tr>");
-            row.append(`
-                <td>
-                    <input type="text" name="withdrawReason" class="form-control" placeholder="Withdrawal Reason" autocomplete="off" required>
-                </td>
-                 <td>
-                    <button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button>
-                </td>
-            `);
-            $("#withdrawTable tbody").append(row);
-        }
-
-        // Submit Withdrawal Reason
-        $("#withdrawSubmit").on("click", function (e) {
-            e.preventDefault();
-
-            let data = [];
-            let valid = true;
-
-            $("#withdrawTable tbody tr").each(function () {
-                let item = {};
-
-                $(this).find("input").each(function () {
-                    const input = $(this);
-                    const name = input.attr("name");
-                    const value = input.val().trim();
-
-                    item[name] = value;
-
-                    if (!value) {
-                        valid = false;
-                        input.addClass("is-invalid");
-                    } else {
-                        input.removeClass("is-invalid");
-                    }
-                });
-
-                data.push(item);
-            });
-
-            if (!valid) {
-                return Swal.fire("Error!", "Missing Inputs", "error");
-            }
-
-            if (data.length === 0) {
-                return Swal.fire("Error!", "No data to submit.", "error");
-            }
-
-            $.ajax({
-                url: "../../controller/data.php",
-                method: "POST",
-                contentType: "application/json",
-                dataType: "json",
-                data: JSON.stringify({
-                    withdrawSubmit: true,
-                    items: data
-                }),
-
-                success: res => {
-                    if (res.duplicates) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Duplicate Withdrawal Reason(s)',
-                            text: `The following already exist: ${res.duplicates.join(", ")}`
-                        });
-                    } else if (res.message === "Withdrawal Reason(s) added successfully") {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: res.message
-                        }).then(() => {
-                            window.location.href = 'adminData.php?tab=withdraw';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: res.message || 'Something went wrong.'
-                        });
-                    }
-                },
-
-                error: (xhr, status, error) => {
-                    Swal.fire("Error!", "There was an issue with the server request. Please try again.", "error");
-                    console.error(error);
-                }
-            });
-        });
-
-        // Update Withdrawal Reason Button
-        $("#update_withdraw-btn").click(function () {
-            $("#modalUpdateWithdrawList").empty();
-
-            let selectedItems = $(".select-withdraw:checked");
-
-            if (selectedItems.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No withdrawal reason selected',
-                    text: 'Please select at least one withdrawal reason to update.',
-                    confirmButtonText: 'Ok'
-                });
-                return;
-            }
-
-            selectedItems.each(function () {
-                let id = $(this).data("id");
-                let withdrawalReason = $(this).data("withdrawal_reason");
-
-                let row = `
-                    <tr class=" text-center" style="vertical-align: middle;">
-                        <td>
-                            <input type="text" class="form-control" name="withdrawReasons[]" autocomplete="off" value="${withdrawalReason}" required placeholder="Enter Withdrawal Reason">
-                        </td>
-                        <td style="display:none;">
-                            <input type="hidden" name="ids[]" value="${id}">
-                        </td>
-
-                    </tr>
-                    `;
-                $("#modalUpdateWithdrawList").append(row);
-            });
-
-            $("#updateWithdrawModal").modal("show");
-        });
-
-        // Update Withdrawal Reason Submit
-        $("#updateWithdrawForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-
-            formData += "&updatewithdraw_submit=1";
-
-            $.ajax({
-                url: '../../controller/data.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Withdrawal Reasons updated successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            window.location.href = 'adminData.php?tab=withdraw';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                }
-            });
-        });
-
-        // Delete Withdrawal Reason Button
-        $("#delete_withdraw-btn").click(function () {
-            $("#modalDeleteWithdrawList").empty();
-
-            let selectedItems = $(".select-withdraw:checked");
-
-            if (selectedItems.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No withdrawal reason selected',
-                    text: 'Please select at least one withdrawal reason to delete.',
-                    confirmButtonText: 'Ok'
-                });
-                return;
-            }
-
-            selectedItems.each(function () {
-                let id = $(this).data("id");
-                let withdrawalReason = $(this).data("withdrawal_reason");
-
-                let row = `
-                    <tr class=" text-center" style="vertical-align: middle;">
-                        <td>
-                            ${withdrawalReason}
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" name="reasons[]" autocomplete="off" placeholder="Reason for deletion">
-                        </td>
-                        <td style="display:none;">
-                            <input type="hidden" name="ids[]" value="${id}">
-                            <input type="hidden" class="form-control" name="withdrawReasons[]" autocomplete="off" value="${withdrawalReason}" placeholder="Enter Station Code">
-                        </td>
-
-                    </tr>
-                    `;
-                $("#modalDeleteWithdrawList").append(row);
-            });
-
-            $("#deleteWithdrawModal").modal("show");
-        });
-
-        // Delete Withdrawal Reason Submit
-        $("#deleteWithdrawForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-
-            formData += "&deletewithdraw_submit=1";
-
-            $.ajax({
-                url: '../../controller/data.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Withdrawal Reasons deleted successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            window.location.href = 'adminData.php?tab=withdraw';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                }
-            });
-        });
-
-        // SEARCH Unit
-        $('#search_unit').on('input', function () {
-            var searchTerm = $(this).val().toLowerCase();
-            $('#data-table-unit tr').each(function () {
-                var rowText = $(this).text().toLowerCase();
-                if (rowText.indexOf(searchTerm) === -1) {
-                    $(this).hide();
-                } else {
-                    $(this).show();
-                }
-            });
-        });
-
-        // Select all for Unit Tab
-        $('#select-all-unit').on('change', function () {
-            var isChecked = $(this).prop('checked');
-
-            $('#data-table-unit tr:visible').each(function () {
-                $(this).find('.select-unit').prop('checked', isChecked);
-            });
-        });
-
-        // Add Row Withdrawal Reason Button
+        // Add Row for Unit of Measure Tab
         $("#btnAddUnitRow").on("click", function () {
-            addUnitRow();
+            addRow("#unitTable", "unit", "Unit of Measure");
         });
 
-        // Add Row Withdrawal Reason
-        function addUnitRow(data = {}) {
-            const row = $("<tr></tr>");
-            row.append(`
-                <td>
-                    <input type="text" name="unit" class="form-control" placeholder="Unit of Measure" autocomplete="off" required>
-                </td>
-                 <td>
-                    <button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button>
-                </td>
-            `);
-            $("#unitTable tbody").append(row);
-        }
-
-        // Submit Unit of Measure
-        $("#unitSubmit").on("click", function (e) {
-            e.preventDefault();
-
-            let data = [];
-            let valid = true;
-
-            $("#unitTable tbody tr").each(function () {
-                let item = {};
-
-                $(this).find("input").each(function () {
-                    const input = $(this);
-                    const name = input.attr("name");
-                    const value = input.val().trim();
-
-                    item[name] = value;
-
-                    if (!value) {
-                        valid = false;
-                        input.addClass("is-invalid");
-                    } else {
-                        input.removeClass("is-invalid");
-                    }
-                });
-
-                data.push(item);
-            });
-
-            if (!valid) {
-                return Swal.fire("Error!", "Missing Inputs", "error");
-            }
-
-            if (data.length === 0) {
-                return Swal.fire("Error!", "No data to submit.", "error");
-            }
-
-            $.ajax({
-                url: "../../controller/data.php",
-                method: "POST",
-                contentType: "application/json",
-                dataType: "json",
-                data: JSON.stringify({
-                    unitSubmit: true,
-                    items: data
-                }),
-
-                success: res => {
-                    if (res.duplicates) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Duplicate Unit(s)',
-                            text: `The following already exist: ${res.duplicates.join(", ")}`
-                        });
-                    } else if (res.message === "Unit(s) added successfully") {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: res.message
-                        }).then(() => {
-                            window.location.href = 'adminData.php?tab=unit';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: res.message || 'Something went wrong.'
-                        });
-                    }
-                },
-
-                error: (xhr, status, error) => {
-                    Swal.fire("Error!", "There was an issue with the server request. Please try again.", "error");
-                    console.error(error);
-                }
-            });
+        // Submit Machine Numbers Data
+        submitData("#machineSubmit", "#machineTable", "machineSubmit", function (res) {
+            location.reload();
         });
 
-        // Update Unit of Measure Button
-        $("#update_unit-btn").click(function () {
-            $("#modalUpdateUnitList").empty();
-
-            let selectedItems = $(".select-unit:checked");
-
-            if (selectedItems.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No unit of measure selected',
-                    text: 'Please select at least one unit of measure to update.',
-                    confirmButtonText: 'Ok'
-                });
-                return;
-            }
-
-            selectedItems.each(function () {
-                let id = $(this).data("id");
-                let unit = $(this).data("unit");
-
-                let row = `
-                    <tr class=" text-center" style="vertical-align: middle;">
-                        <td>
-                            <input type="text" class="form-control" name="unitMeasures[]" autocomplete="off" value="${unit}" required placeholder="Enter Unit of Measure">
-                        </td>
-                        <td style="display:none;">
-                            <input type="hidden" name="ids[]" value="${id}">
-                        </td>
-
-                    </tr>
-                    `;
-                $("#modalUpdateUnitList").append(row);
-            });
-
-            $("#updateUnitModal").modal("show");
+        // Submit Station Codes Data
+        submitData("#stationSubmit", "#stationTable", "stationSubmit", function (res) {
+            window.location.href = 'adminData.php?tab=station';
         });
 
-        // Update Unit of Measure Submit
-        $("#updateUnitForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-
-            formData += "&updateunit_submit=1";
-
-            $.ajax({
-                url: '../../controller/data.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Unit of Measures updated successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            window.location.href = 'adminData.php?tab=unit';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                }
-            });
+        // Submit Withdrawal Reasons Data
+        submitData("#withdrawSubmit", "#withdrawTable", "withdrawSubmit", function (res) {
+            window.location.href = 'adminData.php?tab=withdraw';
         });
 
-        // Delete Unit of Measures Button
-        $("#delete_unit-btn").click(function () {
-            $("#modalDeleteUnitList").empty();
-
-            let selectedItems = $(".select-unit:checked");
-
-            if (selectedItems.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No unit of measures selected',
-                    text: 'Please select at least one unit of measures to delete.',
-                    confirmButtonText: 'Ok'
-                });
-                return;
-            }
-
-            selectedItems.each(function () {
-                let id = $(this).data("id");
-                let unit = $(this).data("unit");
-
-                let row = `
-                    <tr class=" text-center" style="vertical-align: middle;">
-                        <td>
-                            ${unit}
-                        </td>
-                        <td>
-                            <input type="text" class="form-control" name="reasons[]" autocomplete="off" placeholder="Reason for deletion">
-                        </td>
-                        <td style="display:none;">
-                            <input type="hidden" name="ids[]" value="${id}">
-                            <input type="hidden" class="form-control" name="unitMeasures[]" autocomplete="off" value="${unit}" placeholder="Enter Unit of Measures">
-                        </td>
-
-                    </tr>
-                    `;
-                $("#modalDeleteUnitList").append(row);
-            });
-
-            $("#deleteUnitModal").modal("show");
-        });
-
-        // Delete Unit of Measures Submit
-        $("#deleteUnitForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-
-            formData += "&deleteunit_submit=1";
-
-            $.ajax({
-                url: '../../controller/data.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Unit of Measures deleted successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            window.location.href = 'adminData.php?tab=unit';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                }
-            });
+        // Submit Unit of Measures Data
+        submitData("#unitSubmit", "#unitTable", "unitSubmit", function (res) {
+            window.location.href = 'adminData.php?tab=unit';
         });
 
     });

@@ -69,7 +69,8 @@ if ($sql_machine_query) {
                             HAVING 
                                 total_qty > 0
                            ORDER BY 
-                                REGEXP_REPLACE(ti.part_name, '[0-9]+$', ''), CAST(REGEXP_SUBSTR(ti.part_name, '[0-9]+$') AS UNSIGNED)";
+                                REGEXP_REPLACE(ti.part_name, '[0-9]+$', ''), CAST(REGEXP_SUBSTR(ti.part_name, '[0-9]+$') AS UNSIGNED)
+                        ";
 
                 $result = mysqli_query($con, $query);
 
@@ -312,7 +313,7 @@ if ($sql_machine_query) {
                                 </tr>
                             </thead>
                             <tbody id="modalItemList">
-                                <!-- Selected items will be injected here -->
+
                             </tbody>
                         </table>
                     </div>
@@ -454,96 +455,62 @@ if ($sql_machine_query) {
                 let item_code = $(this).data("item_code");
 
                 let row = `
-            <tr class="text-center" style="vertical-align: middle;">
-                <td>${dts}</td>
-                <td>${lot_id}</td>
-                <td>${partName}</td>
-                <td>${item_code}</td>
-                <td>${batch_number}</td>
-                <td><input type="number" name="quantities[]" value="${qty}" class="form-control" min="1" max="${total_qty + qty}" step="1" required></td>
-                <td>                    
-                    <select class="form-select" name="machines[]" required>
-                        <option value="">Select Machine</option>
-                        <?php
-                        $sql_machine = "SELECT machine_number FROM tbl_machine";
-                        $sql_machine_query = mysqli_query($con, $sql_machine);
-                        $machine_option = "";
-                        if ($sql_machine_query) {
-                            while ($machineRow = mysqli_fetch_assoc($sql_machine_query)) {
-                                $machine_option .= '<option value="' . $machineRow['machine_number'] . '">' . $machineRow['machine_number'] . '</option>';
-                            }
-                        }
-                        echo $machine_option;
-                        ?>
-                    </select>
-                </td>
-                <td> 
-                    <select class="form-select" name="with_reasons[]" required>
-                        <option value="">Select Withdrawal Reason</option>
-                        <?php
-                        $sql_withreason = "SELECT reason FROM tbl_withdrawal_reason";
-                        $sql_withreason_query = mysqli_query($con, $sql_withreason);
-                        $withdraw_option = "";
+                            <tr class="text-center" style="vertical-align: middle;">
+                                <td>${dts}</td>
+                                <td>${lot_id}</td>
+                                <td>${partName}</td>
+                                <td>${item_code}</td>
+                                <td>${batch_number}</td>
+                                <td><input type="number" name="quantities[]" value="${qty}" class="form-control" min="1" max="${total_qty + qty}" step="1" required></td>
+                                <td>                    
+                                    <select class="form-select" name="machines[]" required>
+                                        <option value="">Select Machine</option>
+                                        <?php
+                                        $sql_machine = "SELECT machine_number FROM tbl_machine";
+                                        $sql_machine_query = mysqli_query($con, $sql_machine);
+                                        $machine_option = "";
+                                        if ($sql_machine_query) {
+                                            while ($machineRow = mysqli_fetch_assoc($sql_machine_query)) {
+                                                $machine_option .= '<option value="' . $machineRow['machine_number'] . '">' . $machineRow['machine_number'] . '</option>';
+                                            }
+                                        }
+                                        echo $machine_option;
+                                        ?>
+                                    </select>
+                                </td>
+                                <td> 
+                                    <select class="form-select" name="with_reasons[]" required>
+                                        <option value="">Select Withdrawal Reason</option>
+                                        <?php
+                                        $sql_withreason = "SELECT reason FROM tbl_withdrawal_reason";
+                                        $sql_withreason_query = mysqli_query($con, $sql_withreason);
+                                        $withdraw_option = "";
 
-                        if ($sql_withreason_query) {
-                            while ($withreasonRow = mysqli_fetch_assoc($sql_withreason_query)) {
-                                $withdraw_option .= '<option value="' . $withreasonRow['reason'] . '">' . $withreasonRow['reason'] . '</option>';
-                            }
-                        }
-                        echo $withdraw_option;
-                        ?>
-                    </select>
-                </td>
-                <td style="display:none;"> 
-                    <input type="hidden" name="batch_numbers[]" value="${batch_number}">
-                    <input type="hidden" name="item_codes[]" value="${item_code}">
-                    <input type="hidden" name="ids[]" value="${id}">
-                    <input type="hidden" name="part_names[]" value="${partName}">
-                    <input type="hidden" name="exp_dates[]" value="${exp_date}">
-                </td>
-            </tr>
+                                        if ($sql_withreason_query) {
+                                            while ($withreasonRow = mysqli_fetch_assoc($sql_withreason_query)) {
+                                                $withdraw_option .= '<option value="' . $withreasonRow['reason'] . '">' . $withreasonRow['reason'] . '</option>';
+                                            }
+                                        }
+                                        echo $withdraw_option;
+                                        ?>
+                                    </select>
+                                </td>
+                                <td style="display:none;"> 
+                                    <input type="hidden" name="batch_numbers[]" value="${batch_number}">
+                                    <input type="hidden" name="item_codes[]" value="${item_code}">
+                                    <input type="hidden" name="ids[]" value="${id}">
+                                    <input type="hidden" name="part_names[]" value="${partName}">
+                                    <input type="hidden" name="exp_dates[]" value="${exp_date}">
+                                </td>
+                            </tr>
 
-            `;
+                        `;
                 $("#modalItemList").append(row);
                 let lastRow = $("#modalItemList tr:last-child");
                 lastRow.find('select[name="machines[]"]').val(machine);
                 lastRow.find('select[name="with_reasons[]"]').val(withdrawal);
             });
             $("#updateModal").modal("show");
-        });
-
-        // Update Withdrawal Request Submit
-        $("#updateForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-            formData += "&update_submit=1";
-
-            $.ajax({
-                url: '../../controller/user_query.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Requests approved successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                },
-            });
         });
 
         // Delete Withdrawal Request Button
@@ -598,39 +565,47 @@ if ($sql_machine_query) {
             $("#deleteModal").modal("show");
         });
 
-        // Delete Withdrawal Request Submit
-        $("#deleteForm").submit(function (e) {
-            e.preventDefault();
+        // Handle Form Submission Function
+        function handleFormSubmission(formSelector, actionType, successMessage, redirectUrl, errorMessage) {
+            $(formSelector).submit(function (e) {
+                e.preventDefault();
 
-            let formData = $(this).serialize();
-            formData += "&delete_submit=1";
+                let formData = $(this).serialize();
+                formData += `&${actionType}=1`;
 
-            $.ajax({
-                url: '../../controller/user_query.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Deleted!',
-                            text: 'Requests have been deleted successfully.',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
+                $.ajax({
+                    url: '../../controller/user_query.php',
+                    type: "POST",
+                    data: formData,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: successMessage,
+                                confirmButtonText: 'Ok'
+                            }).then(() => {
+                                window.location.href = redirectUrl;
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.error || errorMessage,
+                                confirmButtonText: 'Ok'
+                            });
+                        }
                     }
-                },
+                });
             });
-        });
+        }
+
+        // Handle Form Submission Function for Update Request
+        handleFormSubmission("#updateForm", "update_submit", "Requests have been updated successfully.", "userDashboard.php", "An unexpected error occurred while updating.");
+
+        // Handle Form Submission Function for Delete Request
+        handleFormSubmission("#deleteForm", "delete_submit", "Requests have been deleted successfully.", "userDashboard.php", "An unexpected error occurred while deleting.");
 
     });
 

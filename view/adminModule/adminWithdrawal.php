@@ -290,7 +290,7 @@ include "navBar.php";
 
                 <h3 class="text-center fw-bold" style="color: #900008;">History of Approved Requests</h3>
 
-                <div class="d-flex justify-content-evenly mb-3 text-center">
+                <div class="d-flex justify-content-evenly align-items-end mb-3 text-center">
                     <div>
                         <button class="btn btn-primary" id="return-btn">Return Request</button>
                     </div>
@@ -329,7 +329,7 @@ include "navBar.php";
                     </tbody>
                 </table>
 
-                <div id="pagination"></div>
+                <div id="load-more-approve"></div>
 
             </div>
 
@@ -378,7 +378,7 @@ include "navBar.php";
 
                 </table>
 
-                <div id="pagination-reject"></div>
+                <div id="load-more-reject"></div>
 
             </div>
 
@@ -428,7 +428,7 @@ include "navBar.php";
 
                 </table>
 
-                <div id="pagination-return"></div>
+                <div id="load-more-return"></div>
 
             </div>
 
@@ -558,10 +558,6 @@ include "navBar.php";
         $(`#${activeTab}-tab`).addClass('active');
         $(`#${activeTab}-tab-pane`).addClass('show active');
 
-        filterDataApprove();
-        filterDataReject();
-        filterDataReturn();
-
         // Part Number shows Description
         $('#partSelect').on('change', function () {
             var partId = $(this).val();
@@ -615,6 +611,17 @@ include "navBar.php";
         // Select All Request
         $('#select-all').on('change', function () {
             $('.select-row').prop('checked', $(this).prop('checked'));
+        });
+
+        // Select Return
+        $('#select-all-return').on('change', function () {
+            let isChecked = $(this).prop('checked');
+
+            $('.select-return').each(function () {
+                if (!$(this).prop('disabled')) {
+                    $(this).prop('checked', isChecked);
+                }
+            });
         });
 
         // Update Withdrawal Request Button
@@ -708,40 +715,6 @@ include "navBar.php";
             $("#updateModal").modal("show");
         });
 
-        // Update Withdrawal Request Submit
-        $("#updateForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-            formData += "&update_submit=1";
-
-            $.ajax({
-                url: '../../controller/user_query.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Requests updated successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                },
-            });
-        });
-
         // Delete Withdrawal Request Button
         $("#delete-btn").click(function () {
             $("#modalDeleteItemList").empty();
@@ -795,196 +768,6 @@ include "navBar.php";
             $("#deleteModal").modal("show");
         });
 
-        // Delete Withdrawal Request Submit
-        $("#deleteForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-            formData += "&delete_submit=1";
-
-            $.ajax({
-                url: '../../controller/user_query.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Deleted!',
-                            text: 'Requests have been deleted successfully.',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                },
-            });
-        });
-
-        // Select Return
-        $('#select-all-return').on('change', function () {
-            let isChecked = $(this).prop('checked');
-
-            $('.select-return').each(function () {
-                if (!$(this).prop('disabled')) {
-                    $(this).prop('checked', isChecked);
-                }
-            });
-        });
-
-        // Approved Request Pagination
-        $(document).on('click', '.page-link-approve', function (e) {
-            e.preventDefault();
-
-            let page = $(this).attr('href').split('=')[1];
-
-            let startDate = $('#start_date_approve').val();
-            let endDate = $('#end_date_approve').val();
-
-            filterDataApprove(startDate, endDate, page);
-        });
-
-        // Approve Request Fetch Data Tables
-        function filterDataApprove(startDate, endDate, page = 1) {
-            $.ajax({
-                url: '../../controller/withdrawal_approved.php',
-                method: 'GET',
-                data: {
-                    start_date: startDate,
-                    end_date: endDate,
-                    page: page
-                },
-                success: function (response) {
-                    let data = JSON.parse(response);
-
-                    $('#data-table-approve').html(data.table);
-                    $('#pagination').html(data.pagination);
-                },
-                error: function (xhr, status, error) {
-                    console.log("Error: ", error);
-                    alert('Error fetching data.');
-                }
-            });
-        }
-
-        let startDate = $('#start_date_approve').val();
-        let endDate = $('#end_date_approve').val();
-
-        // Approve Request Date Selection
-        $('#start_date_approve, #end_date_approve').on('change', function () {
-
-            startDate = $('#start_date_approve').val();
-            endDate = $('#end_date_approve').val();
-
-            filterDataApprove(startDate, endDate, 1);
-        });
-
-        filterDataApprove(startDate, endDate, 1);
-
-        // Rejected Request Pagination
-        $(document).on('click', '.page-link-reject', function (e) {
-            e.preventDefault();
-
-            let page = $(this).attr('href').split('=')[1];
-
-            let startDateReject = $('#start_date_reject').val();
-            let endDateReject = $('#end_date_reject').val();
-
-            filterDataReject(startDateReject, endDateReject, page);
-        });
-
-        // Rejected Request Fetch Data Tables
-        function filterDataReject(startDateReject, endDateReject, page = 1) {
-            $.ajax({
-                url: '../../controller/withdrawal_rejected.php',
-                method: 'GET',
-                data: {
-                    start_date: startDateReject,
-                    end_date: endDateReject,
-                    page: page
-                },
-                success: function (response) {
-                    let data = JSON.parse(response);
-
-                    $('#data-table-reject').html(data.table);
-                    $('#pagination-reject').html(data.pagination);
-                },
-                error: function (xhr, status, error) {
-                    console.log("Error: ", error);
-                    alert('Error fetching data.');
-                }
-            });
-        }
-
-        // Rejected Request Date Selection
-        $('#start_date_reject, #end_date_reject').on('change', function () {
-            let startDateReject = $('#start_date_reject').val();
-            let endDateReject = $('#end_date_reject').val();
-
-            filterDataReject(startDateReject, endDateReject, 1);
-        });
-
-        let startDateReject = $('#start_date_reject').val();
-        let endDateReject = $('#end_date_reject').val();
-
-        filterDataReject(startDateReject, endDateReject, 1);
-
-        // Return Request Pagination
-        $(document).on('click', '.page-link-return', function (e) {
-            e.preventDefault();
-
-            let page = $(this).attr('href').split('=')[1];
-
-            let startDateReturn = $('#start_date_return').val();
-            let endDateReturn = $('#end_date_return').val();
-
-            filterDataReturn(startDateReturn, endDateReturn, page);
-        });
-
-        // Return Request Fetch Data Tables
-        function filterDataReturn(startDateReturn, endDateReturn, page = 1) {
-            $.ajax({
-                url: '../../controller/withdrawal_returned.php',
-                method: 'GET',
-                data: {
-                    start_date: startDateReturn,
-                    end_date: endDateReturn,
-                    page: page
-                },
-                success: function (response) {
-                    let data = JSON.parse(response);
-
-                    $('#data-table-return').html(data.table);
-                    $('#pagination-return').html(data.pagination);
-                },
-                error: function (xhr, status, error) {
-                    console.log("Error: ", error);
-                    alert('Error fetching data.');
-                }
-            });
-        }
-
-        // Return Request Date Selection
-        $('#start_date_return, #end_date_return').on('change', function () {
-            let startDateReturn = $('#start_date_return').val();
-            let endDateReturn = $('#end_date_return').val();
-
-            filterDataReturn(startDateReturn, endDateReturn, 1);
-        });
-
-        let startDateReturn = $('#start_date_return').val();
-        let endDateReturn = $('#end_date_return').val();
-
-        filterDataReturn(startDateReturn, endDateReturn, 1);
-
         // Return Withdrawal Request Button
         $("#return-btn").click(function () {
             $("#modalReturnList").empty();
@@ -1036,40 +819,162 @@ include "navBar.php";
             $("#returnModal").modal("show");
         });
 
-        // Return Withdrawal Request Submit
-        $("#returnForm").submit(function (e) {
-            e.preventDefault();
 
-            let formData = $(this).serialize();
-            formData += "&return_submit=1";
+        // Form Submission Function
+        function handleForm(formSelector, submitKey, url, successTitle, successText, redirectUrl = null) {
+            $(formSelector).submit(function (e) {
+                e.preventDefault();
+
+                let formData = $(this).serialize();
+                formData += `&${submitKey}=1`;
+
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: formData,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: successTitle,
+                                text: successText,
+                                confirmButtonText: 'Ok'
+                            }).then(() => {
+                                if (redirectUrl) {
+                                    window.location.href = redirectUrl;
+                                } else {
+                                    location.reload();
+                                }
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.error || 'An unexpected error occurred.',
+                                confirmButtonText: 'Ok'
+                            });
+                        }
+                    }
+                });
+            });
+        }
+
+        // Form Submission Function for Update 
+        handleForm("#updateForm", "update_submit", "../../controller/user_query.php", "Success!", "Requests updated successfully!");
+
+        // Form Submission Function for Deletion
+        handleForm("#deleteForm", "delete_submit", "../../controller/user_query.php", "Deleted!", "Requests have been deleted successfully.");
+
+        // Form Submission Function for Return Request
+        handleForm("#returnForm", "return_submit", "../../controller/update_status.php", "Success!", "You are now authorized to return the part number(s)", "adminWithdrawal.php?tab=approved");
+
+        // Fetch Data Tables
+        const scrollTables = {
+            approve: {
+                page: 1,
+                hasMore: true,
+                isLoading: false,
+                startSelector: '#start_date_approve',
+                endSelector: '#end_date_approve',
+                url: '../../controller/withdrawal_approved.php',
+                tableSelector: '#data-table-approve',
+                sentinelId: '#load-more-approve'
+            },
+            reject: {
+                page: 1,
+                hasMore: true,
+                isLoading: false,
+                startSelector: '#start_date_reject',
+                endSelector: '#end_date_reject',
+                url: '../../controller/withdrawal_rejected.php',
+                tableSelector: '#data-table-reject',
+                sentinelId: '#load-more-reject'
+            },
+            return: {
+                page: 1,
+                hasMore: true,
+                isLoading: false,
+                startSelector: '#start_date_return',
+                endSelector: '#end_date_return',
+                url: '../../controller/withdrawal_returned.php',
+                tableSelector: '#data-table-return',
+                sentinelId: '#load-more-return'
+            }
+        };
+
+        function loadMoreData(key) {
+            const t = scrollTables[key];
+            if (t.isLoading || !t.hasMore) return;
+
+            t.isLoading = true;
 
             $.ajax({
-                url: '../../controller/update_status.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'You are now authorized to return the part number(s)',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            window.location.href = 'adminWithdrawal.php?tab=approved';
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
+                url: t.url,
+                method: 'GET',
+                data: {
+                    start_date: $(t.startSelector).val(),
+                    end_date: $(t.endSelector).val(),
+                    page: t.page
                 },
+                success: function (response) {
+                    const data = JSON.parse(response);
+                    $(t.tableSelector).append(data.table);
+                    t.hasMore = data.has_more;
+                    t.page++;
+                },
+                error: function () {
+                    alert(`Error loading more ${key} data.`);
+                },
+                complete: function () {
+                    t.isLoading = false;
+                }
             });
-        });
+        }
 
+        function setupInfiniteScroll(key) {
+            const sentinel = document.querySelector(scrollTables[key].sentinelId);
+            if (!sentinel) {
+                console.warn(`Sentinel not found for ${key}:`, scrollTables[key].sentinelId);
+                return;
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        loadMoreData(key);
+                    }
+                });
+            }, {
+                root: null,
+                threshold: 0.75
+            });
+
+            observer.observe(sentinel);
+        }
+
+        function resetAndFetch(key) {
+            const t = scrollTables[key];
+            t.page = 1;
+            t.hasMore = true;
+            $(t.tableSelector).html('');
+            loadMoreData(key);
+        }
+
+
+        $(function () {
+            setupInfiniteScroll('approve');
+            setupInfiniteScroll('reject');
+            setupInfiniteScroll('return');
+
+            $('#start_date_approve, #end_date_approve').on('change', () => resetAndFetch('approve'));
+            $('#start_date_reject, #end_date_reject').on('change', () => resetAndFetch('reject'));
+            $('#start_date_return, #end_date_return').on('change', () => resetAndFetch('return'));
+
+            resetAndFetch('approve');
+            resetAndFetch('reject');
+            resetAndFetch('return');
+        });
 
     });
 

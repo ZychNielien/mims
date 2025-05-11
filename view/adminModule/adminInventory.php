@@ -72,18 +72,15 @@ include "navBar.php";
                 </thead>
 
                 <tbody id="data-table-inventory">
-                    <!-- Dynamic rows will be added here -->
                 </tbody>
 
             </table>
 
-            <!-- Add the spinner inside the button or separately (but typically it's inside the button) -->
-            <button id="load-more-btn" class="btn btn-outline-primary mb-3">
-                <span id="spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
-                    style="display: none;"></span>
-                Load More
-            </button>
-
+            <div id="spinner" class="text-center my-3" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
 
 
         </div>
@@ -284,17 +281,24 @@ include "navBar.php";
     const LIMIT = 20;
     let currentPage = 0;
     let isLoading = false;
-    let loadedKeys = new Set(); // ✅ Track loaded rows
-    let searchTerm = ''; // ✅ Track the search term
+    let loadedKeys = new Set();
+    let searchTerm = '';
+    let noMoreData = false;
 
-    // Automatically load the first page when the page loads
     $(document).ready(function () {
-        loadPage(currentPage); // Load the first page on page load
+        loadPage(currentPage);
 
-        // Listen for search input changes
         $('#search_inventory').on('input', function () {
             searchTerm = $(this).val().toLowerCase();
             filterTableRows();
+        });
+
+        $(window).on('scroll', function () {
+            if (noMoreData || isLoading) return;
+
+            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                loadPage(currentPage);
+            }
         });
     });
 
@@ -302,51 +306,41 @@ include "navBar.php";
         if (isLoading) return;
         isLoading = true;
 
-        // Show spinner while loading
         $('#spinner').show();
-        $('#load-more-btn').prop('disabled', true); // Disable Load More button
 
         $.get(`../../controller/check_inventory.php?page=${page}&limit=${LIMIT}`, function (data) {
-            updateTable(data, false);
-            isLoading = false;
+            if (data.length === 0) {
+                noMoreData = true;
+                $('#spinner').hide();
+                return;
+            }
 
-            // Hide spinner once data is loaded
+            updateTable(data, false);
+            currentPage++;
+            isLoading = false;
             $('#spinner').hide();
-            $('#load-more-btn').prop('disabled', false); // Enable Load More button
+        }).fail(function () {
+            isLoading = false;
+            $('#spinner').hide();
         });
     }
 
     function updateTable(data, isLiveUpdate = false) {
         let checkedItems = {};
 
-        // Track checked checkboxes by part name
         $('#data-table-inventory input[type="checkbox"]:checked').each(function () {
             const partName = $(this).closest('tr').find('td[data-label="Part Name"]').text().trim();
             checkedItems[partName] = true;
         });
 
-        // Only clear if it's a manual load (not live update) and on first page
         if (!isLiveUpdate && currentPage === 0) {
             $('#data-table-inventory').empty();
-            loadedKeys.clear(); // ✅ Clear tracked keys only when reloading manually
-        }
-
-        if (data.length === 0) {
-            if (!isLiveUpdate && currentPage === 0) {
-                $('#data-table-inventory').html(`
-                <tr>
-                    <td colspan="7" class="text-center text-muted">No materials found.</td>
-                </tr>
-            `);
-            }
-            $('#load-more-btn').hide();
-            return;
+            loadedKeys.clear();
         }
 
         const seen = new Set();
         const uniqueData = [];
 
-        // De-duplicate by part_name + item_code
         for (const item of data) {
             const key = `${item.part_name}__${item.item_code || ''}`;
             if (!seen.has(key)) {
@@ -359,12 +353,10 @@ include "navBar.php";
             const key = `${item.part_name}__${item.item_code || ''}`;
             const existingRow = $(`#data-table-inventory tr[data-key="${key}"]`);
 
-            // ✅ During live update, only update existing rows, don't add new ones
             if (isLiveUpdate && !loadedKeys.has(key)) {
                 return;
             }
 
-            // ✅ If not a live update, mark this key as loaded
             if (!isLiveUpdate) {
                 loadedKeys.add(key);
             }
@@ -407,63 +399,60 @@ include "navBar.php";
 
             if (existingRow.length > 0) {
                 if (isLiveUpdate) {
-                    existingRow.replaceWith(row); // Replace only if it's a live update
+                    existingRow.replaceWith(row);
                 }
             } else {
-                $('#data-table-inventory').append(row); // Add row only during manual load
+                $('#data-table-inventory').append(row);
             }
         });
 
-        // ✅ Handle Load More button only during manual loads
-        if (!isLiveUpdate) {
-            if (uniqueData.length < LIMIT) {
-                $('#load-more-btn').hide();
-            } else {
-                $('#load-more-btn').show();
-                currentPage++; // Advance page only during manual loads
-            }
+        if (uniqueData.length < LIMIT) {
+            noMoreData = true;
         }
 
-        // ✅ After table update, apply the filter if search term is present
         filterTableRows();
     }
 
     function filterTableRows() {
+        let hasVisible = false;
+
         $('#data-table-inventory tr').each(function () {
-            const partName = $(this).find('td').eq(1).text().toLowerCase(); // Only 2nd <td>
+            const partName = $(this).find('td').eq(1).text().toLowerCase();
             if (partName.indexOf(searchTerm) === -1) {
                 $(this).hide();
             } else {
                 $(this).show();
+                hasVisible = true;
             }
         });
+
+        $('#no-results-row').remove();
+
+        if (!hasVisible) {
+            $('#data-table-inventory').append(`
+            <tr id="no-results-row" style="display: none;">
+                <td colspan="7" class="text-center">No results found</td>
+            </tr>
+        `);
+            $('#no-results-row').fadeIn();
+        }
     }
 
 
-    // Load more button click handler
-    $('#load-more-btn').on('click', function () {
-        loadPage(currentPage);
-    });
-
-    // SSE for live updates
+    // SSE setup
     if (!!window.EventSource) {
         const source = new EventSource('../../controller/check_inventory.php');
-
-        source.onopen = function () {
-            // Connected
-        };
 
         source.onmessage = function (event) {
             try {
                 const data = JSON.parse(event.data);
                 updateTable(data, true);
             } catch (err) {
-                console.error("❌ Failed to parse SSE data:", event.data, err);
+                console.error("Failed to parse SSE data:", event.data, err);
             }
         };
-    } else {
-        console.warn("❌ SSE not supported by this browser.");
     }
+
 
 
     $(document).ready(function () {
@@ -559,7 +548,7 @@ include "navBar.php";
             clearTimeout(debounceTimeout);
             debounceTimeout = setTimeout(function () {
                 searchTerm = $('#search_inventory').val().toLowerCase();
-                filterTableRows(); // Call the updated function
+                filterTableRows();
             }, 300);
         });
 
@@ -802,7 +791,6 @@ include "navBar.php";
             $("#itemTable tbody").append(row);
         }
 
-        // Counter Add to Stock
         let rowCounter = 0;
 
         // Add Row add to Stock

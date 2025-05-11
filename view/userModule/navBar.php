@@ -137,20 +137,23 @@ if (!isset($_SESSION['username'])) {
                         <div class="mb-3 position-relative">
                             <label for="old_password" class="form-label">Old Password</label>
                             <input type="password" class="form-control" id="old_password" name="old_password" required>
-                            <i class="bi bi-eye-slash" id="toggle_old_password"
+                            <i class="bi bi-eye-slash" id="toggle_old_password" data-toggle="password"
+                                data-target="#old_password"
                                 style="position: absolute; right: 10px; top: 40px; cursor: pointer;"></i>
                         </div>
                         <div class="mb-3 position-relative">
                             <label for="password" class="form-label">New Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
-                            <i class="bi bi-eye-slash" id="toggle_password"
+                            <i class="bi bi-eye-slash" id="toggle_password" data-toggle="password"
+                                data-target="#password"
                                 style="position: absolute; right: 10px; top: 40px; cursor: pointer;"></i>
                         </div>
                         <div class="mb-3 position-relative">
                             <label for="confirm_password" class="form-label">Confirm Password</label>
                             <input type="password" class="form-control" id="confirm_password" name="confirm_password"
                                 required>
-                            <i class="bi bi-eye-slash" id="toggle_confirm_password"
+                            <i class="bi bi-eye-slash" id="toggle_confirm_password" data-toggle="password"
+                                data-target="#confirm_password"
                                 style="position: absolute; right: 10px; top: 40px; cursor: pointer;"></i>
                         </div>
                 </div>
@@ -166,7 +169,6 @@ if (!isset($_SESSION['username'])) {
     <script>
         $(document).ready(function () {
 
-            // Sweetaler Script
             <?php if (isset($_SESSION['status'])): ?>
                 Swal.fire({
                     text: "<?php echo $_SESSION['status']; ?>",
@@ -179,55 +181,23 @@ if (!isset($_SESSION['username'])) {
                 ?>
             <?php endif; ?>
 
-            // Fetch Notification Function
             fetchNotifications();
             setInterval(fetchNotifications, 2000);
 
-            // Notification Mark as Read 
             $('#notification-bell').on('click', function () {
                 markAllAsRead();
             });
 
-            // Show Old Password Script
-            $('#toggle_old_password').click(function () {
-                var passwordField = $('#old_password');
-                var icon = $(this);
+            // Reusable Password Toggle Script
+            $('[data-toggle="password"]').click(function () {
+                const targetInput = $($(this).data('target'));
+                const icon = $(this);
 
-                if (passwordField.attr('type') === 'password') {
-                    passwordField.attr('type', 'text');
-                    icon.removeClass('bi-eye-slash').addClass('bi-eye');
-                } else {
-                    passwordField.attr('type', 'password');
-                    icon.removeClass('bi-eye').addClass('bi-eye-slash');
-                }
-            });
+                const isPassword = targetInput.attr('type') === 'password';
+                targetInput.attr('type', isPassword ? 'text' : 'password');
 
-            // Show New Password Script
-            $('#toggle_password').click(function () {
-                var passwordField = $('#password');
-                var icon = $(this);
-
-                if (passwordField.attr('type') === 'password') {
-                    passwordField.attr('type', 'text');
-                    icon.removeClass('bi-eye-slash').addClass('bi-eye');
-                } else {
-                    passwordField.attr('type', 'password');
-                    icon.removeClass('bi-eye').addClass('bi-eye-slash');
-                }
-            });
-
-            // Show Confirm Password Script
-            $('#toggle_confirm_password').click(function () {
-                var passwordField = $('#confirm_password');
-                var icon = $(this);
-
-                if (passwordField.attr('type') === 'password') {
-                    passwordField.attr('type', 'text');
-                    icon.removeClass('bi-eye-slash').addClass('bi-eye');
-                } else {
-                    passwordField.attr('type', 'password');
-                    icon.removeClass('bi-eye').addClass('bi-eye-slash');
-                }
+                icon.toggleClass('bi-eye-slash', !isPassword);
+                icon.toggleClass('bi-eye', isPassword);
             });
 
         });

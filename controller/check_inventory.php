@@ -13,7 +13,6 @@ $today = date('Y-m-d');
 $update_sql = "UPDATE tbl_stock SET status = 'Expired' WHERE exp_date <= '$today' AND status != 'Expired'";
 mysqli_query($con, $update_sql);
 
-// Check if it's an SSE request or pagination request
 $isSSE = !isset($_GET['page']);
 
 if ($isSSE) {
@@ -23,7 +22,7 @@ if ($isSSE) {
 
     while (true) {
         sendInventoryData($con);
-        sleep(5); // Sending updates every 5 seconds
+        sleep(5);
     }
 } else {
     header('Content-Type: application/json');

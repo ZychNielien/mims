@@ -20,44 +20,56 @@ include "navBar.php";
         </h2>
     </div>
 
+    <?php
+    $limit = 100;
+    $offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
+
+    $sql = "SELECT * FROM tbl_requested 
+        WHERE (status = 'Approved' OR status = 'returned') 
+        AND dts_approve >= NOW() - INTERVAL 60 DAY 
+        ORDER BY dts_approve DESC 
+        LIMIT $limit OFFSET $offset";
+    $sql_query = mysqli_query($con, $sql);
+
+    $total_query = mysqli_query($con, "SELECT COUNT(*) AS total FROM tbl_requested WHERE dts_approve >= NOW() - INTERVAL 60 DAY AND (status = 'Approved' OR status = 'returned')");
+    $total_row = mysqli_fetch_assoc($total_query);
+    $total_records = $total_row['total'];
+    ?>
+
     <div class="mx-5">
 
-        <div class="d-flex flex-wrap justify-content-evenly">
-            <input type="text" id="search-box" placeholder="Search..." />
-            <button id="export-btn" class="btn btn-success my-2">Export to Excel</button>
+        <div class="d-flex flex-wrap justify-content-evenly align-items-end text-center mb-2">
+            <div>
+                <input type="text" id="search-box" class="form-control m-0 " style="padding: 6px 12px;"
+                    placeholder="Search..." />
+            </div>
+            <div>
+                <label for="start-date" class="me-2 fw-bold">Start Date:</label>
+                <input type="date" class="form-control" id="start-date" />
+            </div>
+            <div>
+                <label for="end-date" class="me-2 fw-bold">End Date:</label>
+                <input type="date" class="form-control" id="end-date" />
+            </div>
+            <div>
+                <button id="export-btn" class="btn btn-success ">Export to Excel</button>
+            </div>
         </div>
 
-        <?php
-        $userName = $_SESSION['username'];
-
-        $limit = 100;
-        $page = isset($_GET['page']) && is_numeric($_GET['page']) ? $_GET['page'] : 1;
-        $start_from = ($page - 1) * $limit;
-
-        $sql = "SELECT * FROM tbl_requested 
-        WHERE (status = 'Approved' OR status = 'returned') AND dts_approve >= NOW() - INTERVAL 60 DAY
-        ORDER BY dts_approve DESC 
-        LIMIT $start_from, $limit";
-        $sql_query = mysqli_query($con, $sql);
-
-        $total_query = mysqli_query($con, "SELECT COUNT(*) AS total FROM tbl_requested WHERE dts_approve >= NOW() - INTERVAL 60 DAY");
-        $total_row = mysqli_fetch_assoc($total_query);
-        $total_records = $total_row['total'];
-        $total_pages = ceil($total_records / $limit);
-        ?>
-        <div class="d-flex flex-column-reverse">
+        <div class="d-flex flex-column">
             <table class="table table-striped w-100">
                 <thead>
                     <tr class="text-center" style="background-color: #900008; color: white; vertical-align: middle;">
                         <th scope="col">Date / Time / Shift</th>
                         <th scope="col">Lot ID</th>
                         <th scope="col">Part Number</th>
-                        <th scope="col">Item Description</th>
+                        <th scope="col">Part Description</th>
+                        <th scope="col">Item Code</th>
+                        <th scope="col">Batch Number</th>
                         <th scope="col">Machine No.</th>
                         <th scope="col">Withdrawal Reason</th>
                         <th scope="col">Requested By</th>
                         <th scope="col">Approved Qty</th>
-                        <th scope="col">Batch Number</th>
                         <th scope="col">Approved Reason</th>
                         <th scope="col">Approved By</th>
                     </tr>
@@ -68,17 +80,17 @@ include "navBar.php";
                     if (mysqli_num_rows($sql_query) > 0) {
                         while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
                             ?>
-                            <tr class="table-row  text-center" style="vertical-align: middle;">
-
+                            <tr class="table-row text-center" style="vertical-align: middle;">
                                 <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts_approve']; ?></td>
                                 <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
                                 <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
                                 <td data-label="Part Desc"><?php echo $sqlRow['part_desc']; ?></td>
+                                <td data-label="Item Code"><?php echo $sqlRow['item_code']; ?></td>
+                                <td data-label="Batch Number"><?php echo $sqlRow['batch_number']; ?></td>
                                 <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
                                 <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                                 <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>
                                 <td data-label='Approved Qty'><?php echo $sqlRow['approved_qty']; ?></td>
-                                <td data-label="Batch Number"><?php echo $sqlRow['batch_number']; ?></td>
                                 <td data-label='Approved Reason'><?php echo $sqlRow['approved_reason']; ?></td>
                                 <td data-label="Approved By"><?php echo $sqlRow['approved_by']; ?></td>
                             </tr>
@@ -87,78 +99,22 @@ include "navBar.php";
                     } else {
                         ?>
                         <tr>
-                            <td colspan="12" class="text-center">No issuance materials found</td>
+                            <td colspan="12" class="text-center">No materials found.</td>
                         </tr>
                         <?php
                     }
                     ?>
+                    <tr id="no-results-row" style="display: none;">
+                        <td colspan="12" class="text-center">No results found.</td>
+                    </tr>
                 </tbody>
             </table>
 
-            <?php
-            $max_visible_links = 5;
-            $start_page = max(1, $page - floor($max_visible_links / 2));
-            $end_page = min($total_pages, $start_page + $max_visible_links - 1);
-
-            if ($end_page - $start_page < $max_visible_links - 1) {
-                $start_page = max(1, $end_page - $max_visible_links + 1);
-            }
-            ?>
-
-            <div class="text-center mt-3">
-                <nav>
-                    <ul class="pagination justify-content-center">
-
-                        <?php if ($page > 1): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="?page=<?php echo $page - 1; ?>">&laquo; Prev</a>
-                            </li>
-                        <?php endif; ?>
-
-                        <?php if ($start_page > 1): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="?page=1">1</a>
-                            </li>
-                            <?php if ($start_page > 2): ?>
-                                <li class="page-item">
-                                    <a class="page-link"
-                                        href="?page=<?php echo $start_page - 1; ?>"><?php echo $start_page - 1; ?>...</a>
-                                </li>
-                            <?php endif; ?>
-                        <?php endif; ?>
-
-                        <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
-                            <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
-                                <a class="page-link" href="?page=<?php echo $i; ?>"><?php echo $i; ?></a>
-                            </li>
-                        <?php endfor; ?>
-
-                        <?php if ($end_page < $total_pages): ?>
-                            <?php if ($end_page + 1 < $total_pages): ?>
-                                <li class="page-item">
-                                    <a class="page-link"
-                                        href="?page=<?php echo $end_page + 1; ?>">...<?php echo $end_page + 1; ?></a>
-                                </li>
-                            <?php endif; ?>
-                            <li class="page-item">
-                                <a class="page-link"
-                                    href="?page=<?php echo $total_pages; ?>"><?php echo $total_pages; ?></a>
-                            </li>
-                        <?php endif; ?>
-
-                        <?php if ($page < $total_pages): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="?page=<?php echo $page + 1; ?>">Next &raquo;</a>
-                            </li>
-                        <?php endif; ?>
-
-                    </ul>
-                </nav>
+            <div id="loading-msg" class="text-center text-muted mt-3" style="display: none;">
+                Loading more records...
             </div>
         </div>
-
     </div>
-
 </section>
 
 <script src="../../public/js/excel.js"></script>
@@ -166,13 +122,85 @@ include "navBar.php";
 <script>
     $(document).ready(function () {
 
-        // Search Input Script
-        $('#search-box').on('keyup', function () {
-            var value = $(this).val().toLowerCase();
-            $('#data-table .table-row').filter(function () {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-            });
+        let offset = <?php echo $offset; ?>;
+        let limit = <?php echo $limit; ?>;
+        let totalRecords = <?php echo $total_records; ?>;
+        let isLoading = false;
+        let noMoreData = false;
+
+        $(window).scroll(function () {
+            if (noMoreData || isLoading) return;
+
+            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                if (offset + limit < totalRecords) {
+                    isLoading = true;
+                    $('#loading-msg').show();
+                    offset += limit;
+
+                    $.ajax({
+                        url: '<?php echo $_SERVER['PHP_SELF']; ?>',
+                        type: 'GET',
+                        data: { offset: offset },
+                        success: function (response) {
+                            let newRows = $(response).find('#data-table').children();
+
+                            if (newRows.length === 0 || newRows.text().includes('No items found')) {
+                                noMoreData = true;
+                            } else {
+                                $('#data-table').append(newRows);
+                            }
+
+                            $('#loading-msg').hide();
+                            isLoading = false;
+                        }
+                    });
+                } else {
+                    noMoreData = true;
+                }
+            }
         });
+
+        function filterTable() {
+            const searchValue = $('#search-box').val().toLowerCase();
+            const startDate = $('#start-date').val();
+            const endDate = $('#end-date').val();
+
+            let anyVisible = false;
+
+            $('#data-table .table-row').each(function () {
+                const row = $(this);
+                const rowText = row.text().toLowerCase();
+                const rowDateStr = row.find('td:first').text().trim();
+
+                const rowDate = new Date(rowDateStr);
+                let showRow = true;
+
+                if (searchValue && !rowText.includes(searchValue)) {
+                    showRow = false;
+                }
+
+                if (startDate) {
+                    const start = new Date(startDate);
+                    if (rowDate < start) {
+                        showRow = false;
+                    }
+                }
+
+                if (endDate) {
+                    const end = new Date(endDate);
+                    end.setHours(23, 59, 59, 999);
+                    if (rowDate > end) {
+                        showRow = false;
+                    }
+                }
+
+                row.toggle(showRow);
+                if (showRow) anyVisible = true;
+            });
+
+            $('#no-results-row').toggle(!anyVisible);
+        }
+        $('#search-box, #start-date, #end-date').on('input change', filterTable);
 
         // Export to Excel Script
         $('#export-btn').on('click', function () {

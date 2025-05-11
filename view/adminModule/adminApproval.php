@@ -32,7 +32,28 @@ include "navBar.php";
             </div>
         </div>
 
-        <!-- Approval Request Table -->
+        <?php
+        $userName = $_SESSION['username'];
+        $approver = $_SESSION['user'];
+        $limit = 100;
+        $offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
+        $sql = "SELECT tr.*, ti.approver, ts.item_code 
+                FROM tbl_requested tr 
+                LEFT JOIN tbl_inventory ti ON tr.part_name = ti.part_name
+                LEFT JOIN tbl_stock ts ON tr.part_name = ts.part_name AND tr.exp_date = ts.exp_date AND tr.batch_number = ts.batch_number AND tr.item_code = ts.item_code
+                WHERE tr.status = 'Pending' AND ti.approver = '$approver' 
+                ORDER BY dts DESC 
+                LIMIT $limit OFFSET $offset";
+        $sql_query = mysqli_query($con, $sql);
+
+        $total_query = mysqli_query($con, "SELECT COUNT(*) AS total, tr.*, ti.approver, ts.item_code FROM tbl_requested tr 
+                            LEFT JOIN tbl_inventory ti ON tr.part_name = ti.part_name
+                            LEFT JOIN tbl_stock ts ON tr.part_name = ts.part_name AND tr.exp_date = ts.exp_date AND tr.batch_number = ts.batch_number AND tr.item_code = ts.item_code
+                            WHERE tr.status = 'Pending' AND ti.approver = '$approver' ");
+        $total_row = mysqli_fetch_assoc($total_query);
+        $total_records = $total_row['total'];
+        ?>
+
         <table class="table table-striped my-2">
 
             <thead>
@@ -53,17 +74,8 @@ include "navBar.php";
                 </tr>
             </thead>
 
-            <tbody>
+            <tbody id="data-table-approval">
                 <?php
-                $userName = $_SESSION['username'];
-                $approver = $_SESSION['user'];
-                $sql = "SELECT tr.*, ti.approver, ts.item_code FROM tbl_requested tr 
-                            LEFT JOIN tbl_inventory ti ON tr.part_name = ti.part_name
-                            LEFT JOIN tbl_stock ts ON tr.part_name = ts.part_name AND tr.exp_date = ts.exp_date AND tr.batch_number = ts.batch_number AND tr.item_code = ts.item_code
-                            WHERE tr.status = 'Pending' AND ti.approver = '$approver' 
-                            ORDER BY dts DESC";
-                $sql_query = mysqli_query($con, $sql);
-
                 if (mysqli_num_rows($sql_query) > 0) {
                     while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
                         ?>
@@ -103,6 +115,10 @@ include "navBar.php";
             </tbody>
 
         </table>
+
+        <div id="loading-msg" class="text-center text-muted mt-3" style="display: none;">
+            Loading more records...
+        </div>
 
     </div>
 
@@ -191,17 +207,57 @@ include "navBar.php";
             $('.select-row').prop('checked', $(this).prop('checked'));
         });
 
-        // Approve Request Button
-        $("#approve-btn").click(function () {
-            $("#modalItemList").empty();
+        let offset = <?php echo $offset; ?>;
+        let limit = <?php echo $limit; ?>;
+        let totalRecords = <?php echo $total_records; ?>;
+        let isLoading = false;
+        let noMoreData = false;
 
+        $(window).scroll(function () {
+            if (noMoreData || isLoading) return;
+
+            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                if (offset + limit < totalRecords) {
+                    isLoading = true;
+                    $('#loading-msg').show();
+                    offset += limit;
+
+                    $.ajax({
+                        url: '<?php echo $_SERVER['PHP_SELF']; ?>',
+                        type: 'GET',
+                        data: { offset: offset },
+                        success: function (response) {
+                            let newRows = $(response).find('#data-table-approval').children();
+
+                            if (newRows.length === 0 || newRows.text().includes('No items found')) {
+                                noMoreData = true;
+                            } else {
+                                $('#data-table-approval').append(newRows);
+                            }
+
+                            $('#loading-msg').hide();
+                            isLoading = false;
+                        }
+                    });
+                } else {
+                    noMoreData = true;
+                }
+            }
+        });
+
+        // Approval Function
+        function handleItemSelection(buttonType) {
             let selectedItems = $(".select-row:checked");
+            let modalListSelector = buttonType === "approve" ? "#modalItemList" : "#modalRejectItemList";
+            let modalSelector = buttonType === "approve" ? "#approvalModal" : "#rejectModal";
+
+            $(modalListSelector).empty();
 
             if (selectedItems.length === 0) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'No items selected',
-                    text: 'Please select at least one request to approve.',
+                    text: `Please select at least one request to ${buttonType}.`,
                     confirmButtonText: 'Ok'
                 });
                 return;
@@ -214,162 +270,114 @@ include "navBar.php";
                 let qty = $(this).data("qty");
                 let batch_number = $(this).data("batch_number");
                 let item_code = $(this).data("item_code");
+                let exp_date = $(this).data("exp_date");
 
-                let row = `
-                    <tr class=" text-center" style="vertical-align: middle;">
-                        <td>${reqBy}</td>
-                        <td>${partName} <input type="hidden" name="ids[]" value="${id}"></td>
-                        <td style="display:none;"> 
+                let row;
+
+                if (buttonType === "approve") {
+                    row = `
+                <tr class="text-center" style="vertical-align: middle;">
+                    <td>${reqBy}</td>
+                    <td>${partName} <input type="hidden" name="ids[]" value="${id}"></td>
+                    <td style="display:none;"> 
                         <input type="hidden" name="part_names[]" value="${partName}">
                         <input type="hidden" name="request_bys[]" value="${reqBy}">
                         <input type="hidden" name="item_codes[]" value="${item_code}">
-                        </td>
-                        <td>${item_code}</td>
-                        <td><input type="number" name="quantities[]" value="${qty}" max="${qty}" class="form-control" min="1" step="1" required></td>
-                        <td>${batch_number}</td>
-                        <td>
-                            <input type="text" name="batch_numbers[]" class="form-control" placeholder="Actual Batch Number" autocomplete="off">
-                        </td>
-                        <td>
-                        <input type="text" name="reasons[]" class="form-control" placeholder="Reason (Optional)" autocomplete="off">
-
-                        </td>
-                    </tr>
-                `;
-                $("#modalItemList").append(row);
-            });
-
-            $("#approvalModal").modal("show");
-        });
-
-        // Approve Request Submit
-        $("#approvalForm").submit(function (e) {
-            e.preventDefault();
-
-            let formData = $(this).serialize();
-            formData += "&approve_submit=1";
-
-            $.ajax({
-                url: '../../controller/update_status.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Requests approved successfully!',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
-                            confirmButtonText: 'Ok'
-                        });
-                    }
-                },
-                error: function (xhr, status, error) {
-
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Failed to process approval',
-                        text: 'See console for details.',
-                        confirmButtonText: 'Ok'
-                    });
+                    </td>
+                    <td>${item_code}</td>
+                    <td><input type="number" name="quantities[]" value="${qty}" max="${qty}" class="form-control" min="1" step="1" required></td>
+                    <td>${batch_number}</td>
+                    <td><input type="text" name="batch_numbers[]" class="form-control" placeholder="Actual Batch Number" autocomplete="off"></td>
+                    <td><input type="text" name="reasons[]" class="form-control" placeholder="Reason (Optional)" autocomplete="off"></td>
+                </tr>
+            `;
+                } else {
+                    row = `
+                <tr class="text-center" style="vertical-align: middle;">
+                    <td>${reqBy}</td>
+                    <td>${partName} <input type="hidden" name="ids[]" value="${id}"></td>
+                    <td>${item_code}</td>
+                    <td>${batch_number}</td>
+                    <td>${qty}</td>
+                    <td style="display:none;"> 
+                        <input type="hidden" name="part_names[]" value="${partName}">
+                        <input type="hidden" name="request_bys[]" value="${reqBy}">
+                        <input type="hidden" name="quantities[]" value="${qty}">
+                        <input type="hidden" name="exp_dates[]" value="${exp_date || ''}">
+                        <input type="hidden" name="item_codes[]" value="${item_code}">
+                        <input type="hidden" name="batch_numbers[]" value="${batch_number}">
+                    </td>
+                    <td><input type="text" name="reasons[]" class="form-control" placeholder="Reason for rejection"></td>
+                </tr>
+            `;
                 }
+
+                $(modalListSelector).append(row);
             });
+
+            $(modalSelector).modal("show");
+        }
+
+        // Approval Function for Approve
+        $("#approve-btn").click(function () {
+            handleItemSelection("approve");
         });
 
-        // Reject Request Button
+        // Approval Function for Reject
         $("#reject-btn").click(function () {
-            $("#modalRejectItemList").empty();
-
-            let selectedItems = $(".select-row:checked");
-
-            if (selectedItems.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'No items selected',
-                    text: 'Please select at least one request to reject.',
-                    confirmButtonText: 'Ok'
-                });
-                return;
-            }
-
-            selectedItems.each(function () {
-                let id = $(this).data("id");
-                let reqBy = $(this).data("req_by");
-                let partName = $(this).data("part_name");
-                let qty = $(this).data("qty");
-                let exp_date = $(this).data("exp_date");
-                let batch_number = $(this).data("batch_number");
-                let item_code = $(this).data("item_code");
-
-                let row = `
-                    <tr class=" text-center" style="vertical-align: middle;">
-                        <td>${reqBy}</td>
-                        <td>${partName} <input type="hidden" name="ids[]" value="${id}"></td>
-                        <td>${item_code}</td>
-                        <td>${batch_number}</td>
-                        <td>${qty}</td>
-                        <td style="display:none;"> 
-                            <input type="hidden" name="part_names[]" value="${partName}">
-                            <input type="hidden" name="request_bys[]" value="${reqBy}">
-                            <input type="hidden" name="quantities[]" value="${qty}">
-                            <input type="hidden" name="exp_dates[]" value="${exp_date}">
-                            <input type="hidden" name="item_codes[]" value="${item_code}">
-                            <input type="hidden" name="batch_numbers[]" value="${batch_number}">
-                        </td>
-                        <td>
-                            <input type="text" name="reasons[]" class="form-control" placeholder="Reason for rejection">
-                        </td>
-                    </tr>
-                `;
-                $("#modalRejectItemList").append(row);
-            });
-
-            $("#rejectModal").modal("show");
+            handleItemSelection("reject");
         });
 
-        // Reject Request Submit
-        $("#rejectForm").submit(function (e) {
-            e.preventDefault();
 
-            let formData = $(this).serialize();
-            formData += "&reject_submit=1";
+        // Form Submission Function
+        function handleFormSubmit(formSelector, actionFlag, successMsg, errorMsg) {
+            $(formSelector).submit(function (e) {
+                e.preventDefault();
 
-            $.ajax({
-                url: '../../controller/update_status.php',
-                type: "POST",
-                data: formData,
-                dataType: "json",
-                success: function (response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Rejected!',
-                            text: 'Requests have been rejected successfully.',
-                            confirmButtonText: 'Ok'
-                        }).then(() => {
-                            location.reload();
-                        });
-                    } else {
+                let formData = $(this).serialize();
+                formData += `&${actionFlag}=1`;
+
+                $.ajax({
+                    url: '../../controller/update_status.php',
+                    type: "POST",
+                    data: formData,
+                    dataType: "json",
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: successMsg,
+                                confirmButtonText: 'Ok'
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.error || errorMsg,
+                                confirmButtonText: 'Ok'
+                            });
+                        }
+                    },
+                    error: function () {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error',
-                            text: response.error || 'An unexpected error occurred.',
+                            title: 'Request Failed',
+                            text: 'Failed to communicate with server. Please check the console.',
                             confirmButtonText: 'Ok'
                         });
                     }
-                },
+                });
             });
-        });
+        }
+
+        // Form Submission Function for Approval
+        handleFormSubmit("#approvalForm", "approve_submit", "Requests approved successfully!", "Failed to approve requests.");
+
+        // Form Submission Function for Rejection
+        handleFormSubmit("#rejectForm", "reject_submit", "Requests have been rejected successfully.", "Failed to reject requests.");
 
     });
 </script>

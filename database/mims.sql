@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 08, 2025 at 09:49 AM
+-- Generation Time: May 11, 2025 at 01:29 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -70,6 +70,7 @@ CREATE TABLE `tbl_history` (
   `part_qty` int(11) NOT NULL,
   `exp_date` varchar(255) NOT NULL,
   `batch_number` varchar(255) NOT NULL,
+  `item_code` varchar(255) NOT NULL,
   `kitting_id` varchar(255) NOT NULL,
   `lot_id` varchar(255) NOT NULL,
   `updated_by` varchar(50) NOT NULL,
@@ -376,7 +377,7 @@ CREATE TABLE `tbl_users` (
 --
 
 INSERT INTO `tbl_users` (`id`, `username`, `password`, `usertype`, `employee_name`, `badge_number`, `designation`, `account_type`, `cost_center`, `supervisor_one`, `supervisor_two`, `forgot_pass`, `reason`) VALUES
-(1, 'Nikka', '$2y$10$TEKz97kTdgP6X0CkfhyQkup4/u28RlYufAYPRop7fByOk5zEaCUzC', 2, ' Marinel Nikka Zagala', '10001', 'Supervisor', 'Supervisor', 'MASMOD', 'Luisa Pelobello', 'Dianne Salvatierra', 0, '');
+(1, 'Nikka', '$2y$10$iE4IfeFhc4W4H/0.rgzeduf4JEBlW/cPUDAP9IUdqqsSjx.3OjCU2', 2, 'Marinel Nikka Zagala', '10001', 'Supervisor', 'Supervisor', 'MASMOB', 'Arthur Abitria Jr.', 'Marinel Zagala', 0, '');
 
 -- --------------------------------------------------------
 
@@ -487,7 +488,7 @@ ALTER TABLE `tbl_withdrawal_reason`
 -- AUTO_INCREMENT for table `tbl_ccs`
 --
 ALTER TABLE `tbl_ccs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
 
 --
 -- AUTO_INCREMENT for table `tbl_history`
@@ -511,7 +512,7 @@ ALTER TABLE `tbl_log`
 -- AUTO_INCREMENT for table `tbl_machine`
 --
 ALTER TABLE `tbl_machine`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=98;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=99;
 
 --
 -- AUTO_INCREMENT for table `tbl_notif`
@@ -529,7 +530,7 @@ ALTER TABLE `tbl_requested`
 -- AUTO_INCREMENT for table `tbl_station_code`
 --
 ALTER TABLE `tbl_station_code`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT for table `tbl_stock`
@@ -541,7 +542,7 @@ ALTER TABLE `tbl_stock`
 -- AUTO_INCREMENT for table `tbl_unit`
 --
 ALTER TABLE `tbl_unit`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `tbl_users`
@@ -553,7 +554,7 @@ ALTER TABLE `tbl_users`
 -- AUTO_INCREMENT for table `tbl_withdrawal_reason`
 --
 ALTER TABLE `tbl_withdrawal_reason`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

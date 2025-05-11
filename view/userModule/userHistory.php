@@ -41,7 +41,7 @@ include "navBar.php";
 
                     <h3 class="text-center fw-bold" style="color: #900008;">History of Approved Requests</h3>
 
-                    <div class="d-flex justify-content-evenly mb-3 text-center">
+                    <div class="d-flex justify-content-evenly align-items-end mb-3 text-center">
                         <div>
                             <button class="btn btn-primary" id="return-btn">Return Request</button>
                         </div>
@@ -75,11 +75,10 @@ include "navBar.php";
                             </tr>
                         </thead>
                         <tbody id="data-table-approve">
-
                         </tbody>
                     </table>
 
-                    <div id="pagination"></div>
+                    <div id="load-more-approve"></div>
                 </div>
             </div>
 
@@ -119,11 +118,10 @@ include "navBar.php";
                             </tr>
                         </thead>
                         <tbody id="data-table-reject">
-
                         </tbody>
                     </table>
 
-                    <div id="pagination-reject"></div>
+                    <div id="load-more-reject"></div>
                 </div>
             </div>
 
@@ -165,12 +163,11 @@ include "navBar.php";
                             </tr>
                         </thead>
                         <tbody id="data-table-return">
-
                         </tbody>
 
                     </table>
 
-                    <div id="pagination-return"></div>
+                    <div id="load-more-return"></div>
 
                 </div>
 
@@ -230,10 +227,6 @@ include "navBar.php";
         $(`#${activeTab}-tab`).addClass('active');
         $(`#${activeTab}-tab-pane`).addClass('show active');
 
-        filterDataApprove();
-        filterDataReject();
-        filterDataReturn();
-
         // Select Return
         $('#select-all-return').on('change', function () {
             let isChecked = $(this).prop('checked');
@@ -245,150 +238,112 @@ include "navBar.php";
             });
         });
 
-        // Approved Request Pagination
-        $(document).on('click', '.page-link-approve', function (e) {
-            e.preventDefault();
-
-            let page = $(this).attr('href').split('=')[1];
-
-            let startDate = $('#start_date_approve').val();
-            let endDate = $('#end_date_approve').val();
-
-            filterDataApprove(startDate, endDate, page);
-        });
-
-        // Approve Request Fetch Data Tables
-        function filterDataApprove(startDate, endDate, page = 1) {
-            $.ajax({
+        const scrollTables = {
+            approve: {
+                page: 1,
+                hasMore: true,
+                isLoading: false,
+                startSelector: '#start_date_approve',
+                endSelector: '#end_date_approve',
                 url: '../../controller/withdrawal_approved.php',
-                method: 'GET',
-                data: {
-                    start_date: startDate,
-                    end_date: endDate,
-                    page: page
-                },
-                success: function (response) {
-                    let data = JSON.parse(response);
-
-                    $('#data-table-approve').html(data.table);
-                    $('#pagination').html(data.pagination);
-                },
-                error: function (xhr, status, error) {
-                    console.log("Error: ", error);
-                    alert('Error fetching data.');
-                }
-            });
-        }
-
-        let startDate = $('#start_date_approve').val();
-        let endDate = $('#end_date_approve').val();
-
-        // Approve Request Date Selection
-        $('#start_date_approve, #end_date_approve').on('change', function () {
-
-            startDate = $('#start_date_approve').val();
-            endDate = $('#end_date_approve').val();
-
-            filterDataApprove(startDate, endDate, 1);
-        });
-
-        filterDataApprove(startDate, endDate, 1);
-
-        // Rejected Request Pagination
-        $(document).on('click', '.page-link-reject', function (e) {
-            e.preventDefault();
-
-            let page = $(this).attr('href').split('=')[1];
-
-            let startDateReject = $('#start_date_reject').val();
-            let endDateReject = $('#end_date_reject').val();
-
-            filterDataReject(startDateReject, endDateReject, page);
-        });
-
-        // Rejected Request Fetch Data Tables
-        function filterDataReject(startDateReject, endDateReject, page = 1) {
-            $.ajax({
+                tableSelector: '#data-table-approve',
+                sentinelId: '#load-more-approve'
+            },
+            reject: {
+                page: 1,
+                hasMore: true,
+                isLoading: false,
+                startSelector: '#start_date_reject',
+                endSelector: '#end_date_reject',
                 url: '../../controller/withdrawal_rejected.php',
-                method: 'GET',
-                data: {
-                    start_date: startDateReject,
-                    end_date: endDateReject,
-                    page: page
-                },
-                success: function (response) {
-                    let data = JSON.parse(response);
-
-                    $('#data-table-reject').html(data.table);
-                    $('#pagination-reject').html(data.pagination);
-                },
-                error: function (xhr, status, error) {
-                    console.log("Error: ", error);
-                    alert('Error fetching data.');
-                }
-            });
-        }
-
-        // Rejected Request Date Selection
-        $('#start_date_reject, #end_date_reject').on('change', function () {
-            let startDateReject = $('#start_date_reject').val();
-            let endDateReject = $('#end_date_reject').val();
-
-            filterDataReject(startDateReject, endDateReject, 1);
-        });
-
-        let startDateReject = $('#start_date_reject').val();
-        let endDateReject = $('#end_date_reject').val();
-
-        filterDataReject(startDateReject, endDateReject, 1);
-
-        // Return Request Pagination
-        $(document).on('click', '.page-link-return', function (e) {
-            e.preventDefault();
-
-            let page = $(this).attr('href').split('=')[1];
-
-            let startDateReturn = $('#start_date_return').val();
-            let endDateReturn = $('#end_date_return').val();
-
-            filterDataReturn(startDateReturn, endDateReturn, page);
-        });
-
-        // Return Request Fetch Data Tables
-        function filterDataReturn(startDateReturn, endDateReturn, page = 1) {
-            $.ajax({
+                tableSelector: '#data-table-reject',
+                sentinelId: '#load-more-reject'
+            },
+            return: {
+                page: 1,
+                hasMore: true,
+                isLoading: false,
+                startSelector: '#start_date_return',
+                endSelector: '#end_date_return',
                 url: '../../controller/withdrawal_returned.php',
+                tableSelector: '#data-table-return',
+                sentinelId: '#load-more-return'
+            }
+        };
+
+        function loadMoreData(key) {
+            const t = scrollTables[key];
+            if (t.isLoading || !t.hasMore) return;
+
+            t.isLoading = true;
+
+            $.ajax({
+                url: t.url,
                 method: 'GET',
                 data: {
-                    start_date: startDateReturn,
-                    end_date: endDateReturn,
-                    page: page
+                    start_date: $(t.startSelector).val(),
+                    end_date: $(t.endSelector).val(),
+                    page: t.page
                 },
                 success: function (response) {
-                    let data = JSON.parse(response);
-
-                    $('#data-table-return').html(data.table);
-                    $('#pagination-return').html(data.pagination);
+                    const data = JSON.parse(response);
+                    $(t.tableSelector).append(data.table);
+                    t.hasMore = data.has_more;
+                    t.page++;
                 },
-                error: function (xhr, status, error) {
-                    console.log("Error: ", error);
-                    alert('Error fetching data.');
+                error: function () {
+                    alert(`Error loading more ${key} data.`);
+                },
+                complete: function () {
+                    t.isLoading = false;
                 }
             });
         }
 
-        // Return Request Date Selection
-        $('#start_date_return, #end_date_return').on('change', function () {
-            let startDateReturn = $('#start_date_return').val();
-            let endDateReturn = $('#end_date_return').val();
+        function setupInfiniteScroll(key) {
+            const sentinel = document.querySelector(scrollTables[key].sentinelId);
+            if (!sentinel) {
+                console.warn(`Sentinel not found for ${key}:`, scrollTables[key].sentinelId);
+                return;
+            }
 
-            filterDataReturn(startDateReturn, endDateReturn, 1);
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        loadMoreData(key);
+                    }
+                });
+            }, {
+                root: null,
+                threshold: 0.75
+            });
+
+            observer.observe(sentinel);
+        }
+
+        function resetAndFetch(key) {
+            const t = scrollTables[key];
+            t.page = 1;
+            t.hasMore = true;
+            $(t.tableSelector).html('');
+            loadMoreData(key);
+        }
+
+
+        $(function () {
+            setupInfiniteScroll('approve');
+            setupInfiniteScroll('reject');
+            setupInfiniteScroll('return');
+
+            $('#start_date_approve, #end_date_approve').on('change', () => resetAndFetch('approve'));
+            $('#start_date_reject, #end_date_reject').on('change', () => resetAndFetch('reject'));
+            $('#start_date_return, #end_date_return').on('change', () => resetAndFetch('return'));
+
+            resetAndFetch('approve');
+            resetAndFetch('reject');
+            resetAndFetch('return');
         });
 
-        let startDateReturn = $('#start_date_return').val();
-        let endDateReturn = $('#end_date_return').val();
-
-        filterDataReturn(startDateReturn, endDateReturn, 1);
 
         // Return Withdrawal Request Button
         $("#return-btn").click(function () {

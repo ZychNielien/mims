@@ -24,30 +24,28 @@ include "navBar.php";
         </h2>
     </div>
 
-    <!-- Top Material Consumption / Withdrawal -->
     <div class="px-5 py-2">
         <h2 class="text-center">Top Material Consumption / Withdrawal</h2>
     </div>
 
-    <!-- Top Material Consumption / Withdrawal Container -->
-    <div class="container combineContainer my-4 w-50">
+    <div class="container combineContainer my-4 w-100">
 
-        <div class="d-flex flex-wrap justify-content-evenly align-center w-100">
+        <div class="d-flex flex-wrap justify-content-evenly align-items-end w-100">
 
             <div class="text-center">
-                <label for="start_date">Start Date</label>
+                <label for="start_date" class="fw-bold">Start Date:</label>
                 <input type="date" id="start_date" class="form-control"
                     value="<?php echo isset($_GET['start_date']) ? $_GET['start_date'] : ''; ?>">
             </div>
 
             <div class="text-center">
-                <label for="end_date">End Date</label>
+                <label for="end_date" class="fw-bold">End Date:</label>
                 <input type="date" id="end_date" class="form-control"
                     value="<?php echo isset($_GET['end_date']) ? $_GET['end_date'] : ''; ?>">
             </div>
 
             <div class="text-center">
-                <label for="cost_center">Cost Center</label>
+                <label for="cost_center" class="fw-bold">Cost Center:</label>
                 <select class="form-select" id="cost_center">
                     <option selected value="">Select Cost Center</option>
                     <?php
@@ -68,7 +66,7 @@ include "navBar.php";
             </div>
 
             <div class="text-center">
-                <label for="station_code">Station Code</label>
+                <label for="station_code" class="fw-bold">Station Code:</label>
                 <select class="form-select" id="station_code" name="station_code">
                     <option selected value="">Select Station Code</option>
                     <?php
@@ -89,38 +87,36 @@ include "navBar.php";
                 </select>
             </div>
 
-        </div>
+            <div class="text-center">
+                <button id="with_export_btn" class="btn btn-success">Export to Excel</button>
+            </div>
 
-        <div class="d-flex justify-content-center">
-            <button id="with_export_btn" class="btn btn-success mt-2">Export to Excel</button>
         </div>
 
         <div id="chart-container" class="my-4">
-            <canvas id="combinedChart"></canvas>
+            <canvas id="combinedChart" width="1200" height="500"></canvas>
         </div>
 
     </div>
 
-    <!-- Cost Center With Highest Withdrawal -->
     <div class="px-5 py-2">
         <h2 class="text-center">Cost Center With Highest Withdrawal</h2>
     </div>
 
-    <!-- Cost Center With Highest Withdrawal Selections -->
-    <div class="d-flex flex-wrap justify-content-evenly align-center w-100 ">
+    <div class="d-flex flex-wrap justify-content-evenly align-items-end w-100 ">
 
         <div class="text-center">
-            <label for="startDate" class="m-0">Start Date:</label>
+            <label for="startDate" class="m-0 fw-bold">Start Date:</label>
             <input type="date" id="startDate" class="form-control">
         </div>
 
         <div class="text-center">
-            <label for="endDate" class="m-0">End Date:</label>
+            <label for="endDate" class="m-0 fw-bold">End Date:</label>
             <input type="date" id="endDate" class="form-control">
         </div>
 
         <div class="text-center">
-            <label for="endDate" class="m-0">Part Number:</label>
+            <label for="endDate" class="m-0 fw-bold">Part Number:</label>
             <?php
             $query = "SELECT id, part_name 
                     FROM tbl_inventory 
@@ -147,7 +143,6 @@ include "navBar.php";
 
     </div>
 
-    <!-- Cost Center With Highest Withdrawal Graph Container -->
     <div class="container full-container my-4">
 
         <div class="row d-flex flex-wrap justify-content-between">
@@ -230,10 +225,39 @@ include "navBar.php";
                 data: requestData,
                 success: function (response) {
                     var data = $.parseJSON(response);
-                    partNames = data.part_names;
-                    partQtys = data.part_qtys;
-                    returnQtys = data.return_qtys;
                     rawData = data.raw_data;
+
+                    var combined = data.part_names.map(function (name, index) {
+                        return {
+                            name: name,
+                            withdrawn: data.part_qtys[index],
+                            returned: data.return_qtys[index]
+                        };
+                    });
+
+                    combined.sort(function (a, b) {
+                        return b.withdrawn - a.withdrawn;
+                    });
+
+                    var topCount = 20;
+
+                    var topItems = combined.slice(0, topCount);
+                    var otherItems = combined.slice(topCount);
+
+                    if (otherItems.length > 0) {
+                        var otherWithdrawn = otherItems.reduce((sum, item) => sum + item.withdrawn, 0);
+                        var otherReturned = otherItems.reduce((sum, item) => sum + item.returned, 0);
+
+                        topItems.push({
+                            name: 'Others',
+                            withdrawn: otherWithdrawn,
+                            returned: otherReturned
+                        });
+                    }
+
+                    partNames = topItems.map(item => item.name);
+                    partQtys = topItems.map(item => item.withdrawn);
+                    returnQtys = topItems.map(item => item.returned);
 
                     createChart(partNames, partQtys, returnQtys);
                 }
@@ -252,7 +276,7 @@ include "navBar.php";
 
         updateChartData('', '', '', '');
 
-        // Top Material Consumption / Withdrawal Graph Creation
+        // Chart creation
         function createChart(partNames, partQtys, returnQtys) {
             var ctx = $('#combinedChart')[0].getContext('2d');
 
@@ -317,6 +341,7 @@ include "navBar.php";
                 combinedChart.resize();
             }
         });
+
 
         // Cost Center Graph Fetching
         function fetchData(startDate = null, endDate = null, partName = null, selectedDate = null) {
