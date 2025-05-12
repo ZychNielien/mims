@@ -233,13 +233,13 @@ if (isset($_POST['receive_submit'])) {
                             break;
                         }
 
-                        $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) VALUES ('$req_by', '$mensahe', 0, '$dts', '$req_by' , 'Returned')";
+                        $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) VALUES ('$username', '$mensahe', 0, '$dts', '$req_by' , 'Returned')";
                         if (!mysqli_query($con, $sql_notif)) {
                             $success = false;
                             break;
                         }
                     } else if ($return_purpose === 'Scrap') {
-                        $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) VALUES ('$req_by', '$mensahe', 0, '$dts', '$req_by' , 'Returned')";
+                        $sql_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) VALUES ('$username', '$mensahe', 0, '$dts', '$req_by' , 'Returned')";
                         if (!mysqli_query($con, $sql_notif)) {
                             $success = false;
                             break;

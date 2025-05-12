@@ -882,8 +882,11 @@ ob_end_flush();
             var input = $(inputSelector);
             var isPassword = input.attr('type') === 'password';
 
-            input.attr('type', isPassword ? 'text' : 'password');
-            $(this).toggleClass('bi-eye bi-eye-slash');
+            if (!isPassword) {
+                $(this).removeClass('bi-eye-slash').addClass('bi-eye');
+            } else {
+                $(this).removeClass('bi-eye').addClass('bi-eye-slash');
+            }
         });
 
         // Fetch Supervisor Function
