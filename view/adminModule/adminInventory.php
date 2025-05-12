@@ -1173,7 +1173,7 @@ include "navBar.php";
 
         // Delete Material Button
         $("#delete_material-btn").click(function () {
-            $("#modalRejectItemList").empty();
+            $("#modalDeleteItemList").empty();
 
             let selectedItems = $(".select-row:checked");
 
