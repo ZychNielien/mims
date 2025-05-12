@@ -330,7 +330,9 @@ include "navBar.php";
 
         $('#data-table-inventory input[type="checkbox"]:checked').each(function () {
             const partName = $(this).closest('tr').find('td[data-label="Part Name"]').text().trim();
-            checkedItems[partName] = true;
+            const itemCode = $(this).closest('tr').find('td[data-label="Item Code"]').text().trim();
+            const key = `${partName}__${itemCode}`;
+            checkedItems[key] = true;
         });
 
         if (!isLiveUpdate && currentPage === 0) {
@@ -371,7 +373,7 @@ include "navBar.php";
                 rowClass = 'text-orange-dark';
             }
 
-            const isChecked = checkedItems[item.part_name] ? 'checked' : '';
+            const isChecked = checkedItems[key] ? 'checked' : '';
 
             const row = `
             <tr class="table-row text-center" style="vertical-align: middle;" data-key="${key}">
@@ -386,6 +388,9 @@ include "navBar.php";
                         data-min_invent_req="${item.min_invent_req}" 
                         data-unit="${item.unit}"
                         data-approver="${item.approver}"
+                        data-batch_number="${item.batch_number}"
+                        data-item_code="${item.item_code}"
+                        
                         ${isChecked}>
                 </td>
                 <td data-label="Part Name" class="${rowClass}">${item.part_name}</td>
@@ -1198,6 +1203,7 @@ include "navBar.php";
                 let partInventReq = $(this).data("min_invent_req");
                 let partUnit = $(this).data("unit");
                 let partApprover = $(this).data("approver");
+                let item_code = $(this).data("item_code");
 
                 let row = `
             <tr class=" text-center" style="vertical-align: middle;">
@@ -1207,6 +1213,7 @@ include "navBar.php";
                 <td>${partCostCenter}</td>
                 <td>${partType}</td>
                 <td>
+                <input type="hidden" name="item_codes[]" class="form-control" value="${item_code}" autocomplete="off">
                     <input type="hidden" name="ids[]" value="${id}">
                     <input type="hidden" name="part_names[]" value="${partName}">
                     <input type="text" name="reasons[]" class="form-control" placeholder="Reason for deletion" autocomplete="off">

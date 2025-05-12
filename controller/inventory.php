@@ -168,42 +168,71 @@ if (isset($_POST['update_submit'])) {
 
 // DELETE MATERIALS
 if (isset($_POST['delete_submit'])) {
-    if (isset($_POST['ids']) && isset($_POST['part_names']) && isset($_POST['reasons'])) {
+    if (isset($_POST['ids']) && isset($_POST['part_names']) && isset($_POST['reasons']) && isset($_POST['item_codes'])) {
         $ids = $_POST['ids'];
         $partnumbers = $_POST['part_names'];
         $reasons = $_POST['reasons'];
+        $item_codes = $_POST['item_codes'];
         $success = true;
+
+        $account_username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Unknown User';
+        $dts = date('Y-m-d H:i:s');
+
         for ($i = 0; $i < count($ids); $i++) {
             $id = intval($ids[$i]);
-            $partnumber = $partnumbers[$i];
-            $reason = $reasons[$i];
-            $account_username = isset($_SESSION['username']) ? $_SESSION['username'] : 'Unknown User';
-            $description = $account_username . " has deleted " . $partnumber;
-            $dts = date('Y-m-d H:i:s');
+            $partnumber = mysqli_real_escape_string($con, $partnumbers[$i]);
+            $item_code = mysqli_real_escape_string($con, $item_codes[$i]);
+            $reason = mysqli_real_escape_string($con, $reasons[$i]);
 
-            $sql = "DELETE FROM tbl_inventory WHERE id = $id";
-            if (mysqli_query($con, $sql)) {
 
-                $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts, reasons) 
-                VALUES ('$account_username', 'Material Deletion', '$description', '$dts', '$reason')";
+            $check = "SELECT * FROM tbl_stock WHERE part_name = '$partnumber'";
+            $check_query = mysqli_query($con, $check);
+
+            if (mysqli_num_rows($check_query) > 1) {
+                $description = "$account_username has deleted $partnumber ($item_code)";
+                $sql_log = "INSERT INTO tbl_log (username, action, description, dts, reasons) 
+                            VALUES ('$account_username', 'Material Deletion', '$description', '$dts', '$reason')";
                 if (!mysqli_query($con, $sql_log)) {
                     $success = false;
                     break;
                 }
 
-                $delete_stock = "DELETE FROM tbl_stock WHERE part_name = '$partnumber'";
+                $delete_stock = "DELETE FROM tbl_stock WHERE part_name = '$partnumber' AND item_code = '$item_code'";
                 if (!mysqli_query($con, $delete_stock)) {
                     $success = false;
                     break;
                 }
+            } else {
+                $description = "$account_username has deleted $partnumber";
+                $sql = "DELETE FROM tbl_inventory WHERE id = $id";
+                if (mysqli_query($con, $sql)) {
+
+                    $sql_log = "INSERT INTO tbl_log (username, action, description, dts, reasons) 
+                                VALUES ('$account_username', 'Material Deletion', '$description', '$dts', '$reason')";
+                    if (!mysqli_query($con, $sql_log)) {
+                        $success = false;
+                        break;
+                    }
+
+                    $delete_stock = "DELETE FROM tbl_stock WHERE part_name = '$partnumber'";
+                    if (!mysqli_query($con, $delete_stock)) {
+                        $success = false;
+                        break;
+                    }
+                }
             }
         }
-        echo json_encode(["success" => true]);
+
+        if ($success) {
+            echo json_encode(["success" => true]);
+        } else {
+            echo json_encode(["success" => false, "error" => "Failed to delete one or more items"]);
+        }
     } else {
         echo json_encode(["success" => false, "error" => "Missing data"]);
     }
-
 }
+
 
 // MATERIAL REGISTRATION
 if (isset($data['materialSubmit']) && is_array($data['items'])) {
