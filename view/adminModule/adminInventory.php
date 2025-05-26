@@ -64,10 +64,10 @@ include "navBar.php";
                         </th>
                         <th>Part Number</th>
                         <th>Part Description</th>
-                        <th>Item Code</th>
                         <th>Minimum Inventory Requirement</th>
                         <th>Earliest Expiration Date</th>
                         <th>Existing Inventory</th>
+                        <th>Unit of Measure</th>
                     </tr>
                 </thead>
 
@@ -395,10 +395,11 @@ include "navBar.php";
                 </td>
                 <td data-label="Part Name" class="${rowClass}">${item.part_name}</td>
                 <td data-label="Part Desc" class="${rowClass}">${item.part_desc}</td>
-                <td data-label="Item Code" class="${rowClass}">${item.item_code || ''}</td>
-                <td data-label="Min Invent Req" class="${rowClass}">${item.min_invent_req} ${item.unit}(s)</td>
+                <td data-label="Min Invent Req" class="${rowClass}">${item.min_invent_req}</td>
                 <td data-label="Exp Date" class="${rowClass}">${item.least_exp_date}</td>
-                <td data-label="Part Qty" class="${rowClass}">${item.total_part_qty} ${item.unit}(s)</td>
+                <td data-label="Part Qty" class="${rowClass}">${item.total_part_qty}</td>
+                <td data-label="Unit of Measure" class="${rowClass}">${item.unit}</td>
+
             </tr>
         `;
 

@@ -20,7 +20,7 @@ include "navBar.php";
 
     <div class="welcomeDiv my-2">
         <h2 class="text-center" style="color: #900008; font-weight: bold;">Welcome,
-            <?php echo $_SESSION['username']; ?>!
+            <?php echo $_SESSION['employee_name']; ?>!
         </h2>
     </div>
 

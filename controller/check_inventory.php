@@ -66,8 +66,7 @@ function fetchInventory($con, $offset = 0, $limit = 0)
             GROUP BY 
                 ti.part_name, 
                 ti.part_desc, 
-                ti.min_invent_req, 
-                ts.item_code
+                ti.min_invent_req
             ORDER BY 
                 REGEXP_REPLACE(ti.part_name, '[0-9]+$', ''), 
                 CAST(REGEXP_SUBSTR(ti.part_name, '[0-9]+$') AS UNSIGNED)

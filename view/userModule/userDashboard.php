@@ -36,7 +36,7 @@ if ($sql_machine_query) {
 <section>
 
     <div class="welcomeDiv my-2">
-        <h2 class="text-center">Welcome, <?php echo $_SESSION['username'] ?>!</h2>
+        <h2 class="text-center">Welcome, <?php echo $_SESSION['employee_name'] ?>!</h2>
     </div>
 
     <div class="px-5 hatian d-flex justify-between align-center">
