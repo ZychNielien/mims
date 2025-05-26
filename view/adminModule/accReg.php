@@ -75,9 +75,12 @@ ob_end_flush();
             <!-- ACCOUNT APPROVAL -->
             <div class="tab-pane fade" id="approval-tab-pane" role="tabpanel" aria-labelledby="approval-tab">
 
-                <div class="d-flex justify-content-evenly  align-items-center w-100 p-3">
-                    <input type="text" id="search" class="form-control w-25 me-2" placeholder="Search here"
-                        autocomplete="off" />
+                <div class="d-flex justify-content-evenly  flex-wrap align-items-center w-100 p-3 gap-2">
+                    <div class="flex-grow-1">
+                        <input type="text" id="search" class="form-control" placeholder="Search here"
+                            autocomplete="off" />
+                    </div>
+
                     <button class="btn btn-success w-auto " id="approve_acc-btn">Approve Accounts</button>
                     <button class="btn btn-danger w-auto" id="reject_acc-btn">Reject Accounts</button>
                 </div>
@@ -228,9 +231,12 @@ ob_end_flush();
             <!-- ACCOUNT CREATION -->
             <div class="tab-pane fade" id="account-tab-pane" role="tabpanel" aria-labelledby="account-tab">
 
-                <div class="d-flex justify-content-evenly  align-items-center w-100 p-3">
-                    <input type="text" id="search_account" class="form-control w-25 me-2" placeholder="Search here"
-                        autocomplete="off" />
+                <div class="d-flex justify-content-evenly flex-wrap align-items-center w-100 p-3 gap-2">
+                    <div class="flex-grow-1">
+                        <input type="text" id="search_account" class="form-control" placeholder="Search here"
+                            autocomplete="off" />
+                    </div>
+
                     <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal"
                         data-bs-target="#accountModal">
                         Account Registration
@@ -320,9 +326,11 @@ ob_end_flush();
 
             <!-- COST CENTER TAB -->
             <div class="tab-pane fade" id="costcenter-tab-pane" role="tabpanel" aria-labelledby="costcenter-tab">
-                <div class="d-flex justify-content-between align-items-center w-100 p-3">
-                    <input type="text" id="search_cost" class="form-control w-25 me-2" placeholder="Search here"
-                        autocomplete="off" />
+                <div class="d-flex justify-content-between flex-wrap align-items-center w-100 p-3 gap-2">
+                    <div class="flex-grow-1">
+                        <input type="text" id="search_cost" class="form-control" placeholder="Search here"
+                            autocomplete="off" />
+                    </div>
                     <button type="button" class="btn btn-success w-auto" data-bs-toggle="modal"
                         data-bs-target="#costCenterModal">
                         Cost Center / Supervisor
