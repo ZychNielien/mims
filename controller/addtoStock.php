@@ -3,7 +3,6 @@
 include "../model/dbconnection.php";
 session_start();
 date_default_timezone_set('Asia/Manila');
-$stockData = json_decode(file_get_contents("php://input"), true);
 
 if (isset($_POST['stock_data'])) {
     $stockData = json_decode($_POST['stock_data'], true);
@@ -37,8 +36,13 @@ if (isset($_POST['stock_data'])) {
             $new_part_qty = $part_qty + $part_qty_old;
 
             $update_sql = "UPDATE `tbl_stock` 
-                           SET part_qty = '$new_part_qty', updated_by = '$username', dts = '$dts'
-                           WHERE part_name = '$part_name' AND exp_date = '$exp_date' AND status = 'Active' AND batch_number = '$batch_number' AND item_code = '$item_code'";
+               SET part_qty = '$new_part_qty', updated_by = '$username', dts = '$dts'
+               WHERE part_name = '$part_name' 
+               AND exp_date = '$exp_date' 
+               AND status = 'Active' 
+               AND batch_number = '$batch_number' 
+               AND item_code = '$item_code'";
+
 
             if (!mysqli_query($con, $update_sql)) {
                 echo json_encode(['error' => 'Error in UPDATE query: ' . mysqli_error($con)]);
@@ -46,7 +50,7 @@ if (isset($_POST['stock_data'])) {
             }
 
             $sql_received = "INSERT INTO `tbl_history` (dts, part_desc, part_name, part_qty, exp_date, kitting_id, lot_id, updated_by, status, batch_number, item_code) 
-                             VALUES ('$dts', '$part_desc', '$part_name', '$part_qty', '$exp_date', '$kitting_id', '$lot_id', '$username', 'Received' , '$batch_number')";
+                             VALUES ('$dts', '$part_desc', '$part_name', '$part_qty', '$exp_date', '$kitting_id', '$lot_id', '$username', 'Received' , '$batch_number', '$item_code')";
 
             if (!mysqli_query($con, $sql_received)) {
                 echo json_encode(['error' => 'Error in INSERT history query: ' . mysqli_error($con)]);

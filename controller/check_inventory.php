@@ -13,7 +13,7 @@ $today = date('Y-m-d');
 $update_sql = "UPDATE tbl_stock SET status = 'Expired' WHERE exp_date <= '$today' AND status != 'Expired'";
 mysqli_query($con, $update_sql);
 
-$isSSE = !isset($_GET['page']);
+$isSSE = !isset($_GET['page']) && !isset($_GET['search']);
 
 if ($isSSE) {
     header('Content-Type: text/event-stream');
@@ -26,17 +26,27 @@ if ($isSSE) {
     }
 } else {
     header('Content-Type: application/json');
+
+    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
     $page = isset($_GET['page']) ? intval($_GET['page']) : 0;
     $limit = 20;
     $offset = $page * $limit;
-    $data = fetchInventory($con, $offset, $limit);
+
+    $data = fetchInventory($con, $offset, $limit, $search);
     echo json_encode($data);
     exit();
 }
 
-function fetchInventory($con, $offset = 0, $limit = 0)
+function fetchInventory($con, $offset = 0, $limit = 0, $search = '')
 {
-    $limitSQL = ($limit > 0) ? "LIMIT $offset, $limit" : "";
+    $limitSQL = ($limit > 0 && $search === '') ? "LIMIT $offset, $limit" : "";
+
+    $searchSQL = '';
+    if ($search !== '') {
+        $search_escaped = mysqli_real_escape_string($con, $search);
+        $searchSQL = "WHERE (LOWER(ti.part_name) LIKE '%" . strtolower($search_escaped) . "%' OR LOWER(ti.part_desc) LIKE '%" . strtolower($search_escaped) . "%')";
+        $limitSQL = '';
+    }
 
     $sql = "SELECT 
                 ti.*, 
@@ -63,6 +73,7 @@ function fetchInventory($con, $offset = 0, $limit = 0)
             END) AS expired_qty
             FROM tbl_inventory ti
             LEFT JOIN tbl_stock ts ON ti.part_name = ts.part_name
+            $searchSQL
             GROUP BY 
                 ti.part_name, 
                 ti.part_desc, 
@@ -110,5 +121,4 @@ function sendInventoryData($con)
     ob_flush();
     flush();
 }
-
 ?>

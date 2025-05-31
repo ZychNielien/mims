@@ -68,6 +68,7 @@ include "navBar.php";
                         <th>Earliest Expiration Date</th>
                         <th>Existing Inventory</th>
                         <th>Unit of Measure</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
 
@@ -97,8 +98,28 @@ include "navBar.php";
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-2 d-flex flex-wrap gap-3 align-items-stretch justify-content-start">
-                        <button class="btn btn-success" id="btnAddStockRow">Add Row</button>
+                    <div class="mb-4 d-flex flex-wrap gap-3 align-items-stretch justify-content-evenly">
+                        <div class="d-flex flex-row justify-content-end" style="min-width: 200px;">
+                            <div id="uploadBox_AddtoStock" class="border border-secondary rounded px-3 py-2 text-center"
+                                style="cursor: pointer; background-color: #f8f9fa; height: 38px; display: flex; align-items: center; justify-content: center; flex-grow: 1;">
+                                <span id="uploadText_AddtoStock" class="me-2">📁</span>
+                                <small class="text-muted" id="fileNameText_AddtoStock">Drag or Upload File</small>
+                                <small id="fileError_AddtoStock" style="color:red; display:none;">Please select an Excel
+                                    file.</small>
+                            </div>
+                            <input type="file" id="excelFile_AddtoStock" accept=".xlsx" hidden>
+                        </div>
+                        <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
+                            <button class="btn btn-primary" id="btnUpload_AddtoStock">Upload File</button>
+                        </div>
+                        <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
+                            <a href="../../public/AddtoStock.xlsx" download class="btn btn-outline-success">
+                                Download Template
+                            </a>
+                        </div>
+                        <div class="d-flex flex-wrap gap-3 align-items-stretch justify-content-start">
+                            <button class="btn btn-success" id="btnAddStockRow">Add Row</button>
+                        </div>
                     </div>
                     <div class="table-responsive overflow-x-auto">
                         <table class=" table table-bordered table-striped text-center" id="itemStockTable">
@@ -275,6 +296,42 @@ include "navBar.php";
             </div>
         </div>
     </div>
+
+    <!-- Stocks Modal -->
+    <div class="modal fade" id="stockModal" tabindex="-1" aria-labelledby="stockModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="stockModalLabel">Stock Details of <span
+                            id="quantity_part_number"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editStocksQuanity">
+                        <table class="table table-striped table-bordered">
+                            <thead class="text-center text-white" style="background-color: #900008;">
+                                <tr>
+                                    <th>Part Number</th>
+                                    <th>Item Code</th>
+                                    <th>Batch Number</th>
+                                    <th>Lot ID</th>
+                                    <th>Quantity</th>
+                                    <th>Expiration Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockDetailsTableBody">
+                            </tbody>
+                        </table>
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary" name="update_stocks">Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 
 <script>
@@ -289,14 +346,24 @@ include "navBar.php";
         loadPage(currentPage);
 
         $('#search_inventory').on('input', function () {
-            searchTerm = $(this).val().toLowerCase();
-            filterTableRows();
+            searchTerm = $(this).val().trim().toLowerCase();
+
+            currentPage = 0;
+            noMoreData = false;
+            loadedKeys.clear();
+
+            if (searchTerm.length > 0) {
+                loadSearchResults(searchTerm);
+            } else {
+                $('#data-table-inventory').empty();
+                loadPage(currentPage);
+            }
         });
 
         $(window).on('scroll', function () {
             if (noMoreData || isLoading) return;
 
-            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+            if (searchTerm.length === 0 && $(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
                 loadPage(currentPage);
             }
         });
@@ -317,6 +384,35 @@ include "navBar.php";
 
             updateTable(data, false);
             currentPage++;
+            isLoading = false;
+            $('#spinner').hide();
+        }).fail(function () {
+            isLoading = false;
+            $('#spinner').hide();
+        });
+    }
+
+    function loadSearchResults(term) {
+        if (isLoading) return;
+        isLoading = true;
+
+        $('#spinner').show();
+
+        $.get(`../../controller/check_inventory.php?search=${encodeURIComponent(term)}`, function (data) {
+            if (data.length === 0) {
+                noMoreData = true;
+                $('#data-table-inventory').empty();
+                $('#spinner').hide();
+                updateTable([], false);
+                isLoading = false;
+                return;
+            }
+
+            $('#data-table-inventory').empty();
+            loadedKeys.clear();
+            noMoreData = false;
+
+            updateTable(data, false);
             isLoading = false;
             $('#spinner').hide();
         }).fail(function () {
@@ -374,6 +470,9 @@ include "navBar.php";
             }
 
             const isChecked = checkedItems[key] ? 'checked' : '';
+            const buttonHTML = item.total_part_qty > 0
+                ? `<button class="btn btn-primary view-stock-btn" data-part="${item.part_name}">Quantity</button>`
+                : '';
 
             const row = `
             <tr class="table-row text-center" style="vertical-align: middle;" data-key="${key}">
@@ -390,7 +489,6 @@ include "navBar.php";
                         data-approver="${item.approver}"
                         data-batch_number="${item.batch_number}"
                         data-item_code="${item.item_code}"
-                        
                         ${isChecked}>
                 </td>
                 <td data-label="Part Name" class="${rowClass}">${item.part_name}</td>
@@ -399,7 +497,7 @@ include "navBar.php";
                 <td data-label="Exp Date" class="${rowClass}">${item.least_exp_date}</td>
                 <td data-label="Part Qty" class="${rowClass}">${item.total_part_qty}</td>
                 <td data-label="Unit of Measure" class="${rowClass}">${item.unit}</td>
-
+                <td data-label="Action" class="${rowClass}">${buttonHTML}</td>
             </tr>
         `;
 
@@ -412,7 +510,7 @@ include "navBar.php";
             }
         });
 
-        if (uniqueData.length < LIMIT) {
+        if (uniqueData.length < LIMIT && searchTerm.length === 0) {
             noMoreData = true;
         }
 
@@ -445,7 +543,7 @@ include "navBar.php";
     }
 
 
-    // SSE setup
+    // SSE setup remains unchanged
     if (!!window.EventSource) {
         const source = new EventSource('../../controller/check_inventory.php');
 
@@ -460,6 +558,85 @@ include "navBar.php";
     }
 
 
+    $(document).on('click', '.view-stock-btn', function () {
+        const partName = $(this).data('part');
+        $('#quantity_part_number').text(partName);
+
+        $.ajax({
+            url: '../../controller/fetch_stock.php',
+            method: 'POST',
+            data: { part_name: partName },
+            dataType: 'json',
+            success: function (response) {
+                let rows = '';
+                if (response.length > 0) {
+                    response.forEach(item => {
+                        rows += `
+                        <tr class="table-row text-center" style="vertical-align: middle;">
+                            <td>${item.part_name}</td>
+                            <td>${item.item_code}</td>
+                            <td>${item.batch_number}</td>
+                            <td>${item.lot_id}</td>
+                            <td>
+                                <input type="number" class="form-control" value="${item.part_qty}" name="part_quantities[]" required min="0">
+                            </td>
+                            <td>${item.exp_date}</td>
+                            <td style="display:none;">
+                                <input type="text" class="form-control" value="${item.part_name}" name="part_names[]">
+                                <input type="text" class="form-control" value="${item.id}" name="ids[]">
+                                <input type="text" class="form-control" value="${item.item_code}" name="item_codes[]">
+                                <input type="text" class="form-control" value="${item.batch_number}" name="batch_numbers[]">
+                                <input type="text" class="form-control" value="${item.lot_id}" name="lot_ids[]">
+                            </td>
+                        </tr>
+                    `;
+                    });
+                } else {
+                    rows = `<tr><td colspan="6" class="text-center">No stocks found.</td></tr>`;
+                }
+
+                $('#stockDetailsTableBody').html(rows);
+                $('#stockModal').modal('show');
+            },
+            error: function () {
+                alert('Failed to fetch stock details.');
+            }
+        });
+    });
+
+    $("#editStocksQuanity").submit(function (e) {
+        e.preventDefault();
+
+        let formData = $(this).serialize();
+
+        formData += "&update_stocks=1";
+
+        $.ajax({
+            url: '../../controller/fetch_stock.php',
+            type: "POST",
+            data: formData,
+            dataType: "json",
+            success: function (response) {
+                if (response.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Material Updated',
+                        text: 'Material stocks have been updated successfully.',
+                        confirmButtonText: 'Ok'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.error || 'An unexpected error occurred.',
+                        confirmButtonText: 'Ok'
+                    });
+                }
+            }
+        });
+    });
 
     $(document).ready(function () {
 
@@ -495,11 +672,13 @@ include "navBar.php";
             var table1 = $('<table></table>');
             var headerRow = $('#data-table thead').clone(true);
             headerRow.find('th').first().remove();
+            headerRow.find('th').last().remove();
             table1.append(headerRow);
 
             $(filteredRows).each(function () {
                 var newRow = $(this).clone(true);
                 newRow.find('td').first().remove();
+                newRow.find('td').last().remove();
                 table1.append(newRow);
             });
 
@@ -560,84 +739,152 @@ include "navBar.php";
 
 
         // Upload Excel Files
-        $('#uploadBox').on('click', function () {
-            $('#excelFile').click();
-        });
+        function setupExcelUploader(config) {
+            const {
+                uploadBoxId,
+                fileInputId,
+                fileNameTextId,
+                uploadTextId,
+                errorId,
+                buttonId,
+                addRowFn,
+                mapRowFn
+            } = config;
 
-        $('#uploadBox').on('dragover', function (e) {
-            e.preventDefault();
-            $(this).addClass('border-primary');
-        });
+            const $uploadBox = $(`#${uploadBoxId}`);
+            const $fileInput = $(`#${fileInputId}`);
+            const $fileNameText = $(`#${fileNameTextId}`);
+            const $uploadText = $(`#${uploadTextId}`);
+            const $error = $(`#${errorId}`);
 
-        $('#uploadBox').on('dragleave', function (e) {
-            $(this).removeClass('border-primary');
-        });
+            $uploadBox.on('click', () => $fileInput.click());
 
-        $('#uploadBox').on('drop', function (e) {
-            e.preventDefault();
-            $(this).removeClass('border-primary');
+            $uploadBox.on('dragover', e => {
+                e.preventDefault();
+                $uploadBox.addClass('border-primary');
+            });
 
-            const files = e.originalEvent.dataTransfer.files;
-            if (files.length > 0) {
-                $('#fileNameText').text(files[0].name);
-                $('#uploadText').text('✅ File Ready');
-                $('#excelFile').prop('files', files);
+            $uploadBox.on('dragleave', () => $uploadBox.removeClass('border-primary'));
+
+            $uploadBox.on('drop', e => {
+                e.preventDefault();
+                $uploadBox.removeClass('border-primary');
+                const files = e.originalEvent.dataTransfer.files;
+                if (files.length) {
+                    $fileNameText.text(files[0].name);
+                    $uploadText.text('✅ File Ready');
+                    $fileInput.prop('files', files);
+                }
+            });
+
+            $fileInput.on('change', function () {
+                const file = this.files[0];
+                if (file) {
+                    $fileNameText.text(file.name);
+                    $uploadText.text('✅ File Ready');
+                } else {
+                    $fileNameText.text('No file selected');
+                    $uploadText.text('📁 Drag or Upload File');
+                }
+            });
+
+            $(`#${buttonId}`).on('click', function () {
+                const file = $fileInput[0].files[0];
+                if (!file) {
+                    $fileInput.addClass('input-error');
+                    $error.show();
+                    $fileNameText.hide();
+                    return;
+                }
+
+                $fileInput.removeClass('input-error');
+                $error.hide();
+                $fileNameText.text('File selected: ' + file.name).show();
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: "array" });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 }).slice(1);
+
+                    rows.forEach(row => {
+                        const mapped = mapRowFn(row);
+                        addRowFn(mapped);
+                    });
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function formatExcelDate(excelDate) {
+            if (typeof excelDate === 'number') {
+                const date = XLSX.SSF.parse_date_code(excelDate);
+                if (date) {
+                    const yyyy = date.y;
+                    const mm = String(date.m).padStart(2, '0');
+                    const dd = String(date.d).padStart(2, '0');
+                    return `${yyyy}-${mm}-${dd}`;
+                }
+            } else if (typeof excelDate === 'string' && excelDate.includes('/')) {
+                const parts = excelDate.split('/');
+                if (parts.length === 3) {
+                    const dd = parts[0].padStart(2, '0');
+                    const mm = parts[1].padStart(2, '0');
+                    const yyyy = parts[2];
+                    return `${yyyy}-${mm}-${dd}`;
+                }
             }
+            return '';
+        }
+
+        // Add to Stock Excel Function
+        setupExcelUploader({
+            uploadBoxId: 'uploadBox_AddtoStock',
+            fileInputId: 'excelFile_AddtoStock',
+            fileNameTextId: 'fileNameText_AddtoStock',
+            uploadTextId: 'uploadText_AddtoStock',
+            errorId: 'fileError_AddtoStock',
+            buttonId: 'btnUpload_AddtoStock',
+            addRowFn: addStockRow,
+            mapRowFn: row => ({
+                add_part_number: row[0],
+                add_batch_number: row[1],
+                add_lot_id: row[2],
+                add_item_code: row[3],
+                add_quantity: row[4],
+                add_has_expiration_date: row[5],
+                add_expiration_date: formatExcelDate(row[6]),
+                add_badge_id: row[7]
+            })
         });
 
-        $('#excelFile').on('change', function () {
-            const file = this.files[0];
-            if (file) {
-                $('#fileNameText').text(file.name);
-                $('#uploadText').text('✅ File Ready');
-            } else {
-                $('#fileNameText').text('No file selected');
-                $('#uploadText').text('📁 Drag or Upload File');
-            }
+        // Material Registration Excel Function
+        setupExcelUploader({
+            uploadBoxId: 'uploadBox',
+            fileInputId: 'excelFile',
+            fileNameTextId: 'fileNameText',
+            uploadTextId: 'uploadText',
+            errorId: 'fileError',
+            buttonId: 'btnUpload',
+            addRowFn: addRow,
+            mapRowFn: row => ({
+                new_part_number: row[0],
+                new_part_desc: row[1],
+                new_option: row[2],
+                new_category: row[3],
+                new_cost_center: row[4],
+                new_location: row[5],
+                new_min_invent_req: parseInt(row[6]) || 0,
+                new_unit: row[7],
+                new_approver: row[8]
+            })
         });
 
-        $("#btnAddRow").on("click", function () {
-            addRow();
-        });
-
-        $("#btnAddStockRow").on("click", function () {
-            addStockRow();
-        });
-
-        // Material Excel Upload Btn
-        $("#btnUpload").on("click", function () {
-            const fileInput = $("#excelFile");
-            const file = $("#excelFile")[0].files[0];
-
-            if (!file) {
-                fileInput.addClass('input-error');
-                $('#fileError').show();
-                $('#fileNameText').hide();
-                return;
-            } else {
-                fileInput.removeClass('input-error');
-                $('#fileError').hide();
-                $('#fileNameText').text('File selected: ' + file.name).show();
-            }
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: "array" });
-                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { header: 1 }).slice(1);
-                rows.forEach(row => addRow({
-                    new_part_number: row[0],
-                    new_part_desc: row[1],
-                    new_option: row[2],
-                    new_category: row[3],
-                    new_cost_center: row[4],
-                    new_location: row[5],
-                    new_min_invent_req: parseInt(row[6]) || 0,
-                    new_unit: row[7],
-                    new_approver: row[8]
-                }));
-            };
-            reader.readAsArrayBuffer(file);
-        });
+        // Button actions
+        $("#btnAddRow").on("click", addRow);
+        $("#btnAddStockRow").on("click", addStockRow);
 
         // Submit Material Registration
         $("#btnSubmit").on("click", function (e) {
@@ -800,7 +1047,7 @@ include "navBar.php";
         let rowCounter = 0;
 
         // Add Row add to Stock
-        function addStockRow() {
+        function addStockRow(data = {}) {
             rowCounter++;
             const rowId = 'row_' + rowCounter;
             const row = $("<tr></tr>").attr("id", rowId);
@@ -808,37 +1055,28 @@ include "navBar.php";
             row.append(`
                 <td>
                     <select class="form-select partSelect" name="addPartNumber" data-row-id="${rowId}" required>
-                        <option value="">Part Number</option> 
+                        <option value="">Part Number</option>
                         <?php
                         $select_ccid = "SELECT id, part_name FROM tbl_inventory ORDER BY REGEXP_REPLACE(part_name, '[0-9]+$', ''), CAST(REGEXP_SUBSTR(part_name, '[0-9]+$') AS UNSIGNED)";
                         $select_ccid_query = mysqli_query($con, $select_ccid);
                         if (mysqli_num_rows($select_ccid_query) > 0) {
                             while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
                                 ?>
-                                <option value="<?php echo $ccid_row['part_name'] ?>" data-id="<?php echo $ccid_row['id'] ?>">
-                                    <?php echo $ccid_row['part_name'] ?>
-                                </option>
+                            <option value="<?= $ccid_row['part_name'] ?>" data-id="<?= $ccid_row['id'] ?>">
+                                <?= $ccid_row['part_name'] ?>
+                            </option>
+
                                 <?php
                             }
                         }
                         ?>
                     </select>
                 </td>
-                <td>
-                    <input type="text" class="form-control partDescription" name="addPartDesc" placeholder="Part Description" readonly>
-                </td>
-                <td>
-                    <input type="text" class="form-control" name="addBatchNumber" placeholder="Batch Number" style="text-transform: uppercase;" autocomplete="OFF">
-                </td>
-                <td>
-                    <input type="text" class="form-control" name="addLotID" placeholder="Lot ID" style="text-transform: uppercase;" autocomplete="OFF">
-                </td>
-                <td>
-                    <input type="text" class="form-control" name="addItemCode" placeholder="Item Code" style="text-transform: uppercase;" autocomplete="OFF">
-                </td>
-                <td>
-                    <input type="number" class="form-control" name="addPartQty" placeholder="PART QUANTITY" min="0" step="1" >
-                </td>
+                <td><input type="text" class="form-control partDescription" name="addPartDesc" placeholder="Part Description" readonly></td>
+                <td><input type="text" class="form-control" name="addBatchNumber" placeholder="Batch Number" autocomplete="OFF"></td>
+                <td><input type="text" class="form-control" name="addLotID" placeholder="Lot ID" autocomplete="OFF"></td>
+                <td><input type="text" class="form-control" name="addItemCode" placeholder="Item Code" autocomplete="OFF"></td>
+                <td><input type="number" class="form-control" name="addPartQty" placeholder="Part Quantity" min="0" step="1"></td>
                 <td>
                     <select class="form-select" name="addExpDateOption">
                         <option value="">Has Expiration Date?</option>
@@ -846,21 +1084,47 @@ include "navBar.php";
                         <option value="no">No</option>
                     </select>
                 </td>
-                <td>
-                     <input type="text" class="form-control expDateInput" name="addExpDate" placeholder="Expiration Date" readonly disabled>
-                </td>
-                </td>
-                <td>
-                    <input type="text" class="form-control" name="addKittingID" placeholder="Badge ID" style="text-transform: uppercase;" autocomplete="OFF">
-                </td>
-          
-                <td>
-                    <button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button>
-                </td>
+                <td><input type="text" class="form-control expDateInput" name="addExpDate" readonly disabled placeholder="Has Expiration Date?"></td>
+                <td><input type="text" class="form-control" name="addKittingID" placeholder="Kitting ID" autocomplete="OFF"></td>
+                <td><button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button></td>
             `);
 
             $("#itemStockTable tbody").append(row);
+
+            if (data.add_part_number) {
+                const select = row.find('[name="addPartNumber"]');
+                let matchFound = false;
+
+                select.find('option').each(function () {
+                    if ($(this).val().toLowerCase() === data.add_part_number.toLowerCase()) {
+                        select.val($(this).val());
+                        matchFound = true;
+                        return false;
+                    }
+                });
+
+                if (matchFound) {
+                    select.trigger('change');
+                }
+            }
+
+            if (data.add_batch_number) row.find('[name="addBatchNumber"]').val(data.add_batch_number);
+            if (data.add_lot_id) row.find('[name="addLotID"]').val(data.add_lot_id);
+            if (data.add_item_code) row.find('[name="addItemCode"]').val(data.add_item_code);
+            if (data.add_quantity) row.find('[name="addPartQty"]').val(data.add_quantity);
+            if (data.add_has_expiration_date) {
+                const expDateOption = row.find('[name="addExpDateOption"]');
+                expDateOption.val(data.add_has_expiration_date.toLowerCase());
+                toggleExpDateInput(expDateOption[0]);
+            }
+
+            if (data.add_expiration_date) {
+                const expDateInput = row.find('[name="addExpDate"]');
+                expDateInput.val(data.add_expiration_date);
+            }
+            if (data.add_badge_id) row.find('[name="addKittingID"]').val(data.add_badge_id);
         }
+
 
         // Has Expiration Date?
         $(document).on('change', 'select[name="addExpDateOption"]', function () {
@@ -994,8 +1258,10 @@ include "navBar.php";
                 type: 'POST',
                 data: { stock_data: JSON.stringify(data) },
                 success: function (response) {
+                    console.log("Server response:", response);
                     try {
                         let jsonResponse = JSON.parse(response);
+
 
                         if (jsonResponse.success) {
                             Swal.fire({
