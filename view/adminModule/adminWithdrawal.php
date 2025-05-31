@@ -49,20 +49,24 @@ include "navBar.php";
 
 
                         $query = "SELECT 
-                                        ti.id,
-                                        ti.part_name,
-                                        ts.item_code,
-                                        SUM(ts.part_qty) AS total_qty
-                                    FROM 
-                                        tbl_inventory ti
-                                    LEFT JOIN 
-                                        tbl_stock ts ON ti.part_name = ts.part_name
-                                    GROUP BY 
-                                        ti.part_name
-                                    HAVING 
-                                        total_qty > 0
-                                    ORDER BY 
-                                        REGEXP_REPLACE(ti.part_name, '[0-9]+$', ''), CAST(REGEXP_SUBSTR(ti.part_name, '[0-9]+$') AS UNSIGNED)";
+                                    ti.id,
+                                    ti.part_name,
+                                    ts.item_code,
+                                    SUM(ts.part_qty) AS total_qty
+                                FROM 
+                                    tbl_inventory ti
+                                LEFT JOIN 
+                                    tbl_stock ts ON ti.part_name = ts.part_name
+                                WHERE 
+                                    ts.status = 'Active'
+                                GROUP BY 
+                                    ti.part_name
+                                HAVING 
+                                    total_qty > 0
+                                ORDER BY 
+                                    REGEXP_REPLACE(ti.part_name, '[0-9]+$', ''), 
+                                    CAST(REGEXP_SUBSTR(ti.part_name, '[0-9]+$') AS UNSIGNED)
+                                ";
 
                         $result = mysqli_query($con, $query);
                         ?>
