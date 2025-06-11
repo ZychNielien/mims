@@ -341,6 +341,25 @@ include "navBar.php";
     let loadedKeys = new Set();
     let searchTerm = '';
     let noMoreData = false;
+    let checkedItems = {};
+
+    $(document).on('change', '#select-all', function () {
+        const isChecked = $(this).is(':checked');
+
+        $('#data-table-inventory tr:visible').each(function () {
+            const checkbox = $(this).find('input.select-row');
+            const partName = checkbox.data('part_name');
+            const key = `${partName}`;
+
+            checkbox.prop('checked', isChecked);
+
+            if (isChecked) {
+                checkedItems[key] = true;
+            } else {
+                delete checkedItems[key];
+            }
+        });
+    });
 
     $(document).ready(function () {
         loadPage(currentPage);
@@ -365,6 +384,17 @@ include "navBar.php";
 
             if (searchTerm.length === 0 && $(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
                 loadPage(currentPage);
+            }
+        });
+
+        $(document).on('change', '.select-row', function () {
+            const partName = $(this).data('part_name');
+            const key = `${partName}`;
+
+            if ($(this).is(':checked')) {
+                checkedItems[key] = true;
+            } else {
+                delete checkedItems[key];
             }
         });
     });
@@ -422,15 +452,6 @@ include "navBar.php";
     }
 
     function updateTable(data, isLiveUpdate = false) {
-        let checkedItems = {};
-
-        $('#data-table-inventory input[type="checkbox"]:checked').each(function () {
-            const partName = $(this).closest('tr').find('td[data-label="Part Name"]').text().trim();
-            const itemCode = $(this).closest('tr').find('td[data-label="Item Code"]').text().trim();
-            const key = `${partName}__${itemCode}`;
-            checkedItems[key] = true;
-        });
-
         if (!isLiveUpdate && currentPage === 0) {
             $('#data-table-inventory').empty();
             loadedKeys.clear();
@@ -440,15 +461,16 @@ include "navBar.php";
         const uniqueData = [];
 
         for (const item of data) {
-            const key = `${item.part_name}__${item.item_code || ''}`;
+            const key = item.part_name;
             if (!seen.has(key)) {
                 seen.add(key);
                 uniqueData.push(item);
             }
         }
 
+
         $.each(uniqueData, function (index, item) {
-            const key = `${item.part_name}__${item.item_code || ''}`;
+            const key = item.part_name;
             const existingRow = $(`#data-table-inventory tr[data-key="${key}"]`);
 
             if (isLiveUpdate && !loadedKeys.has(key)) {
@@ -522,7 +544,9 @@ include "navBar.php";
 
         $('#data-table-inventory tr').each(function () {
             const partName = $(this).find('td').eq(1).text().toLowerCase();
-            if (partName.indexOf(searchTerm) === -1) {
+            const partDesc = $(this).find('td').eq(2).text().toLowerCase();
+
+            if (partName.indexOf(searchTerm) === -1 && partDesc.indexOf(searchTerm) === -1) {
                 $(this).hide();
             } else {
                 $(this).show();
@@ -535,15 +559,13 @@ include "navBar.php";
         if (!hasVisible) {
             $('#data-table-inventory').append(`
             <tr id="no-results-row" style="display: none;">
-                <td colspan="7" class="text-center">No results found</td>
+                <td colspan="8" class="text-center">No results found</td>
             </tr>
         `);
             $('#no-results-row').fadeIn();
         }
     }
 
-
-    // SSE setup remains unchanged
     if (!!window.EventSource) {
         const source = new EventSource('../../controller/check_inventory.php');
 
@@ -556,7 +578,6 @@ include "navBar.php";
             }
         };
     }
-
 
     $(document).on('click', '.view-stock-btn', function () {
         const partName = $(this).data('part');
@@ -639,13 +660,6 @@ include "navBar.php";
     });
 
     $(document).ready(function () {
-
-        $('#select-all').on('change', function () {
-            const isChecked = $(this).prop('checked');
-
-            $('#data-table-inventory tr:visible .select-row').prop('checked', isChecked);
-        });
-
 
         var today = new Date().toISOString().split('T')[0];
         $('#exp_date').attr('min', today);
@@ -1326,7 +1340,7 @@ include "navBar.php";
                             <input type="text" class="form-control" name="ids[]" required value="${id}">
                         </td>
                         <td>
-                            <input type="text" class="form-control" name="partnumbers[]" required value="${partName}" readonly>
+                            <input type="text" class="form-control" name="partnumbers[]" required value="${partName}" autocomplete="off">
                         </td>
                         <td>
                             <input type="text" class="form-control" name="partdescs[]" required value="${partDesc}">

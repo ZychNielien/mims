@@ -148,9 +148,26 @@ if (isset($_POST['update_submit'])) {
             $desciption = $account_username . " has updated the details of material " . $partnumber;
             $dts = date('Y-m-d H:i:s');
 
+            $sql_select = "SELECT part_name FROM `tbl_inventory` WHERE id='$id'";
+            $sql_select_query = mysqli_query($con, $sql_select);
+            $selectedPart = mysqli_fetch_assoc($sql_select_query);
+            $selected = $selectedPart['part_name'];
+
             $sql = "UPDATE `tbl_inventory` SET part_name = '$partnumber' , part_desc = '$partdesc' , cost_center = '$costcenter' , location = '$location' , min_invent_req = '$inventreq' , unit = '$unit' , part_option = '$partype' ,part_category = '$partcategory', approver = '$approver' WHERE id = '$id '";
 
             if (mysqli_query($con, $sql)) {
+
+                $sql_stocks = "UPDATE `tbl_stock` SET part_name = '$partnumber' WHERE part_name = '$selected'";
+                if (!mysqli_query($con, $sql_stocks)) {
+                    $success = false;
+                    break;
+                }
+
+                $sql_requested = "UPDATE `tbl_requested` SET part_name = '$partnumber' WHERE part_name = '$selected'";
+                if (!mysqli_query($con, $sql_requested)) {
+                    $success = false;
+                    break;
+                }
 
                 $sql_log = "INSERT INTO `tbl_log` (username, action, description, dts) VALUES ('$account_username', 'Edit Material Details','$desciption' , '$dts')";
                 if (!mysqli_query($con, $sql_log)) {
