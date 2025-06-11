@@ -41,7 +41,7 @@ include "navBar.php";
             </h2>
 
             <div class="px-3 my-3 d-flex flex-wrap justify-content-between align-items-center">
-                <input type="text" id="search_inventory" class="form-control w-25" placeholder="Search Part Number"
+                <input type="text" id="search_inventory" class="form-control w-25" placeholder="Search"
                     autocomplete="off" />
                 <button type="button" class="btn btn-success m-1" data-bs-toggle="modal"
                     data-bs-target="#materialRegistrationModal">Material Registration</button>
