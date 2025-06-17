@@ -1105,12 +1105,16 @@ include "navBar.php";
 
             $("#itemStockTable tbody").append(row);
 
-            if (data.add_part_number) {
+            if (data.add_part_number != null) {
                 const select = row.find('[name="addPartNumber"]');
                 let matchFound = false;
 
+                const partNumber = String(data.add_part_number).toLowerCase();
+
                 select.find('option').each(function () {
-                    if ($(this).val().toLowerCase() === data.add_part_number.toLowerCase()) {
+                    const optionValue = String($(this).val()).toLowerCase();
+
+                    if (optionValue === partNumber) {
                         select.val($(this).val());
                         matchFound = true;
                         return false;
@@ -1121,6 +1125,7 @@ include "navBar.php";
                     select.trigger('change');
                 }
             }
+
 
             if (data.add_batch_number) row.find('[name="addBatchNumber"]').val(data.add_batch_number);
             if (data.add_lot_id) row.find('[name="addLotID"]').val(data.add_lot_id);
