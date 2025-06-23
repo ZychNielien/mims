@@ -7,7 +7,7 @@ include "navBar.php";
 
 <head>
 
-    <title>Expired Part History</title>
+    <title>Data Management</title>
     <link rel="stylesheet" href="../../public/css/table.css">
     <script src="../../public/js/jquery.js"></script>
     <script src="../../public/js/excel.js"></script>

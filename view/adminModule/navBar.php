@@ -168,6 +168,9 @@ if (!isset($_SESSION['username'])) {
                             <li><a href="adminData.php" class="dropdown-item"><i class="bi bi-gear-fill"></i> Data
                                     Management</a></li>
                         <?php endif; ?>
+                        <li><a href="adminManual.php" class="dropdown-item"><i class="bi bi-journal-bookmark-fill"></i>
+                                System User
+                                Guide </a></li>
                         <li><a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#changePassword"><i
                                     class="bi bi-lock-fill"></i> Change Password</a></li>
                         <hr class="dropdown-divider">
