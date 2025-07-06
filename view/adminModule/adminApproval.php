@@ -69,6 +69,7 @@ include "navBar.php";
                     <th scope="col">Qty.</th>
                     <th scope="col">Batch Number</th>
                     <th scope="col">Machine No.</th>
+                    <th scope="col">Cost Center</th>
                     <th scope="col">Withdrawal Reason</th>
                     <th scope="col">Requested By</th>
                 </tr>
@@ -78,6 +79,23 @@ include "navBar.php";
                 <?php
                 if (mysqli_num_rows($sql_query) > 0) {
                     while ($sqlRow = mysqli_fetch_assoc($sql_query)) {
+                        $stock_part_name = $sqlRow['part_name'];
+                        $stock_exp_date = $sqlRow['exp_date'];
+                        $stock_batch_number = $sqlRow['batch_number'];
+                        $stock_item_code = $sqlRow['item_code'];
+
+                        $select_stock = "SELECT SUM(part_qty) AS total_qty 
+                 FROM tbl_stock 
+                 WHERE part_name = '$stock_part_name' 
+                   AND exp_date = '$stock_exp_date' 
+                   AND batch_number = '$stock_batch_number' 
+                   AND item_code = '$stock_item_code'";
+
+                        $select_stock_query = mysqli_query($con, $select_stock);
+                        $selected_stock = mysqli_fetch_assoc($select_stock_query);
+                        $stocks = $selected_stock['total_qty'];
+
+
                         ?>
                         <tr class=" text-center">
                             <td data-label="Action">
@@ -88,7 +106,8 @@ include "navBar.php";
                                     data-req_by="<?php echo htmlspecialchars($sqlRow['req_by']); ?>"
                                     data-exp_date="<?php echo htmlspecialchars($sqlRow['exp_date']); ?>"
                                     data-batch_number="<?php echo htmlspecialchars($sqlRow['batch_number']); ?>"
-                                    data-item_code="<?php echo htmlspecialchars($sqlRow['item_code']); ?>">
+                                    data-item_code="<?php echo htmlspecialchars($sqlRow['item_code']); ?>"
+                                    data-total="<?php echo htmlspecialchars($stocks); ?>">
 
                             </td>
                             <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts']; ?></td>
@@ -99,6 +118,7 @@ include "navBar.php";
                             <td data-label="Quantity"><?php echo $sqlRow['part_qty']; ?></td>
                             <td data-label="Quantity"><?php echo $sqlRow['batch_number']; ?></td>
                             <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
+                            <td data-label="Reason"><?php echo $sqlRow['cost_center']; ?></td>
                             <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                             <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>
                         </tr>
@@ -271,52 +291,97 @@ include "navBar.php";
                 let batch_number = $(this).data("batch_number");
                 let item_code = $(this).data("item_code");
                 let exp_date = $(this).data("exp_date");
+                let total = $(this).data("total");
 
                 let row;
 
                 if (buttonType === "approve") {
                     row = `
-                <tr class="text-center" style="vertical-align: middle;">
-                    <td>${reqBy}</td>
-                    <td>${partName} <input type="hidden" name="ids[]" value="${id}"></td>
-                    <td style="display:none;"> 
-                        <input type="hidden" name="part_names[]" value="${partName}">
-                        <input type="hidden" name="request_bys[]" value="${reqBy}">
-                        <input type="hidden" name="item_codes[]" value="${item_code}">
-                    </td>
-                    <td>${item_code}</td>
-                    <td><input type="number" name="quantities[]" value="${qty}" max="${qty}" class="form-control" min="1" step="1" required></td>
-                    <td>${batch_number}</td>
-                    <td><input type="text" name="batch_numbers[]" class="form-control" placeholder="Actual Batch Number" autocomplete="off"></td>
-                    <td><input type="text" name="reasons[]" class="form-control" placeholder="Reason (Optional)" autocomplete="off"></td>
-                </tr>
-            `;
+            <tr class="text-center" style="vertical-align: middle;">
+                <td>${reqBy}</td>
+                <td>${partName} <input type="hidden" name="ids[]" value="${id}"></td>
+                <td style="display:none;"> 
+                    <input type="hidden" name="part_names[]" value="${partName}">
+                    <input type="hidden" name="request_bys[]" value="${reqBy}">
+                    <input type="hidden" name="item_codes[]" value="${item_code}">
+                </td>
+                <td>${item_code}</td>
+                <td><input type="number" name="quantities[]" value="${qty}" max="${total}" class="form-control" min="1" step="1" required></td>
+                <td>${batch_number}</td>
+                <td><input type="text" name="batch_numbers[]" class="form-control" placeholder="Actual Batch Number" autocomplete="off"></td>
+                <td><input type="text" name="reasons[]" class="form-control" placeholder="Reason (Optional)" autocomplete="off"></td>
+            </tr>
+        `;
                 } else {
                     row = `
-                <tr class="text-center" style="vertical-align: middle;">
-                    <td>${reqBy}</td>
-                    <td>${partName} <input type="hidden" name="ids[]" value="${id}"></td>
-                    <td>${item_code}</td>
-                    <td>${batch_number}</td>
-                    <td>${qty}</td>
-                    <td style="display:none;"> 
-                        <input type="hidden" name="part_names[]" value="${partName}">
-                        <input type="hidden" name="request_bys[]" value="${reqBy}">
-                        <input type="hidden" name="quantities[]" value="${qty}">
-                        <input type="hidden" name="exp_dates[]" value="${exp_date || ''}">
-                        <input type="hidden" name="item_codes[]" value="${item_code}">
-                        <input type="hidden" name="batch_numbers[]" value="${batch_number}">
-                    </td>
-                    <td><input type="text" name="reasons[]" class="form-control" placeholder="Reason for rejection"></td>
-                </tr>
-            `;
+            <tr class="text-center" style="vertical-align: middle;">
+                <td>${reqBy}</td>
+                <td>${partName} <input type="hidden" name="ids[]" value="${id}"></td>
+                <td>${item_code}</td>
+                <td>${batch_number}</td>
+                <td>${qty}</td>
+                <td style="display:none;"> 
+                    <input type="hidden" name="part_names[]" value="${partName}">
+                    <input type="hidden" name="request_bys[]" value="${reqBy}">
+                    <input type="hidden" name="quantities[]" value="${qty}">
+                    <input type="hidden" name="exp_dates[]" value="${exp_date || ''}">
+                    <input type="hidden" name="item_codes[]" value="${item_code}">
+                    <input type="hidden" name="batch_numbers[]" value="${batch_number}">
+                </td>
+                <td><input type="text" name="reasons[]" class="form-control" placeholder="Reason for rejection"></td>
+            </tr>
+        `;
                 }
 
                 $(modalListSelector).append(row);
             });
 
             $(modalSelector).modal("show");
+
+            let itemAllocations = {};
+
+            $(`${modalListSelector} input[name='item_codes[]']`).each(function () {
+                let itemCode = $(this).val();
+                let $row = $(this).closest("tr");
+                let $qtyInput = $row.find("input[name='quantities[]']");
+                let max = parseInt($qtyInput.attr("max")) || 0;
+
+                if (!itemAllocations[itemCode]) {
+                    itemAllocations[itemCode] = {
+                        maxQty: max,
+                        inputs: []
+                    };
+                }
+
+                itemAllocations[itemCode].inputs.push($qtyInput);
+            });
+
+            function updateMaxForItemCode(itemCode) {
+                let group = itemAllocations[itemCode];
+                let totalQty = group.maxQty;
+
+                let totalAllocated = group.inputs.reduce((sum, $input) => {
+                    return sum + (parseInt($input.val()) || 0);
+                }, 0);
+
+                group.inputs.forEach(($input) => {
+                    let currentVal = parseInt($input.val()) || 0;
+                    let remaining = totalQty - (totalAllocated - currentVal);
+                    $input.attr("max", remaining);
+                });
+            }
+
+            Object.keys(itemAllocations).forEach(itemCode => {
+                itemAllocations[itemCode].inputs.forEach($input => {
+                    $input.on("input", () => {
+                        updateMaxForItemCode(itemCode);
+                    });
+                });
+
+                updateMaxForItemCode(itemCode);
+            });
         }
+
 
         // Approval Function for Approve
         $("#approve-btn").click(function () {

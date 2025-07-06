@@ -30,6 +30,9 @@ if ($sql_machine_query) {
     <title>Material Withdrawal</title>
     <link rel="stylesheet" href="../../public/css/responsiveWithdrawal.css">
     <script src="../../public/js/jquery.js"></script>
+    <script src="../../public/js/jquery-3.6.js"></script>
+    <link rel="stylesheet" href="../../public/css/jquery-ui.css">
+    <script src="../../public/js/jquery-ui.min.js"></script>
 
 </head>
 
@@ -47,44 +50,42 @@ if ($sql_machine_query) {
                 <h4>Material Withdrawal</h4>
             </div>
 
-            <form method="POST" action="../../controller/user_query.php">
-
+            <form method="POST" action="../../controller/withdrawal.php">
                 <?php
                 $selected_username = $_SESSION['username'];
                 $select_user = "SELECT * FROM tbl_users WHERE username = '$selected_username'";
                 $select_user_query = mysqli_query($con, $select_user);
                 $select_user_row = mysqli_fetch_assoc($select_user_query);
 
+
                 $query = "SELECT 
-                            ti.id,
-                            ti.part_name,
-                            ts.item_code,
-                            SUM(ts.part_qty) AS total_qty
-                        FROM 
-                            tbl_inventory ti
-                        LEFT JOIN 
-                            tbl_stock ts ON ti.part_name = ts.part_name
-                        WHERE 
-                            ts.status = 'Active'
-                        GROUP BY 
-                            ti.part_name
-                        HAVING 
-                            total_qty > 0
-                        ORDER BY 
-                            REGEXP_REPLACE(ti.part_name, '[0-9]+$', ''), 
-                            CAST(REGEXP_SUBSTR(ti.part_name, '[0-9]+$') AS UNSIGNED)
-                        ";
+                                    ti.id,
+                                    ti.part_name,
+                                    ts.item_code,
+                                    SUM(ts.part_qty) AS total_qty
+                                FROM 
+                                    tbl_inventory ti
+                                LEFT JOIN 
+                                    tbl_stock ts ON ti.part_name = ts.part_name
+                                WHERE 
+                                    ts.status = 'Active'
+                                GROUP BY 
+                                    ti.part_name
+                                HAVING 
+                                    total_qty > 0
+                                ORDER BY 
+                                    REGEXP_REPLACE(ti.part_name, '[0-9]+$', ''), 
+                                    CAST(REGEXP_SUBSTR(ti.part_name, '[0-9]+$') AS UNSIGNED)
+                                ";
 
                 $result = mysqli_query($con, $query);
-
                 ?>
-
                 <input type="hidden" value="<?php echo $select_user_row['cost_center'] ?>" name="cost_center">
 
                 <div class="mb-3">
                     <label for="partSelect" class="form-label">Part Number</label>
                     <select class="form-select" id="partSelect">
-                        <option value="">Select a Part</option>
+                        <option value="">Select a Part Number</option>
                         <?php
                         if (mysqli_num_rows($result) > 0) {
                             while ($row = mysqli_fetch_assoc($result)) {
@@ -96,10 +97,14 @@ if ($sql_machine_query) {
                         ?>
                     </select>
                 </div>
+                <div class="mb-3">
+                    <label for="part_desc_input" class="form-label">Part Description</label>
+                    <input type="text" class="form-control" id="part_desc_input" placeholder="Type item description">
+                </div>
 
                 <div id="itemDetails" style="display: none;">
                     <input type="hidden" id="part_name" name="part_name" />
-                    <div class="mb-1">
+                    <div class="mb-1" style="display: none;">
                         <label for="part_desc" class="form-label">Item Description</label>
                         <textarea class="form-control" id="part_desc" rows="2" name="part_desc" readonly></textarea>
                     </div>
@@ -114,8 +119,8 @@ if ($sql_machine_query) {
                     </div>
                     <div class="mb-1">
                         <label for="part_qty" class="form-label">Item Quantity</label>
-                        <input type="number" class="form-control" id="part_qty" name="part_qty" required
-                            placeholder="Enter Item Quantity">
+                        <input type="number" class="form-control" id="part_qty" name="part_qty"
+                            placeholder="Enter Item Quantity" required>
                     </div>
                     <div class="mb-1">
                         <label for="station_code" class="form-label">Station Code</label>
@@ -137,19 +142,19 @@ if ($sql_machine_query) {
                             }
                             ?>
                         </select>
+
                     </div>
                     <div class="mb-1" style="display: none;">
                         <label for="req_by" class="form-label">Req By</label>
                         <input type="text" class="form-control" id="req_by" value="<?php echo $_SESSION['username'] ?>"
                             name="req_by">
                     </div>
+
                     <div class="mb-1">
                         <label for="machine_no" class="form-label">Machine Number</label>
                         <select class="form-select" id="machine_no" name="machine_no" required>
                             <option value="">Select Machine Number</option>
-
                             <?php
-
                             $sql_machine = "SELECT machine_number FROM tbl_machine";
                             $sql_machine_query = mysqli_query($con, $sql_machine);
                             if ($sql_machine_query) {
@@ -163,14 +168,13 @@ if ($sql_machine_query) {
                                     <?php
                                 }
                             }
-
                             ?>
                         </select>
                     </div>
                     <div class="mb-1">
                         <label for="lot_id" class="form-label">Lot ID</label>
-                        <input type="text" class="form-control" id="lot_id" name="lot_id" required
-                            placeholder="Enter Lot ID" autocomplete="off">
+                        <input type="text" class="form-control" id="lot_id" name="lot_id" placeholder="Enter Lot ID"
+                            required autocomplete="off">
                     </div>
                     <div class="mb-3">
                         <label for="with_reason" class="form-label">Withdrawal Reason</label>
@@ -193,10 +197,9 @@ if ($sql_machine_query) {
                             ?>
                         </select>
                     </div>
-
-                    <button type="submit" class="btn btn-success" name="req_part">Submit</button>
-
+                    <button type="submit" class="btn btn-success" name="mat_req_part">Submit</button>
                 </div>
+
 
             </form>
 
@@ -230,6 +233,7 @@ if ($sql_machine_query) {
                         <th scope="col">Batch Number</th>
                         <th scope="col">Qty.</th>
                         <th scope="col">Machine No.</th>
+                        <th scope="col">Cost Center</th>
                         <th scope="col">Withdrawal Reason</th>
                     </tr>
                 </thead>
@@ -270,6 +274,7 @@ if ($sql_machine_query) {
                                 <td data-label="Batch Number"><?php echo $sqlRow['batch_number'] ?></td>
                                 <td data-label="Quantity"><?php echo $sqlRow['part_qty'] ?></td>
                                 <td data-label="Machine No"><?php echo $sqlRow['machine_no'] ?></td>
+                                <td data-label="Cost Center"><?php echo $sqlRow['cost_center'] ?></td>
                                 <td data-label="Reason"><?php echo $sqlRow['with_reason'] ?></td>
                             </tr>
                             <?php
@@ -386,10 +391,11 @@ if ($sql_machine_query) {
                         $('#itemDetails').show();
 
                         if (data.part_desc) {
-
                             $('#part_desc').val(data.part_desc);
+                            $('#part_desc_input').val(data.part_desc);
                         } else {
                             $('#part_desc').val('No description available');
+                            $('#part_desc_input').val('');
                         }
 
                         if (data.part_option) {
@@ -399,8 +405,7 @@ if ($sql_machine_query) {
                         }
 
                         if (data.item_codes && data.item_codes.length > 0) {
-                            $('#part_item_code').empty();
-                            $('#part_item_code').append('<option value="">Select Item Code</option>');
+                            $('#part_item_code').empty().append('<option value="">Select Item Code</option>');
                             data.item_codes.forEach(function (code) {
                                 $('#part_item_code').append('<option value="' + code + '">' + code + '</option>');
                             });
@@ -415,9 +420,32 @@ if ($sql_machine_query) {
             } else {
                 $('#itemDetails').hide();
                 $('#part_desc').val('');
+                $('#part_desc_input').val('');
                 $('#part_option').val('');
                 $('#part_name').val('');
                 $('#part_item_code').empty().append('<option value="">Select Item Code</option>');
+            }
+        });
+
+        $("#part_desc_input").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "../../controller/part_desc.php",
+                    type: "GET",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        response(data);
+                    }
+                });
+            },
+            minLength: 2,
+            select: function (event, ui) {
+                $("#part_desc_input").val(ui.item.label);
+
+                $("#partSelect").val(ui.item.id).trigger("change");
+
+                return false;
             }
         });
 

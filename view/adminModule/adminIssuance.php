@@ -25,10 +25,11 @@ include "navBar.php";
     $offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
 
     $sql = "SELECT * FROM tbl_requested 
-        WHERE (status = 'Approved' OR status = 'returned') 
-        AND dts_approve >= NOW() - INTERVAL 60 DAY 
-        ORDER BY dts_approve DESC 
-        LIMIT $limit OFFSET $offset";
+    WHERE (status = 'Approved' OR status = 'returned') 
+    AND dts_approve >= CURDATE() - INTERVAL 60 DAY 
+    ORDER BY dts_approve DESC 
+    LIMIT $limit OFFSET $offset";
+
     $sql_query = mysqli_query($con, $sql);
 
     $total_query = mysqli_query($con, "SELECT COUNT(*) AS total FROM tbl_requested WHERE dts_approve >= NOW() - INTERVAL 60 DAY AND (status = 'Approved' OR status = 'returned')");
@@ -70,7 +71,7 @@ include "navBar.php";
                         <th scope="col">Withdrawal Reason</th>
                         <th scope="col">Requested By</th>
                         <th scope="col">Approved Qty</th>
-                        <th scope="col">Approved Reason</th>
+                        <th scope="col">Cost Center</th>
                         <th scope="col">Approved By</th>
                     </tr>
                 </thead>
@@ -91,7 +92,7 @@ include "navBar.php";
                                 <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                                 <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>
                                 <td data-label='Approved Qty'><?php echo $sqlRow['approved_qty']; ?></td>
-                                <td data-label='Approved Reason'><?php echo $sqlRow['approved_reason']; ?></td>
+                                <td data-label='Approved Reason'><?php echo $sqlRow['cost_center']; ?></td>
                                 <td data-label="Approved By"><?php echo $sqlRow['approved_by']; ?></td>
                             </tr>
                             <?php

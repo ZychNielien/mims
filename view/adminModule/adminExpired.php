@@ -48,7 +48,7 @@ include "navBar.php";
         $offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
 
         $sql = "SELECT *, SUM(part_qty) AS total_part_qty FROM tbl_stock 
-        WHERE status = 'Expired' AND exp_date >= NOW() - INTERVAL 60 DAY
+        WHERE status = 'Expired' AND exp_date >= CURDATE() - INTERVAL 60 DAY
         GROUP BY part_name, exp_date
         ORDER BY exp_date DESC 
         LIMIT $limit OFFSET $offset";

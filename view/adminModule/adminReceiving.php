@@ -38,7 +38,7 @@ include "navBar.php";
         $offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
 
         $sql = "SELECT * FROM tbl_history 
-                WHERE status = 'Received' AND dts >= NOW() - INTERVAL 60 DAY
+                WHERE status = 'Received' AND dts >= CURDATE() - INTERVAL 60 DAY
                 ORDER BY dts DESC 
                 LIMIT $limit OFFSET $offset";
         $sql_query = mysqli_query($con, $sql);

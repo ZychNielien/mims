@@ -47,7 +47,7 @@ include "navBar.php";
         $offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
 
         $sql = "SELECT * FROM tbl_requested 
-        WHERE  status = 'rejected' AND dts_rejected >= NOW() - INTERVAL 60 DAY
+        WHERE  status = 'rejected' AND dts_rejected >= CURDATE() - INTERVAL 60 DAY
         ORDER BY dts_rejected DESC 
        LIMIT $limit OFFSET $offset";
         $sql_query = mysqli_query($con, $sql);
@@ -68,6 +68,7 @@ include "navBar.php";
                         <th scope="col">Batch Number</th>
                         <th scope="col">Qty.</th>
                         <th scope="col">Machine No.</th>
+                        <th scope="col">Cost Center</th>
                         <th scope="col">Withdrawal Reason</th>
                         <th scope="col">Requested By</th>
                         <th scope="col">Rejected By</th>
@@ -88,6 +89,7 @@ include "navBar.php";
                                 <td data-label="Batch Number"><?php echo $sqlRow['batch_number']; ?></td>
                                 <td data-label="Quantity"><?php echo $sqlRow['part_qty']; ?></td>
                                 <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
+                                <td data-label="Cost Center"><?php echo $sqlRow['cost_center']; ?></td>
                                 <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                                 <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>
                                 <td data-label="Rejected By"><?php echo $sqlRow['rejected_by']; ?></td>

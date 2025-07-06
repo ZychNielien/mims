@@ -68,6 +68,7 @@ include "navBar.php";
                                 <th scope="col">Batch Number</th>
                                 <th scope="col">Qty.</th>
                                 <th scope="col">Machine No.</th>
+                                <th scope="col">Cost Center</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Approved Qty</th>
                                 <th scope="col">Approved Reason</th>
@@ -112,6 +113,7 @@ include "navBar.php";
                                 <th scope="col">Batch Number</th>
                                 <th scope="col">Qty.</th>
                                 <th scope="col">Machine No.</th>
+                                <th scope="col">Cost Center</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Rejected Reason</th>
                                 <th scope="col">Rejected By</th>
@@ -155,6 +157,7 @@ include "navBar.php";
                                 <th scope="col">Batch Number</th>
                                 <th scope="col">Approved Qty.</th>
                                 <th scope="col">Machine No.</th>
+                                <th scope="col">Cost Center</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Return Qty</th>
                                 <th scope="col">Return Type</th>

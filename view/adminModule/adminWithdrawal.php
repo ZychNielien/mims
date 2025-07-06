@@ -9,6 +9,9 @@ include "navBar.php";
 
     <title>Material Withdrawal</title>
     <link rel="stylesheet" href="../../public/css/responsiveWithdrawal.css">
+    <script src="../../public/js/jquery-3.6.js"></script>
+    <link rel="stylesheet" href="../../public/css/jquery-ui.css">
+    <script src="../../public/js/jquery-ui.min.js"></script>
 
 </head>
 
@@ -40,7 +43,7 @@ include "navBar.php";
                     <div class="containerTitle">
                         <h4>Material Withdrawal</h4>
                     </div>
-                    <form method="POST" action="../../controller/inventory.php">
+                    <form method="POST" action="../../controller/withdrawal.php">
                         <?php
                         $selected_username = $_SESSION['username'];
                         $select_user = "SELECT * FROM tbl_users WHERE username = '$selected_username'";
@@ -75,7 +78,7 @@ include "navBar.php";
                         <div class="mb-3">
                             <label for="partSelect" class="form-label">Part Number</label>
                             <select class="form-select" id="partSelect">
-                                <option value="">Select a Part</option>
+                                <option value="">Select a Part Number</option>
                                 <?php
                                 if (mysqli_num_rows($result) > 0) {
                                     while ($row = mysqli_fetch_assoc($result)) {
@@ -87,10 +90,15 @@ include "navBar.php";
                                 ?>
                             </select>
                         </div>
+                        <div class="mb-3">
+                            <label for="part_desc_input" class="form-label">Part Description</label>
+                            <input type="text" class="form-control" id="part_desc_input"
+                                placeholder="Type item description">
+                        </div>
 
                         <div id="itemDetails" style="display: none;">
                             <input type="hidden" id="part_name" name="part_name" />
-                            <div class="mb-1">
+                            <div class="mb-1" style="display: none;">
                                 <label for="part_desc" class="form-label">Item Description</label>
                                 <textarea class="form-control" id="part_desc" rows="2" name="part_desc"
                                     readonly></textarea>
@@ -218,6 +226,7 @@ include "navBar.php";
                                 <th scope="col">Qty.</th>
                                 <th scope="col">Batch Number</th>
                                 <th scope="col">Machine No.</th>
+                                <th scope="col">Cost Center</th>
                                 <th scope="col">Withdrawal Reason</th>
                             </tr>
                         </thead>
@@ -267,6 +276,7 @@ include "navBar.php";
                                         <td data-label="Quantity"><?php echo $sqlRow['part_qty'] ?></td>
                                         <td data-label="Batch Number"><?php echo $sqlRow['batch_number'] ?></td>
                                         <td data-label="Machine No"><?php echo $sqlRow['machine_no'] ?></td>
+                                        <td data-label="Cost Center"><?php echo $sqlRow['cost_center'] ?></td>
                                         <td data-label="Reason"><?php echo $sqlRow['with_reason'] ?></td>
                                     </tr>
                                     <?php
@@ -322,6 +332,7 @@ include "navBar.php";
                             <th scope="col">Batch Number</th>
                             <th scope="col">Qty.</th>
                             <th scope="col">Machine No.</th>
+                            <th scope="col">Cost Center</th>
                             <th scope="col">Withdrawal Reason</th>
                             <th scope="col">Approved Qty</th>
                             <th scope="col">Approved Reason</th>
@@ -370,6 +381,7 @@ include "navBar.php";
                             <th scope="col">Batch Number</th>
                             <th scope="col">Qty.</th>
                             <th scope="col">Machine No.</th>
+                            <th scope="col">Cost Center</th>
                             <th scope="col">Withdrawal Reason</th>
                             <th scope="col">Rejected Reason</th>
                             <th scope="col">Rejected By</th>
@@ -418,6 +430,7 @@ include "navBar.php";
                             <th scope="col">Batch Number</th>
                             <th scope="col">Approved Qty.</th>
                             <th scope="col">Machine No.</th>
+                            <th scope="col">Cost Center</th>
                             <th scope="col">Withdrawal Reason</th>
                             <th scope="col">Return Qty</th>
                             <th scope="col">Return Type</th>
@@ -455,7 +468,7 @@ include "navBar.php";
                     <div class="table-responsive">
                         <table class="table table-striped table-bordered">
                             <thead class="text-center text-white" style="background-color: #900008;">
-                                <tr>
+                                <tr style="vertical-align: middle;">
                                     <th>Date / Time / Shift</th>
                                     <th>Lot ID</th>
                                     <th>Part Number</th>
@@ -576,11 +589,14 @@ include "navBar.php";
                     data: { part_id: partId },
                     dataType: 'json',
                     success: function (data) {
+                        $('#itemDetails').show();
+
                         if (data.part_desc) {
-                            $('#itemDetails').show();
                             $('#part_desc').val(data.part_desc);
+                            $('#part_desc_input').val(data.part_desc);
                         } else {
                             $('#part_desc').val('No description available');
+                            $('#part_desc_input').val('');
                         }
 
                         if (data.part_option) {
@@ -590,8 +606,7 @@ include "navBar.php";
                         }
 
                         if (data.item_codes && data.item_codes.length > 0) {
-                            $('#part_item_code').empty();
-                            $('#part_item_code').append('<option value="">Select Item Code</option>');
+                            $('#part_item_code').empty().append('<option value="">Select Item Code</option>');
                             data.item_codes.forEach(function (code) {
                                 $('#part_item_code').append('<option value="' + code + '">' + code + '</option>');
                             });
@@ -606,9 +621,32 @@ include "navBar.php";
             } else {
                 $('#itemDetails').hide();
                 $('#part_desc').val('');
+                $('#part_desc_input').val('');
                 $('#part_option').val('');
                 $('#part_name').val('');
                 $('#part_item_code').empty().append('<option value="">Select Item Code</option>');
+            }
+        });
+
+        $("#part_desc_input").autocomplete({
+            source: function (request, response) {
+                $.ajax({
+                    url: "../../controller/part_desc.php",
+                    type: "GET",
+                    dataType: "json",
+                    data: { term: request.term },
+                    success: function (data) {
+                        response(data);
+                    }
+                });
+            },
+            minLength: 2,
+            select: function (event, ui) {
+                $("#part_desc_input").val(ui.item.label);
+
+                $("#partSelect").val(ui.item.id).trigger("change");
+
+                return false;
             }
         });
 

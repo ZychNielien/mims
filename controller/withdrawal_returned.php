@@ -43,6 +43,7 @@ while ($sqlRow = mysqli_fetch_assoc($result)) {
             <td data-label='Batch Number'>{$sqlRow['batch_number']}</td>
             <td data-label='Approved Qty'>{$sqlRow['approved_qty']}</td>
             <td data-label='Machine Number'>{$sqlRow['machine_no']}</td>
+            <td data-label='Cost Center'>{$sqlRow['cost_center']}</td>
             <td data-label='Qithdrawal Reason'>{$sqlRow['with_reason']}</td>
             <td data-label='Return Qty'>{$sqlRow['return_qty']}</td>
             <td data-label='Return Type'>{$sqlRow['return_purpose']}</td>

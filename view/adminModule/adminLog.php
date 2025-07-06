@@ -25,7 +25,7 @@ include "navBar.php";
     $offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
 
     $sql = "SELECT * FROM tbl_log 
-        WHERE dts >= NOW() - INTERVAL 60 DAY 
+        WHERE dts >= CURDATE() - INTERVAL 60 DAY 
         ORDER BY dts DESC 
         LIMIT $limit OFFSET $offset";
     $sql_query = mysqli_query($con, $sql);
