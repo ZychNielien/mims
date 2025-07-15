@@ -82,7 +82,7 @@ if ($sql_machine_query) {
                 ?>
                 <input type="hidden" value="<?php echo $select_user_row['cost_center'] ?>" name="cost_center">
 
-                <div class="mb-3">
+                <div class="mb-1">
                     <label for="partSelect" class="form-label">Part Number</label>
                     <select class="form-select" id="partSelect">
                         <option value="">Select a Part Number</option>
@@ -97,7 +97,7 @@ if ($sql_machine_query) {
                         ?>
                     </select>
                 </div>
-                <div class="mb-3">
+                <div class="mb-1">
                     <label for="part_desc_input" class="form-label">Part Description</label>
                     <input type="text" class="form-control" id="part_desc_input" placeholder="Type item description">
                 </div>
@@ -108,21 +108,32 @@ if ($sql_machine_query) {
                         <label for="part_desc" class="form-label">Item Description</label>
                         <textarea class="form-control" id="part_desc" rows="2" name="part_desc" readonly></textarea>
                     </div>
-                    <div class="mb-1">
-                        <label for="part_option" class="form-label">Material Type</label>
-                        <input type="text" class="form-control" id="part_option" name="part_option" readonly>
-                    </div>
-                    <div class="mb-1">
+                    <div class="">
                         <label for="part_item_code" class="form-label">Item Code</label>
                         <select class="form-select" id="part_item_code" name="part_item_code" required>
                         </select>
                     </div>
-                    <div class="mb-1">
+                    <div class="">
+                        <label for="part_batch_number" class="form-label">Batch Number</label>
+                        <input type="text" class="form-control" id="part_batch_number"
+                            placeholder="Auto-filled after selecting item code" readonly>
+                    </div>
+
+                    <div>
+                        <label for="part_option" class="form-label">Material Type</label>
+                        <input type="text" class="form-control" id="part_option" name="part_option" readonly>
+                    </div>
+
+                    <div>
+                        <label for="part_unit" class="form-label">Unit of Measure</label>
+                        <input type="text" class="form-control text-uppercase" id="part_unit" readonly>
+                    </div>
+                    <div>
                         <label for="part_qty" class="form-label">Item Quantity</label>
                         <input type="number" class="form-control" id="part_qty" name="part_qty"
                             placeholder="Enter Item Quantity" required>
                     </div>
-                    <div class="mb-1">
+                    <div>
                         <label for="station_code" class="form-label">Station Code</label>
                         <select class="form-select" id="station_code" name="station_code" required>
                             <option value="">Select Station Code</option>
@@ -144,13 +155,13 @@ if ($sql_machine_query) {
                         </select>
 
                     </div>
-                    <div class="mb-1" style="display: none;">
+                    <div style="display: none;">
                         <label for="req_by" class="form-label">Req By</label>
                         <input type="text" class="form-control" id="req_by" value="<?php echo $_SESSION['username'] ?>"
                             name="req_by">
                     </div>
 
-                    <div class="mb-1">
+                    <div>
                         <label for="machine_no" class="form-label">Machine Number</label>
                         <select class="form-select" id="machine_no" name="machine_no" required>
                             <option value="">Select Machine Number</option>
@@ -171,12 +182,12 @@ if ($sql_machine_query) {
                             ?>
                         </select>
                     </div>
-                    <div class="mb-1">
+                    <div>
                         <label for="lot_id" class="form-label">Lot ID</label>
                         <input type="text" class="form-control" id="lot_id" name="lot_id" placeholder="Enter Lot ID"
                             required autocomplete="off">
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-1">
                         <label for="with_reason" class="form-label">Withdrawal Reason</label>
                         <select class="form-select" id="with_reason" name="with_reason" required>
                             <option value="">Select Withdrawal Reason</option>
@@ -378,9 +389,14 @@ if ($sql_machine_query) {
         $('#partSelect').on('change', function () {
             var partId = $(this).val();
 
+
             if (partId) {
                 var partName = $(this).find('option:selected').data('part_name');
                 $('#part_name').val(partName);
+
+                $('#part_item_code').empty().append('<option value="">Select Item Code</option>');
+                $('#part_batch_number').val('');
+                $('#part_qty').val('').removeAttr('max').attr('placeholder', 'Enter Item Quantity');
 
                 $.ajax({
                     url: '../../controller/fetch_part_desc.php',
@@ -398,6 +414,12 @@ if ($sql_machine_query) {
                             $('#part_desc_input').val('');
                         }
 
+                        if (data.unit) {
+                            $('#part_unit').val(data.unit);
+                        } else {
+                            $('#part_unit').val('No unit available');
+                        }
+
                         if (data.part_option) {
                             $('#part_option').val(data.part_option);
                         } else {
@@ -406,12 +428,37 @@ if ($sql_machine_query) {
 
                         if (data.item_codes && data.item_codes.length > 0) {
                             $('#part_item_code').empty().append('<option value="">Select Item Code</option>');
-                            data.item_codes.forEach(function (code) {
-                                $('#part_item_code').append('<option value="' + code + '">' + code + '</option>');
+                            data.item_codes.forEach(function (item) {
+                                $('#part_item_code').append(
+                                    '<option value="' + item.code + '" data-max="' + item.qty + '" data-batch="' + item.batch + '">' + item.code + '</option>'
+                                );
                             });
+
                         } else {
                             $('#part_item_code').empty().append('<option value="">No item codes available</option>');
                         }
+
+                        $('#part_item_code').on('change', function () {
+                            var selected = $(this).find('option:selected');
+                            var maxQty = selected.data('max');
+                            var batchNumber = selected.data('batch');
+
+                            if (maxQty !== undefined) {
+                                $('#part_qty').attr('max', maxQty);
+                                $('#part_qty').attr('placeholder', 'Enter quantity (maximum allowed: ' + maxQty + ')');
+                            } else {
+                                $('#part_qty').removeAttr('max').attr('placeholder', 'Enter Item Quantity');
+                            }
+
+                            if (batchNumber !== undefined) {
+                                $('#part_batch_number').val(batchNumber);
+                            } else {
+                                $('#part_batch_number').val('');
+                            }
+                        });
+
+
+
                     },
                     error: function (xhr, status, error) {
                         console.error('AJAX error: ' + error);
