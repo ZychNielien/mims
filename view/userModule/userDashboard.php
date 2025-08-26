@@ -243,6 +243,7 @@ if ($sql_machine_query) {
                         <th scope="col">Item Code</th>
                         <th scope="col">Batch Number</th>
                         <th scope="col">Qty.</th>
+                        <th scope="col">UOM</th>
                         <th scope="col">Machine No.</th>
                         <th scope="col">Cost Center</th>
                         <th scope="col">Withdrawal Reason</th>
@@ -253,10 +254,12 @@ if ($sql_machine_query) {
 
                     <?php
                     $userName = $_SESSION['username'];
-                    $sql = "SELECT tr.*, ts.item_code, ts.part_qty AS total_qty  
+                    $sql = "SELECT tr.*, ts.item_code, ts.part_qty AS total_qty , ti.unit 
                             FROM tbl_requested tr 
                             JOIN tbl_stock ts 
                             ON tr.part_name = ts.part_name AND tr.exp_date = ts.exp_date AND tr.batch_number = ts.batch_number AND tr.item_code = ts.item_code
+                            JOIN tbl_inventory ti
+                            ON tr.part_name = ti.part_name
                             WHERE tr.req_by = '$userName' AND tr.status = 'Pending'  
                             ORDER BY tr.dts DESC";
                     $sql_query = mysqli_query($con, $sql);
@@ -284,6 +287,7 @@ if ($sql_machine_query) {
                                 <td data-label="Item Code"><?php echo $sqlRow['item_code'] ?></td>
                                 <td data-label="Batch Number"><?php echo $sqlRow['batch_number'] ?></td>
                                 <td data-label="Quantity"><?php echo $sqlRow['part_qty'] ?></td>
+                                <td data-label="UOM"><?php echo $sqlRow['unit'] ?></td>
                                 <td data-label="Machine No"><?php echo $sqlRow['machine_no'] ?></td>
                                 <td data-label="Cost Center"><?php echo $sqlRow['cost_center'] ?></td>
                                 <td data-label="Reason"><?php echo $sqlRow['with_reason'] ?></td>

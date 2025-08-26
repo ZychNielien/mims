@@ -19,20 +19,25 @@ include "navBar.php";
         <h2 class="text-center" style="color: #900008; font-weight: bold;">Issuance History
         </h2>
     </div>
+    <div class="d-flex justify-content-start px-3">
+        <h5 class="text-center fw-bold" style="color: #900008;">FRM-37421-101 QFN <br>Kitting Material Issuance to
+            Production LogSheet</h5>
+    </div>
 
     <?php
     $limit = 100;
     $offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
 
-    $sql = "SELECT * FROM tbl_requested 
+    $sql = "SELECT tr.*, ti.unit FROM tbl_requested tr
+            JOIN tbl_inventory ti
+                ON tr.part_name = ti.part_name
     WHERE (status = 'Approved' OR status = 'returned') 
-    AND dts_approve >= CURDATE() - INTERVAL 60 DAY 
     ORDER BY dts_approve DESC 
     LIMIT $limit OFFSET $offset";
 
     $sql_query = mysqli_query($con, $sql);
 
-    $total_query = mysqli_query($con, "SELECT COUNT(*) AS total FROM tbl_requested WHERE dts_approve >= NOW() - INTERVAL 60 DAY AND (status = 'Approved' OR status = 'returned')");
+    $total_query = mysqli_query($con, "SELECT COUNT(*) AS total FROM tbl_requested WHERE (status = 'Approved' OR status = 'returned')");
     $total_row = mysqli_fetch_assoc($total_query);
     $total_records = $total_row['total'];
     ?>
@@ -71,6 +76,7 @@ include "navBar.php";
                         <th scope="col">Withdrawal Reason</th>
                         <th scope="col">Requested By</th>
                         <th scope="col">Approved Qty</th>
+                        <th scope="col">UOM</th>
                         <th scope="col">Cost Center</th>
                         <th scope="col">Approved By</th>
                     </tr>
@@ -89,10 +95,11 @@ include "navBar.php";
                                 <td data-label="Item Code"><?php echo $sqlRow['item_code']; ?></td>
                                 <td data-label="Batch Number"><?php echo $sqlRow['batch_number']; ?></td>
                                 <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
-                                <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
+                                <td data-label="Withdrawal Reason"><?php echo $sqlRow['with_reason']; ?></td>
                                 <td data-label="Requested By"><?php echo $sqlRow['req_by']; ?></td>
                                 <td data-label='Approved Qty'><?php echo $sqlRow['approved_qty']; ?></td>
-                                <td data-label='Approved Reason'><?php echo $sqlRow['cost_center']; ?></td>
+                                <td data-label='UOM'><?php echo $sqlRow['unit']; ?></td>
+                                <td data-label='Cost Center'><?php echo $sqlRow['cost_center']; ?></td>
                                 <td data-label="Approved By"><?php echo $sqlRow['approved_by']; ?></td>
                             </tr>
                             <?php
@@ -205,19 +212,14 @@ include "navBar.php";
 
         // Export to Excel Script
         $('#export-btn').on('click', function () {
-            var visibleRows = $('#data-table .table-row:visible');
-            var table = $('<table></table>');
-            var headerRow = $('table thead').clone(true);
-            table.append(headerRow);
+            const searchValue = $('#search-box').val();
+            const startDate = $('#start-date').val();
+            const endDate = $('#end-date').val();
 
-            visibleRows.each(function () {
-                var newRow = $(this).clone(true);
-                table.append(newRow);
-            });
-
-            var wb = XLSX.utils.table_to_book(table[0], { sheet: "Filtered Data" });
-            XLSX.writeFile(wb, "issuance_history.xlsx");
+            let url = `../../controller/export/export_issuance.php?search=${encodeURIComponent(searchValue)}&start_date=${startDate}&end_date=${endDate}`;
+            window.location.href = url;
         });
+
 
     });
 

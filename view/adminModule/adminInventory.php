@@ -673,71 +673,94 @@ include "navBar.php";
         });
 
         $('#export-btn').click(function () {
-            var visibleRows = $('#data-table-inventory .table-row');
-            var filteredRows = [];
-
-            visibleRows.each(function () {
-                if ($(this).css('display') !== 'none') {
-                    filteredRows.push(this);
-                }
-            });
-
-            var wb = XLSX.utils.book_new();
-            var table1 = $('<table></table>');
-            var headerRow = $('#data-table thead').clone(true);
-            headerRow.find('th').first().remove();
-            headerRow.find('th').last().remove();
-            table1.append(headerRow);
-
-            $(filteredRows).each(function () {
-                var newRow = $(this).clone(true);
-                newRow.find('td').first().remove();
-                newRow.find('td').last().remove();
-                table1.append(newRow);
-            });
-
-            var ws1 = XLSX.utils.table_to_sheet(table1[0]);
-            XLSX.utils.book_append_sheet(wb, ws1, "Total Inventory");
+            var searchValue = $('#search_inventory').val() || "";
 
             $.ajax({
-                url: '../../controller/get_extra_fields.php',
+                url: '../../controller/export/export_inventory.php',
                 method: 'GET',
+                data: { search: searchValue },
                 dataType: 'json',
                 success: function (response) {
-                    var dataSheet2 = [];
+                    var wb = XLSX.utils.book_new();
+                    var dataSheet1 = [];
 
-                    dataSheet2.push([
+                    dataSheet1.push([
                         "Part Name",
-                        "Batch Number",
+                        "Part Desc",
                         "Lot ID",
                         "Item Code",
                         "Quantity",
                         "Expiration Date",
-                        "Badge ID"
+                        "Min Inventory Req",
+                        "Least Exp Date",
+                        "Total Quantity",
+                        "Expired Qty"
                     ]);
 
                     response.forEach(function (item) {
-                        dataSheet2.push([
+                        dataSheet1.push([
                             item.part_name || '',
-                            item.batch_number || '',
+                            item.part_desc || '',
                             item.lot_id || '',
                             item.item_code || '',
                             item.part_qty || '',
                             item.exp_date || '',
-                            item.kitting_id || '',
+                            item.min_invent_req || '',
+                            item.least_exp_date || '',
+                            item.total_part_qty || '',
+                            item.expired_qty || ''
                         ]);
                     });
 
-                    var ws2 = XLSX.utils.aoa_to_sheet(dataSheet2);
-                    XLSX.utils.book_append_sheet(wb, ws2, "Stocks");
+                    var ws1 = XLSX.utils.aoa_to_sheet(dataSheet1);
+                    XLSX.utils.book_append_sheet(wb, ws1, "Total Inventory");
 
-                    XLSX.writeFile(wb, "Inventory.xlsx");
+                    $.ajax({
+                        url: '../../controller/get_extra_fields.php',
+                        method: 'GET',
+                        data: { search: searchValue },
+                        dataType: 'json',
+                        success: function (response2) {
+                            var dataSheet2 = [];
+
+                            dataSheet2.push([
+                                "Part Name",
+                                "Batch Number",
+                                "Lot ID",
+                                "Item Code",
+                                "Quantity",
+                                "Expiration Date",
+                                "Badge ID"
+                            ]);
+
+                            response2.forEach(function (item) {
+                                dataSheet2.push([
+                                    item.part_name || '',
+                                    item.batch_number || '',
+                                    item.lot_id || '',
+                                    item.item_code || '',
+                                    item.part_qty || '',
+                                    item.exp_date || '',
+                                    item.kitting_id || ''
+                                ]);
+                            });
+
+                            var ws2 = XLSX.utils.aoa_to_sheet(dataSheet2);
+                            XLSX.utils.book_append_sheet(wb, ws2, "Stocks");
+
+                            XLSX.writeFile(wb, "Inventory.xlsx");
+                        }
+                    });
                 },
-                error: function () {
-                    alert("Failed to fetch extra data.");
+                error: function (xhr, status, error) {
+                    console.error("AJAX Error:", status, error);
+                    console.error("Response Text:", xhr.responseText);
+                    alert("Failed to fetch all inventory. Check console for details.");
                 }
             });
         });
+
+
 
         // Search Inventory
         let debounceTimeout;

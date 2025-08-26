@@ -47,12 +47,12 @@ include "navBar.php";
         $offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
 
         $sql = "SELECT * FROM tbl_requested 
-        WHERE  status = 'rejected' AND dts_rejected >= CURDATE() - INTERVAL 60 DAY
+        WHERE  status = 'rejected'
         ORDER BY dts_rejected DESC 
        LIMIT $limit OFFSET $offset";
         $sql_query = mysqli_query($con, $sql);
 
-        $total_query = mysqli_query($con, "SELECT COUNT(*) AS total FROM tbl_requested WHERE dts_rejected >= NOW() - INTERVAL 60 DAY");
+        $total_query = mysqli_query($con, "SELECT COUNT(*) AS total FROM tbl_requested WHERE status = 'Rejected'");
         $total_row = mysqli_fetch_assoc($total_query);
         $total_records = $total_row['total'];
         ?>
@@ -208,19 +208,12 @@ include "navBar.php";
 
         // Export to Excel Script
         $('#export-btn').on('click', function () {
-            var visibleRows = $('#data-table .table-row:visible');
-            var table = $('<table></table>');
-            var headerRow = $('table thead').clone(true);
-            table.append(headerRow);
+            const searchValue = $('#search-box').val();
+            const startDate = $('#start-date').val();
+            const endDate = $('#end-date').val();
 
-            visibleRows.each(function () {
-                var newRow = $(this).clone(true);
-                table.append(newRow);
-            });
-
-            var wb = XLSX.utils.table_to_book(table[0], { sheet: "Filtered Data" });
-            XLSX.writeFile(wb, "rejected_history.xlsx");
+            let url = `../../controller/export/export_reject.php?search=${encodeURIComponent(searchValue)}&start_date=${startDate}&end_date=${endDate}`;
+            window.location.href = url;
         });
-
     });
 </script>

@@ -14,6 +14,22 @@ include "navBar.php";
         <h2 class="text-center" style="color: #900008; font-weight: bold;">Receiving History</h2>
     </div>
 
+    <?php
+    $limit = 100;
+    $offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
+
+    $sql = "SELECT * FROM tbl_history 
+                WHERE status = 'Received'
+                ORDER BY dts DESC 
+    LIMIT $limit OFFSET $offset";
+
+    $sql_query = mysqli_query($con, $sql);
+
+    $total_query = mysqli_query($con, "SELECT COUNT(*) AS total FROM tbl_history WHERE status = 'Received'");
+    $total_row = mysqli_fetch_assoc($total_query);
+    $total_records = $total_row['total'];
+    ?>
+
     <div class="mx-5">
         <div class="d-flex flex-wrap justify-content-evenly align-items-end text-center mb-2">
             <div>
@@ -33,20 +49,6 @@ include "navBar.php";
             </div>
         </div>
 
-        <?php
-        $limit = 100;
-        $offset = isset($_GET['offset']) ? (int) $_GET['offset'] : 0;
-
-        $sql = "SELECT * FROM tbl_history 
-                WHERE status = 'Received' AND dts >= CURDATE() - INTERVAL 60 DAY
-                ORDER BY dts DESC 
-                LIMIT $limit OFFSET $offset";
-        $sql_query = mysqli_query($con, $sql);
-
-        $total_query = mysqli_query($con, "SELECT COUNT(*) AS total FROM tbl_history WHERE status = 'Received' AND dts >= NOW() - INTERVAL 60 DAY");
-        $total_row = mysqli_fetch_assoc($total_query);
-        $total_records = $total_row['total'];
-        ?>
 
         <div class="d-flex flex-column-reverse">
             <table class="table table-striped w-100">
@@ -145,7 +147,6 @@ include "navBar.php";
             }
         });
 
-        // Search filter
         function filterTable() {
             const searchValue = $('#search-box').val().toLowerCase();
             const startDate = $('#start-date').val();
@@ -186,28 +187,16 @@ include "navBar.php";
 
             $('#no-results-row').toggle(!anyVisible);
         }
-
         $('#search-box, #start-date, #end-date').on('input change', filterTable);
 
         // Export to Excel
         $('#export-btn').on('click', function () {
-            let btn = $(this);
-            btn.prop('disabled', true).text('Exporting...');
+            const searchValue = $('#search-box').val();
+            const startDate = $('#start-date').val();
+            const endDate = $('#end-date').val();
 
-            let visibleRows = $('#data-table .table-row:visible');
-            let table = $('<table></table>');
-            let headerRow = $('table thead').clone(true);
-            table.append(headerRow);
-
-            visibleRows.each(function () {
-                let newRow = $(this).clone(true);
-                table.append(newRow);
-            });
-
-            let wb = XLSX.utils.table_to_book(table[0], { sheet: "Filtered Data" });
-            XLSX.writeFile(wb, "ReceivingHistory.xlsx");
-
-            btn.prop('disabled', false).text('Export to Excel');
+            let url = `../../controller/export/export_receiving.php?search=${encodeURIComponent(searchValue)}&start_date=${startDate}&end_date=${endDate}`;
+            window.location.href = url;
         });
     });
 </script>

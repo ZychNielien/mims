@@ -48,13 +48,13 @@ include "navBar.php";
         $offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
 
         $sql = "SELECT *, SUM(part_qty) AS total_part_qty FROM tbl_stock 
-        WHERE status = 'Expired' AND exp_date >= CURDATE() - INTERVAL 60 DAY
+        WHERE status = 'Expired'
         GROUP BY part_name, exp_date
         ORDER BY exp_date DESC 
         LIMIT $limit OFFSET $offset";
         $sql_query = mysqli_query($con, $sql);
 
-        $total_query = mysqli_query($con, "SELECT COUNT(*) AS total FROM tbl_stock WHERE exp_date >= NOW() - INTERVAL 60 DAY");
+        $total_query = mysqli_query($con, "SELECT COUNT(*) AS total FROM tbl_stock ");
         $total_row = mysqli_fetch_assoc($total_query);
         $total_records = $total_row['total'];
         ?>
@@ -200,18 +200,12 @@ include "navBar.php";
 
         // Export to Excel Script
         $('#export-btn').on('click', function () {
-            var visibleRows = $('#data-table .table-row:visible');
-            var table = $('<table></table>');
-            var headerRow = $('table thead').clone(true);
-            table.append(headerRow);
+            const searchValue = $('#search-box').val();
+            const startDate = $('#start-date').val();
+            const endDate = $('#end-date').val();
 
-            visibleRows.each(function () {
-                var newRow = $(this).clone(true);
-                table.append(newRow);
-            });
-
-            var wb = XLSX.utils.table_to_book(table[0], { sheet: "Filtered Data" });
-            XLSX.writeFile(wb, "expired_part.xlsx");
+            let url = `../../controller/export/export_expired.php?search=${encodeURIComponent(searchValue)}&start_date=${startDate}&end_date=${endDate}`;
+            window.location.href = url;
         });
 
     });
