@@ -301,7 +301,7 @@ include "navBar.php";
                             } else {
                                 ?>
                                 <tr>
-                                    <td colspan="11" class="text-center">No withdrawal request found</td>
+                                    <td colspan="13" class="text-center">No withdrawal request found</td>
                                 </tr>
                                 <?php
                             }
@@ -348,6 +348,7 @@ include "navBar.php";
                             <th scope="col">Item Code</th>
                             <th scope="col">Batch Number</th>
                             <th scope="col">Qty.</th>
+                            <th scope="col">UOM</th>
                             <th scope="col">Machine No.</th>
                             <th scope="col">Cost Center</th>
                             <th scope="col">Withdrawal Reason</th>
@@ -397,6 +398,7 @@ include "navBar.php";
                             <th scope="col">Item Code</th>
                             <th scope="col">Batch Number</th>
                             <th scope="col">Qty.</th>
+                            <th scope="col">UOM</th>
                             <th scope="col">Machine No.</th>
                             <th scope="col">Cost Center</th>
                             <th scope="col">Withdrawal Reason</th>
@@ -446,6 +448,7 @@ include "navBar.php";
                             <th scope="col">Item Code</th>
                             <th scope="col">Batch Number</th>
                             <th scope="col">Approved Qty.</th>
+                            <th scope="col">UOM</th>
                             <th scope="col">Machine No.</th>
                             <th scope="col">Cost Center</th>
                             <th scope="col">Withdrawal Reason</th>
@@ -637,7 +640,7 @@ include "navBar.php";
                             $('#part_item_code').empty().append('<option value="">Select Item Code</option>');
                             data.item_codes.forEach(function (item) {
                                 $('#part_item_code').append(
-                                    '<option value="' + item.code + '" data-max="' + item.qty + '" data-batch="' + item.batch + '">' + item.code + '</option>'
+                                    '<option value="' + item.code + '" data-max="' + item.qty + '" data-batch="' + item.batch + '">' + item.code + ' (' + item.batch + ')' + '</option>'
                                 );
                             });
 

@@ -47,7 +47,9 @@ include "navBar.php";
         $limit = 100;
         $offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
 
-        $sql = "SELECT *, SUM(part_qty) AS total_part_qty FROM tbl_stock 
+        $sql = "SELECT ts.*, SUM(ts.part_qty) AS total_part_qty, ti.unit FROM tbl_stock ts
+        JOIN tbl_inventory ti 
+        ON ts.part_name = ti.part_name
         WHERE status = 'Expired'
         GROUP BY part_name, exp_date
         ORDER BY exp_date DESC 
@@ -66,6 +68,7 @@ include "navBar.php";
                         <th scope="col">Item Code</th>
                         <th scope="col">Batch Number</th>
                         <th scope="col">Part Quantity</th>
+                        <th scope="col">UOM</th>
                         <th scope="col">Expiration Date</th>
                         <th scope="col">Kitting ID</th>
                         <th scope="col">Added By</th>
@@ -83,6 +86,7 @@ include "navBar.php";
                                 <td data-label="Item Code"><?php echo $sqlRow['item_code']; ?></td>
                                 <td data-label="Batch Number"><?php echo $sqlRow['batch_number']; ?></td>
                                 <td data-label="Quantity"><?php echo $sqlRow['total_part_qty']; ?></td>
+                                <td data-label="UOM"><?php echo $sqlRow['unit']; ?></td>
                                 <td data-label="Expiration Date"><?php echo $sqlRow['exp_date']; ?></td>
                                 <td data-label="Kitting ID"><?php echo $sqlRow['kitting_id']; ?></td>
                                 <td data-label="Added By"><?php echo $sqlRow['updated_by']; ?></td>

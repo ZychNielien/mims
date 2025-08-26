@@ -19,9 +19,10 @@ include "navBar.php";
         <h2 class="text-center" style="color: #900008; font-weight: bold;">Issuance History
         </h2>
     </div>
-    <div class="d-flex justify-content-start px-3">
-        <h5 class="text-center fw-bold" style="color: #900008;">FRM-37421-101 QFN <br>Kitting Material Issuance to
-            Production LogSheet</h5>
+    <div class="d-flex justify-content-start">
+        <h5 class="text-center fw-bold" style="color: #900008; padding-left: 40px">Reference Form: FRM-37421-101 QFN
+            Kitting Material
+            Issuance to Production Logsheet</h5>
     </div>
 
     <?php

@@ -42,6 +42,8 @@ if (isset($_POST['loginUser'])) {
             $_SESSION['status_code'] = "success";
             $_SESSION['user'] = $user['account_type'];
             $_SESSION['username'] = $user['username'];
+            $_SESSION['designation'] = $user['designation'];
+
             $_SESSION['employee_name'] = $user['employee_name'];
 
             if ($user['account_type'] == 'Supervisor' || $user['account_type'] == 'Kitting') {

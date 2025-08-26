@@ -34,7 +34,7 @@ include "navBar.php";
 
         <?php
         $userName = $_SESSION['username'];
-        $approver = $_SESSION['user'];
+        $approver = $_SESSION['designation'];
         $limit = 100;
         $offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
         $sql = "SELECT tr.*, ti.approver, ts.item_code, ti.unit 
@@ -129,7 +129,7 @@ include "navBar.php";
                 } else {
                     ?>
                     <tr>
-                        <td colspan="11" class="text-center">No approval found</td>
+                        <td colspan="13" class="text-center">No approval found</td>
                     </tr>
                     <?php
                 }

@@ -67,6 +67,7 @@ include "navBar.php";
                                 <th scope="col">Item Code</th>
                                 <th scope="col">Batch Number</th>
                                 <th scope="col">Qty.</th>
+                                <th scope="col">UOM</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Cost Center</th>
                                 <th scope="col">Withdrawal Reason</th>
@@ -112,6 +113,7 @@ include "navBar.php";
                                 <th scope="col">Item Code</th>
                                 <th scope="col">Batch Number</th>
                                 <th scope="col">Qty.</th>
+                                <th scope="col">UOM</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Cost Center</th>
                                 <th scope="col">Withdrawal Reason</th>
@@ -156,6 +158,7 @@ include "navBar.php";
                                 <th scope="col">Item Code</th>
                                 <th scope="col">Batch Number</th>
                                 <th scope="col">Approved Qty.</th>
+                                <th scope="col">UOM</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Cost Center</th>
                                 <th scope="col">Withdrawal Reason</th>

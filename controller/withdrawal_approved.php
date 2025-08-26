@@ -11,7 +11,7 @@ $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 $itemsPerPage = 15;
 $offset = ($page - 1) * $itemsPerPage;
 
-$sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'approved'";
+$sql = "SELECT tr.*, ti.unit FROM tbl_requested tr JOIN tbl_inventory ti ON tr.part_name = ti.part_name WHERE req_by = '$userName' AND status = 'approved'";
 
 if ($startDate && $endDate) {
     $startDateTime = $startDate . ' 00:00:00';
@@ -52,17 +52,18 @@ while ($row = mysqli_fetch_assoc($result)) {
         <td data-label='Item Code'>{$row['item_code']}</td>
         <td data-label='Batch Number'>{$row['batch_number']}</td>
         <td data-label='Part Qty'>{$row['part_qty']}</td>
+        <td data-label='Unit of Measure'>{$row['unit']}</td>
         <td data-label='Machine Number'>{$row['machine_no']}</td>
         <td data-label='Cost Center'>{$row['cost_center']}</td>
         <td data-label='Withdrawal Reason'>{$row['with_reason']}</td>
         <td data-label='Approved Qty'>{$row['approved_qty']}</td>
         <td data-label='Approved Reason'>{$row['approved_reason']}</td>
-        <td data-label='Return Qty'>{$row['approved_by']}</td>
+        <td data-label='Approved By'>{$row['approved_by']}</td>
     </tr>";
 }
 
 if ($count === 0) {
-    $tableRows = "<tr><td colspan='13' class='text-center'>No approved request found</td></tr>";
+    $tableRows = "<tr><td colspan='15' class='text-center'>No approved request found</td></tr>";
 }
 
 // Return JSON

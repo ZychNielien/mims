@@ -429,7 +429,6 @@ ob_end_flush();
                                         <th>Badge Number</th>
                                         <th>Cost Center</th>
                                         <th>Designation</th>
-                                        <th>Account Type</th>
                                     </tr>
                                 </thead>
                                 <tbody id="modalAccountApprovalList">
@@ -492,7 +491,7 @@ ob_end_flush();
                 </div>
                 <div class="modal-body">
 
-                    <div class="mb-4 d-flex flex-wrap gap-3 align-items-stretch justify-content-evenly">
+                    <div class="mb-4 d-flex flex-wrap gap-3 align-items-stretch justify-content-end">
                         <div class="d-flex flex-column justify-content-end" style="min-width: 200px;">
                             <button class="btn btn-success" id="btnAddAccountRow">Add Row</button>
                         </div>
@@ -507,7 +506,6 @@ ob_end_flush();
                                     <th>Username</th>
                                     <th>Badge Number</th>
                                     <th>Designation</th>
-                                    <th>Account Type</th>
                                     <th>Cost Center</th>
                                     <th>Supervisors</th>
                                     <th>Action</th>
@@ -585,7 +583,6 @@ ob_end_flush();
                                         <th>Employee Name</th>
                                         <th>Badge Number</th>
                                         <th>Designation</th>
-                                        <th>Account Type</th>
                                         <th>Cost Center</th>
                                         <th>Supervisors</th>
                                     </tr>
@@ -973,48 +970,50 @@ ob_end_flush();
 
                     if (isApproval) {
                         row = `
-                    <tr class="text-center" style="vertical-align: middle;">
-                        <td>${employeeName}</td>
-                        <td>${badgeNumber}</td>
-                        <td>${costCenter}</td>
-                        <td>
-                            <select class="form-select" name="designations[]" required>
-                                <option value="" ${!designation ? 'selected' : ''}>Select Designation</option>
-                                <option value="Supervisor" ${designation === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
-                                <option value="Kitting" ${designation === 'Kitting' ? 'selected' : ''}>Kitting</option>
-                                <option value="Inspector" ${designation === 'Inspector' ? 'selected' : ''}>Inspector</option>
-                                <option value="Operator" ${designation === 'Operator' ? 'selected' : ''}>Operator</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="form-select" name="accounttypes[]" required>
-                                <option value="" ${!accType ? 'selected' : ''}>Select Account Type</option>
-                                <option value="User" ${accType === 'User' ? 'selected' : ''}>User</option>
-                                <option value="Kitting" ${accType === 'Kitting' ? 'selected' : ''}>Kitting</option>
-                                <option value="Supervisor" ${accType === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
-                            </select>
-                        </td>
-                        <td style="display:none;">
-                            <input type="hidden" name="employeenames[]" value="${employeeName}">
-                            <input type="hidden" name="ids[]" value="${id}">
-                        </td>
-                    </tr>`;
+                <tr class="text-center" style="vertical-align: middle;">
+                    <td>${employeeName}</td>
+                    <td>${badgeNumber}</td>
+                    <td>${costCenter}</td>
+                    <td>
+                        <select class="form-select approval_designation" name="designations[]" required>
+                            <option value="" ${!designation ? 'selected' : ''}>Select Designation</option>
+                            <option value="Supervisor" ${designation === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
+                            <option value="Manager" ${designation === 'Manager' ? 'selected' : ''}>Manager</option>
+                            <option value="Kitting" ${designation === 'Kitting' ? 'selected' : ''}>Kitting</option>
+                            <option value="Maintenance Supervisor" ${designation === 'Maintenance Supervisor' ? 'selected' : ''}>Maintenance Supervisor</option>
+                            <option value="IE" ${designation === 'IE' ? 'selected' : ''}>IE</option>
+                            <option value="Engineer" ${designation === 'Engineer' ? 'selected' : ''}>Engineer</option>
+                            <option value="Inspector" ${designation === 'Inspector' ? 'selected' : ''}>Inspector</option>
+                            <option value="Technician" ${designation === 'Technician' ? 'selected' : ''}>Technician</option>
+                            <option value="Operator" ${designation === 'Operator' ? 'selected' : ''}>Operator</option>
+                        </select>
+                    </td>
+              
+                        <input type="hidden" class="form-control approval_accounttype" 
+                               name="accounttypes[]" value="${accType}" readonly required>
+               
+                    <td style="display:none;">
+                        <input type="hidden" name="employeenames[]" value="${employeeName}">
+                        <input type="hidden" name="ids[]" value="${id}">
+                    </td>
+                </tr>`;
                     } else {
                         row = `
-                    <tr class="text-center" style="vertical-align: middle;">
-                        <td>${employeeName}</td>
-                        <td>${badgeNumber}</td>
-                        <td>${costCenter}</td>
-                        <td>${designation}</td>
-                        <td>${accType}</td>
-                        <td>
-                            <input type="text" class="form-control" name="reasons[]" placeholder="Reason for Account Rejection" autocomplete="OFF">
-                        </td>
-                        <td style="display:none;">
-                            <input type="hidden" name="employeenames[]" value="${employeeName}">
-                            <input type="hidden" name="ids[]" value="${id}">
-                        </td>
-                    </tr>`;
+                <tr class="text-center" style="vertical-align: middle;">
+                    <td>${employeeName}</td>
+                    <td>${badgeNumber}</td>
+                    <td>${costCenter}</td>
+                    <td>${designation}</td>
+                    <td>${accType}</td>
+                    <td>
+                        <input type="text" class="form-control" name="reasons[]" 
+                               placeholder="Reason for Account Rejection" autocomplete="OFF">
+                    </td>
+                    <td style="display:none;">
+                        <input type="hidden" name="employeenames[]" value="${employeeName}">
+                        <input type="hidden" name="ids[]" value="${id}">
+                    </td>
+                </tr>`;
                     }
 
                     $listContainer.append(row);
@@ -1023,6 +1022,25 @@ ob_end_flush();
                 $(modalSelector).modal("show");
             });
         }
+
+        $(document).on("change", ".approval_designation", function () {
+            let designation = $(this).val();
+            let row = $(this).closest("tr");
+            let accTypeInput = row.find(".approval_accounttype");
+
+            let newType = "";
+
+            if (["Supervisor", "Manager"].includes(designation)) {
+                newType = "Supervisor";
+            } else if (["Kitting", "Maintenance Supervisor", "IE"].includes(designation)) {
+                newType = "Kitting";
+            } else if (["Engineer", "Inspector", "Technician", "Operator"].includes(designation)) {
+                newType = "User";
+            }
+
+            accTypeInput.val(newType);
+        });
+
 
         // Account Approval Function for Account Approval
         handleAccountAction({
@@ -1157,6 +1175,19 @@ ob_end_flush();
         let rowCounter = 0;
 
         // Update Account Button
+        function getAccountType(designation) {
+            switch (true) {
+                case (designation === "Supervisor" || designation === "Manager"):
+                    return "Supervisor";
+                case (designation === "Kitting" || designation === "Maintenance Supervisor" || designation === "IE"):
+                    return "Kitting";
+                case (["Engineer", "Inspector", "Technician", "Operator"].includes(designation)):
+                    return "User";
+                default:
+                    return "";
+            }
+        }
+
         $("#update_acc-btn").click(function () {
             $("#modalAccountUpdateList").empty();
 
@@ -1179,73 +1210,82 @@ ob_end_flush();
                 let badgeNumber = $(this).data("badge_number");
                 let costCenter = $(this).data("cost_center");
                 let designation = $(this).data("designation");
-                let accType = $(this).data("account_type");
+                let accType = getAccountType(designation);
 
                 rowCounter++;
                 const rowId = 'row_' + rowCounter;
 
                 let row = `
-                    <tr class=" text-center" style="vertical-align: middle;" id="${rowId}">
-                        <td>
-                            <input type="text" name="employeenames[]" value="${employeeName}" class="form-control" autocomplete="OFF">
-                        </td>
-                        <td>
-                            ${badgeNumber}
-                        </td>
-                        <td>
-                            <select class="form-select" name="designations[]" required>
-                                <option value="${!designation ? 'selected' : ''}">Select Designation</option>
-                                <option value="Supervisor" ${designation === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
-                                <option value="Kitting" ${designation === 'Kitting' ? 'selected' : ''}>Kitting</option>
-                                <option value="Inspector" ${designation === 'Inspector' ? 'selected' : ''}>Inspector</option>
-                                <option value="Operator" ${designation === 'Operator' ? 'selected' : ''}>Operator</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select class="form-select" name="accounttypes[]" required>
-                                <option value="${!accType ? 'selected' : ''}">Select Account Type</option>
-                                <option value="User" ${accType === 'User' ? 'selected' : ''}>User</option>
-                                <option value="Kitting" ${accType === 'Kitting' ? 'selected' : ''}>Kitting</option>
-                                <option value="Supervisor" ${accType === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
-                            </select>
-                        </td>
-                        <td>
-                            <select name="costcenters[]" class="form-select costSelect w-100" required data-row-id="${rowId}">  
-                                <option value="${!costCenter ? 'selected' : ''}">Cost Center</option>
-                                <?php
-                                $select_ccid = "SELECT * FROM tbl_ccs";
-                                $select_ccid_query = mysqli_query($con, $select_ccid);
-                                if (mysqli_num_rows($select_ccid_query) > 0) {
-                                    while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
-                                        ?>
-                                        <option value="<?php echo $ccid_row['ccid'] ?>"
-                                            data-id="<?php echo $ccid_row['id'] ?>"
-                                            ${costCenter === '<?php echo $ccid_row['ccid'] ?>' ? 'selected' : ''}>
-                                            <?php echo $ccid_row['ccid'] ?>
-                                        </option>
-                                        <?php
-                                    }
-                                }
+            <tr class=" text-center" style="vertical-align: middle;" id="${rowId}">
+                <td>
+                    <input type="text" name="employeenames[]" value="${employeeName}" class="form-control" autocomplete="OFF">
+                </td>
+                <td>
+                    ${badgeNumber}
+                </td>
+                <td>
+                    <select class="form-select update_designation" name="designations[]" required>
+                        <option value="">Select Designation</option>
+                        <option value="Supervisor" ${designation === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
+                        <option value="Manager" ${designation === 'Manager' ? 'selected' : ''}>Manager</option>
+                        <option value="Kitting" ${designation === 'Kitting' ? 'selected' : ''}>Kitting</option>
+                        <option value="Maintenance Supervisor" ${designation === 'Maintenance Supervisor' ? 'selected' : ''}>Maintenance Supervisor</option>
+                        <option value="IE" ${designation === 'IE' ? 'selected' : ''}>IE</option>
+                        <option value="Engineer" ${designation === 'Engineer' ? 'selected' : ''}>Engineer</option>
+                        <option value="Inspector" ${designation === 'Inspector' ? 'selected' : ''}>Inspector</option>
+                        <option value="Technician" ${designation === 'Technician' ? 'selected' : ''}>Technician</option>
+                        <option value="Operator" ${designation === 'Operator' ? 'selected' : ''}>Operator</option>
+                    </select>
+                </td>
+              
+                    <input type="hidden" class="form-control updated_type" name="accounttypes[]" value="${accType}" readonly required>
+              
+                <td>
+                    <select name="costcenters[]" class="form-select costSelect w-100" required data-row-id="${rowId}">  
+                        <option value="">Cost Center</option>
+                        <?php
+                        $select_ccid = "SELECT * FROM tbl_ccs";
+                        $select_ccid_query = mysqli_query($con, $select_ccid);
+                        if (mysqli_num_rows($select_ccid_query) > 0) {
+                            while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
                                 ?>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="text" class="form-control supervisorBoth" readonly autocomplete="OFF" style="min-width: max-content;">
-                        </td>
-                        <td style="display:none;"> 
-                            <input type="hidden" class="form-control supervisorOne" name="supervisorOnes[]" readonly autocomplete="OFF">
-                            <input type="hidden" class="form-control supervisorTwo" name="supervisorTwos[]" readonly autocomplete="OFF">
-                            
-                            <input type="hidden" name="ids[]" value="${id}">
-                        </td>
-                    </tr>
-                `;
+                                <option value="<?php echo $ccid_row['ccid'] ?>"
+                                    data-id="<?php echo $ccid_row['id'] ?>"
+                                    ${costCenter === '<?php echo $ccid_row['ccid'] ?>' ? 'selected' : ''}>
+                                    <?php echo $ccid_row['ccid'] ?>
+                                </option>
+                                <?php
+                            }
+                        }
+                        ?>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="form-control supervisorBoth" readonly autocomplete="OFF" style="min-width: max-content;">
+                </td>
+                <td style="display:none;"> 
+                    <input type="hidden" class="form-control supervisorOne" name="supervisorOnes[]" readonly autocomplete="OFF">
+                    <input type="hidden" class="form-control supervisorTwo" name="supervisorTwos[]" readonly autocomplete="OFF">
+                    
+                    <input type="hidden" name="ids[]" value="${id}">
+                </td>
+            </tr>
+        `;
                 $("#modalAccountUpdateList").append(row);
                 $(`select.costSelect[data-row-id="${rowId}"]`).trigger('change');
             });
 
             $("#accUpdateModal").modal("show");
         });
+
+        $(document).on("change", ".update_designation", function () {
+            let designation = $(this).val();
+            let row = $(this).closest("tr");
+            let accTypeSelect = row.find(".updated_type");
+
+            accTypeSelect.val(getAccountType(designation));
+        });
+
 
         // Cost Center Selection in Account Modification
         $(document).on('change', '.costSelect', function () {
@@ -1647,22 +1687,22 @@ ob_end_flush();
                     <input type="text" name="badgeNumber" class="form-control" placeholder="Badge Number" autocomplete="off" required>
                 </td>
                 <td>
-                    <select class="form-select" name="designation" required>
+                    <select class="form-select designationSelect" name="designation" required>
                         <option value="">Select Designation</option>
                         <option value="Supervisor">Supervisor</option>
+                        <option value="Manager">Manager</option>
                         <option value="Kitting" >Kitting</option>
+                        <option value="Maintenance Supervisor" >Maintenance Supervisor</option>
+                        <option value="IE" >IE</option>
+                        <option value="Engineer">Engineer</option>
                         <option value="Inspector">Inspector</option>
+                        <option value="Technician">Technician</option>
                         <option value="Operator" >Operator</option>
                     </select>
                 </td>
-                <td>
-                    <select class="form-select" name="accountType" required>
-                        <option value="">Select Account Type</option>
-                        <option value="User">User</option>
-                        <option value="Kitting">Kitting</option>
-                        <option value="Supervisor">Supervisor</option>
-                    </select>
-                </td>
+             
+                    <input type="hidden" class="form-control autoType" name="accountType" readonly required>
+          
                 <td>
                     <select name="costCenter" class="form-select costAccountSelect w-100" required data-row-id="${costID}">  
                         <option value="">Cost Center</option>
@@ -1697,6 +1737,19 @@ ob_end_flush();
             $("#accountTable tbody").append(row);
             $(`select.costAccountSelect[data-row-id="${costID}"]`).trigger('change');
         }
+
+        $(document).on("change", ".designationSelect", function () {
+            let designation = $(this).val();
+            let row = $(this).closest("tr");
+
+            if (designation === "Supervisor" || designation === "Manager") {
+                row.find(".autoType").val("Supervisor");
+            } else if (designation === "Kitting" || designation === "Maintenance Supervisor" || designation === "IE") {
+                row.find(".autoType").val("Kitting");
+            } else if (designation === "Operator" || designation === "Inspector" || designation === "Engineer" || designation === "Technician") {
+                row.find(".autoType").val("User");
+            }
+        });
 
         // Change Accounts Supervisor
         $(document).on('change', '.costAccountSelect', function () {

@@ -434,7 +434,7 @@ if ($sql_machine_query) {
                             $('#part_item_code').empty().append('<option value="">Select Item Code</option>');
                             data.item_codes.forEach(function (item) {
                                 $('#part_item_code').append(
-                                    '<option value="' + item.code + '" data-max="' + item.qty + '" data-batch="' + item.batch + '">' + item.code + '</option>'
+                                    '<option value="' + item.code + '" data-max="' + item.qty + '" data-batch="' + item.batch + '">' + item.code + ' (' + item.batch + ')' + '</option>'
                                 );
                             });
 

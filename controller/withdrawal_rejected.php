@@ -9,7 +9,7 @@ $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
 $itemsPerPage = 50;
 $offset = ($page - 1) * $itemsPerPage;
 
-$sql = "SELECT * FROM tbl_requested WHERE req_by = '$userName' AND status = 'rejected'";
+$sql = "SELECT tr.*, ti.unit FROM tbl_requested tr JOIN tbl_inventory ti ON tr.part_name = ti.part_name WHERE req_by = '$userName' AND status = 'rejected'";
 
 if ($startDate && $endDate) {
     $startDateTime = $startDate . ' 00:00:00';
@@ -41,6 +41,7 @@ while ($sqlRow = mysqli_fetch_assoc($result)) {
         <td data-label='Part Name'>{$sqlRow['item_code']}</td>
         <td data-label='Batch Number'>{$sqlRow['batch_number']}</td>
         <td data-label='Quantity'>{$sqlRow['part_qty']}</td>
+        <td data-label='Unit of Measure'>{$sqlRow['unit']}</td>
         <td data-label='Machine No'>{$sqlRow['machine_no']}</td>
         <td data-label='Cost Center'>{$sqlRow['cost_center']}</td>
         <td data-label='Reason'>{$sqlRow['with_reason']}</td>
@@ -51,7 +52,7 @@ while ($sqlRow = mysqli_fetch_assoc($result)) {
 }
 
 if ($count === 0) {
-    $tableRows = "<tr><td colspan='11' class='text-center'>No rejected request found</td></tr>";
+    $tableRows = "<tr><td colspan='13' class='text-center'>No rejected request found</td></tr>";
 }
 
 echo json_encode([

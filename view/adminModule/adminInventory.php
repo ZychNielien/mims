@@ -58,7 +58,7 @@ include "navBar.php";
             <table class="table table-striped" id="data-table" data-username="<?php echo $_SESSION['user']; ?>">
 
                 <thead>
-                    <tr class="text-center" style="background-color: #900008; color: white; vertical-align: middle;">
+                    <tr class="text-left" style="background-color: #900008; color: white; vertical-align: middle;">
                         <th scope="col">
                             <input type="checkbox" id="select-all">
                         </th>
@@ -497,7 +497,7 @@ include "navBar.php";
                 : '';
 
             const row = `
-            <tr class="table-row text-center" style="vertical-align: middle;" data-key="${key}">
+            <tr class="table-row text-left" style="vertical-align: middle;" data-key="${key}">
                 <td data-label="Action">
                     <input type="checkbox" class="select-row" data-id="${item.id}"
                         data-part_name="${item.part_name}"
@@ -1072,6 +1072,7 @@ include "navBar.php";
                         <option value="" ${!data.new_approver ? 'selected' : ''}>Approver</option>
                         <option value="Supervisor" ${data.new_approver === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
                         <option value="Kitting" ${data.new_approver === 'Kitting' ? 'selected' : ''}>Kitting</option>
+                        <option value="Maintenance Supervisor" ${data.new_approver === 'Maintenance Supervisor' ? 'selected' : ''}>Maintenance Supervisor</option>
                     </select>
                 </td>
                 <td>
@@ -1439,6 +1440,7 @@ include "navBar.php";
                                 <option value="" ${!partApprover ? 'selected' : ''}>Select Approver</option>
                                 <option value="Supervisor" ${partApprover === 'Supervisor' ? 'selected' : ''}>Supervisor</option>
                                 <option value="Kitting" ${partApprover === 'Kitting' ? 'selected' : ''}>Kitting</option>
+                                <option value="Maintenance Supervisor" ${partApprover === 'Maintenance Supervisor' ? 'selected' : ''}>Maintenance Supervisor</option>
                             </select>
 
                         </td>

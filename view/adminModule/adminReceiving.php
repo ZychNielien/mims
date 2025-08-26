@@ -18,7 +18,9 @@ include "navBar.php";
     $limit = 100;
     $offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
 
-    $sql = "SELECT * FROM tbl_history 
+    $sql = "SELECT th.*, ti.unit FROM tbl_history th
+                JOIN tbl_inventory ti
+                ON th.part_name = ti.part_name
                 WHERE status = 'Received'
                 ORDER BY dts DESC 
     LIMIT $limit OFFSET $offset";
@@ -60,6 +62,7 @@ include "navBar.php";
                         <th>Item Code</th>
                         <th>Batch Number</th>
                         <th>Quantity</th>
+                        <th>UOM</th>
                         <th>Expiration Date</th>
                         <th>Kitting ID</th>
                         <th>Received By</th>
@@ -77,6 +80,7 @@ include "navBar.php";
                                 <td data-label="Item Code"><?php echo $sqlRow['item_code']; ?></td>
                                 <td data-label="Batch Number"><?php echo $sqlRow['batch_number']; ?></td>
                                 <td data-label="Quantity"><?php echo $sqlRow['part_qty']; ?></td>
+                                <td data-label="UOM"><?php echo $sqlRow['unit']; ?></td>
                                 <td data-label="Expiration Date"><?php echo $sqlRow['exp_date']; ?></td>
                                 <td data-label="Kitting ID"><?php echo $sqlRow['kitting_id']; ?></td>
                                 <td data-label="Received By"><?php echo $sqlRow['updated_by']; ?></td>

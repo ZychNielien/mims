@@ -46,7 +46,9 @@ include "navBar.php";
         $limit = 100;
         $offset = isset($_GET['offset']) ? $_GET['offset'] : 0;
 
-        $sql = "SELECT * FROM tbl_requested 
+        $sql = "SELECT tr.*, ti.unit FROM tbl_requested tr
+        JOIN tbl_inventory ti
+        ON tr.part_name = ti.part_name
         WHERE  status = 'rejected'
         ORDER BY dts_rejected DESC 
        LIMIT $limit OFFSET $offset";
@@ -67,6 +69,7 @@ include "navBar.php";
                         <th scope="col">Item Code</th>
                         <th scope="col">Batch Number</th>
                         <th scope="col">Qty.</th>
+                        <th scope="col">UOM</th>
                         <th scope="col">Machine No.</th>
                         <th scope="col">Cost Center</th>
                         <th scope="col">Withdrawal Reason</th>
@@ -88,6 +91,7 @@ include "navBar.php";
                                 <td data-label="Item Code"><?php echo $sqlRow['item_code']; ?></td>
                                 <td data-label="Batch Number"><?php echo $sqlRow['batch_number']; ?></td>
                                 <td data-label="Quantity"><?php echo $sqlRow['part_qty']; ?></td>
+                                <td data-label="UOM"><?php echo $sqlRow['unit']; ?></td>
                                 <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
                                 <td data-label="Cost Center"><?php echo $sqlRow['cost_center']; ?></td>
                                 <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>

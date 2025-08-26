@@ -125,10 +125,15 @@ include "../model/dbconnection.php";
                             <div class="col-12 col-sm-6">
                                 <label for="designation" class="form-label">Designation</label>
                                 <select class="form-select" id="designation" name="designation" required>
-                                    <option selected value>Select Designation</option>
+                                    <option selected value="">Select Designation</option>
                                     <option value="Supervisor">Supervisor</option>
+                                    <option value="Manager">Manager</option>
                                     <option value="Kitting">Kitting</option>
+                                    <option value="Maintenance Supervisor">Maintenance Supervisor</option>
+                                    <option value="IE">IE</option>
+                                    <option value="Engineer">Engineer</option>
                                     <option value="Inspector">Inspector</option>
+                                    <option value="Technician">Technician</option>
                                     <option value="Operator">Operator</option>
                                 </select>
                             </div>
@@ -136,17 +141,13 @@ include "../model/dbconnection.php";
                         <div class="mb-2 row">
                             <div class="col-12 col-sm-6">
                                 <label for="account_type" class="form-label">Account Type</label>
-                                <select class="form-select" id="account_type" name="account_type" required>
-                                    <option selected value>Select Account Type</option>
-                                    <option value="User">User</option>
-                                    <option value="Kitting">Kitting</option>
-                                    <option value="Supervisor">Supervisor</option>
-                                </select>
+                                <input type="text" id="account_type" class="form-control" name="account_type"
+                                    placeholder="Auto-filled" readonly required>
                             </div>
                             <div class="col-12 col-sm-6">
                                 <label for="create_cost_center" class="form-label">Cost Center</label>
                                 <select class="form-select" id="create_cost_center" name="cost_center" required>
-                                    <option selected value>Select Cost Center</option>
+                                    <option selected value="">Select Cost Center</option>
                                     <?php
                                     $select_ccid = "SELECT * FROM tbl_ccs";
                                     $select_ccid_query = mysqli_query($con, $select_ccid);
@@ -161,8 +162,8 @@ include "../model/dbconnection.php";
                                     ?>
                                 </select>
                             </div>
-
                         </div>
+
                         <div class="mb-4 row">
                             <div class="col-12 col-sm-6">
                                 <label for="create_supervisor_one" class="form-label">Supervisor</label>
@@ -320,6 +321,30 @@ include "../model/dbconnection.php";
                     $('#create_supervisor_two').val('');
                 }
             });
+
+            function getAccountTypeByDesignation(designation) {
+                if (designation === "Supervisor" || designation === "Manager") {
+                    return "Supervisor";
+                } else if (designation === "Kitting" || designation === "Maintenance Supervisor" || designation === "IE") {
+                    return "Kitting";
+                } else if (["Engineer", "Inspector", "Technician", "Operator"].includes(designation)) {
+                    return "User";
+                }
+                return "";
+            }
+
+            // Kapag nagbago yung designation
+            $(document).on("change", "#designation", function () {
+                const designation = $(this).val();
+                $("#account_type").val(getAccountTypeByDesignation(designation));
+            });
+
+            // Kapag binuksan yung form (reset default)
+            $(document).ready(function () {
+                const initialDesignation = $("#designation").val();
+                $("#account_type").val(getAccountTypeByDesignation(initialDesignation));
+            });
+
 
         });
 

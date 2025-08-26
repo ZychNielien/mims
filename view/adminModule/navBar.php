@@ -93,16 +93,18 @@ if (!isset($_SESSION['username'])) {
                         }
                         ?>" class=" nav-link" aria-current="page" href="#">Withdrawal </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="adminApproval.php" class=" <?php
-                        if ($page == "adminApproval.php") {
-                            echo "nav-link active";
-                        } else {
-                            echo "nav-link text-white";
-                        }
-                        ?>
+                    <?php if ($_SESSION['designation'] !== 'Manager' && $_SESSION['designation'] !== 'IE'): ?>
+                        <li class="nav-item">
+                            <a href="adminApproval.php" class=" <?php
+                            if ($page == "adminApproval.php") {
+                                echo "nav-link active";
+                            } else {
+                                echo "nav-link text-white";
+                            }
+                            ?>
                     " aria-current="page" href="#">Approval</a>
-                    </li>
+                        </li>
+                    <?php endif; ?>
                     <li class="nav-item dropdown">
                         <a class=" <?php
                         if ($page == "adminIssuance.php" || $page == "adminRejection.php" || $page == "adminReceiving.php" || $page == "adminExpired.php" || $page == "adminLog.php") {
