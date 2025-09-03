@@ -104,10 +104,11 @@ if (isset($_POST['approve_submit'])) {
 
                     if ($part_qty_remaining <= 0) {
 
-                        $check_min_inventory_sql = "SELECT ti.min_invent_req FROM tbl_inventory ti WHERE ti.part_name = '$current_part_name'";
+                        $check_min_inventory_sql = "SELECT ti.min_invent_req, ti.approver FROM tbl_inventory ti WHERE ti.part_name = '$current_part_name'";
                         $min_invent_req_query = mysqli_query($con, $check_min_inventory_sql);
                         $min_invent_req_row = mysqli_fetch_assoc($min_invent_req_query);
                         $min_invent_req = $min_invent_req_row['min_invent_req'];
+                        $approver = $min_invent_req_row['approver'];
 
                         $total_available_stock -= $updated_part_qty;
 
@@ -115,7 +116,7 @@ if (isset($_POST['approve_submit'])) {
                             $mensahe_system = htmlspecialchars($current_part_name, ENT_QUOTES, 'UTF-8') . ' has reached the minimum inventory level and needs restocking.';
 
                             $update_admin_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
-                                           VALUES ('System', '$mensahe_system', 0, '$dts', 'admin', 'Inventory')";
+                                           VALUES ('System', '$mensahe_system', 0, '$dts', '$approver', 'Inventory')";
                             if (!mysqli_query($con, $update_admin_notif)) {
                                 $success = false;
                                 break;

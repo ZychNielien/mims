@@ -138,30 +138,31 @@ include "../model/dbconnection.php";
                                 </select>
                             </div>
                         </div>
-                        <div class="mb-2 row">
-                            <div class="col-12 col-sm-6">
+                        <div class="mb-2">
+                            <div class="col-12 col-sm-6" style="display: none;">
                                 <label for="account_type" class="form-label">Account Type</label>
                                 <input type="text" id="account_type" class="form-control" name="account_type"
                                     placeholder="Auto-filled" readonly required>
                             </div>
-                            <div class="col-12 col-sm-6">
-                                <label for="create_cost_center" class="form-label">Cost Center</label>
-                                <select class="form-select" id="create_cost_center" name="cost_center" required>
-                                    <option selected value="">Select Cost Center</option>
-                                    <?php
-                                    $select_ccid = "SELECT * FROM tbl_ccs";
-                                    $select_ccid_query = mysqli_query($con, $select_ccid);
-                                    if (mysqli_num_rows($select_ccid_query) > 0) {
-                                        while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
-                                            ?>
-                                            <option value="<?php echo $ccid_row['ccid'] ?>"
-                                                data-id="<?php echo $ccid_row['id'] ?>"><?php echo $ccid_row['ccid'] ?></option>
-                                            <?php
-                                        }
+
+                            <label for="create_cost_center" class="form-label">Cost Center</label>
+                            <select class="form-select" id="create_cost_center" name="cost_center" required>
+                                <option selected value="">Select Cost Center</option>
+                                <?php
+                                $select_ccid = "SELECT * FROM tbl_ccs";
+                                $select_ccid_query = mysqli_query($con, $select_ccid);
+                                if (mysqli_num_rows($select_ccid_query) > 0) {
+                                    while ($ccid_row = mysqli_fetch_assoc($select_ccid_query)) {
+                                        ?>
+                                        <option value="<?php echo $ccid_row['ccid'] ?>" data-id="<?php echo $ccid_row['id'] ?>">
+                                            <?php echo $ccid_row['ccid'] ?>
+                                        </option>
+                                        <?php
                                     }
-                                    ?>
-                                </select>
-                            </div>
+                                }
+                                ?>
+                            </select>
+
                         </div>
 
                         <div class="mb-4 row">

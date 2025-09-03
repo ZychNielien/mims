@@ -13,14 +13,16 @@ if ($_SESSION['user'] == 'User') {
         echo json_encode(['success' => false, 'error' => 'Failed to mark notifications as read']);
     }
 
-} elseif ($_SESSION['user'] == 'Kitting' || $_SESSION['user'] == 'Supervisor') {
+} elseif ($_SESSION['designation'] == 'Kitting' || $_SESSION['designation'] == 'Supervisor' || $_SESSION['designation'] == 'Maintenance Supervisor') {
 
     $sql = "UPDATE tbl_notif SET is_read = 1 WHERE is_read = 0 AND (for_who = '$username' OR for_who = 'admin'";
 
-    if ($_SESSION['user'] == 'Supervisor') {
+    if ($_SESSION['designation'] == 'Supervisor') {
         $sql .= " OR for_who = 'adminOnly' OR for_who = 'Supervisor'";
-    } else if ($_SESSION['user'] == 'Kitting') {
+    } else if ($_SESSION['designation'] == 'Kitting') {
         $sql .= " OR for_who = 'Kitting'";
+    } else if ($_SESSION['designation'] == 'Maintenance Supervisor') {
+        $sql .= " OR for_who = 'Maintenance Supervis'";
     }
 
     $sql .= ")";

@@ -280,6 +280,7 @@ include "navBar.php";
                                                 data-machine="<?php echo $sqlRow['machine_no']; ?>"
                                                 data-withdrawal="<?php echo $sqlRow['with_reason']; ?>"
                                                 data-total_qty="<?php echo $sqlRow['total_qty']; ?>"
+                                                data-item_unit="<?php echo $sqlRow['unit']; ?>"
                                                 data-item_code="<?php echo $sqlRow['item_code']; ?>"
                                                 data-batch_number="<?php echo $sqlRow['batch_number']; ?>" />
                                         </td>
@@ -353,6 +354,7 @@ include "navBar.php";
                             <th scope="col">Cost Center</th>
                             <th scope="col">Withdrawal Reason</th>
                             <th scope="col">Approved Qty</th>
+                            <th scope="col">UOM</th>
                             <th scope="col">Approved Reason</th>
                             <th scope="col">Approved By</th>
                         </tr>
@@ -453,6 +455,7 @@ include "navBar.php";
                             <th scope="col">Cost Center</th>
                             <th scope="col">Withdrawal Reason</th>
                             <th scope="col">Return Qty</th>
+                            <th scope="col">UOM</th>
                             <th scope="col">Return Type</th>
                             <th scope="col">Return Reason</th>
                             <th scope="col">Received By</th>
@@ -495,6 +498,7 @@ include "navBar.php";
                                     <th>Item Code</th>
                                     <th>Batch Number</th>
                                     <th>Part Quantity</th>
+                                    <th>UOM</th>
                                     <th>Machine Number</th>
                                     <th>Withdrawal Reason</th>
                                 </tr>
@@ -531,6 +535,7 @@ include "navBar.php";
                                     <th>Lot ID</th>
                                     <th>Part Number</th>
                                     <th>Part Quantity</th>
+                                    <th>UOM</th>
                                     <th>Machine Number</th>
                                     <th>Withdrawal Reason</th>
                                 </tr>
@@ -567,6 +572,7 @@ include "navBar.php";
                                     <th>Item Code</th>
                                     <th>Batch Number</th>
                                     <th>Returning Quantity</th>
+                                    <th>UOM</th>
                                     <th>Return Type</th>
                                     <th>Reason for Returning</th>
                                 </tr>
@@ -750,6 +756,7 @@ include "navBar.php";
                 let total_qty = $(this).data("total_qty");
                 let batch_number = $(this).data("batch_number");
                 let item_code = $(this).data("item_code");
+                let item_unit = $(this).data("item_unit");
 
                 let row = `
                     <tr class="text-center" style="vertical-align: middle;">
@@ -759,6 +766,7 @@ include "navBar.php";
                         <td>${item_code}</td>
                         <td>${batch_number}</td>
                         <td><input type="number" name="quantities[]" value="${qty}" class="form-control" min="1" max="${total_qty + qty}" step="1" required></td>
+                        <td>${item_unit}</td>
                         <td>                    
                             <select class="form-select" name="machines[]" required>
                                 <option value="">Select Machine</option>
@@ -840,6 +848,7 @@ include "navBar.php";
                 let dts = $(this).data("dts");
                 let batch_number = $(this).data("batch_number");
                 let item_code = $(this).data("item_code");
+                let item_unit = $(this).data("item_unit");
 
                 let row = `
                     <tr class=" text-center" style="vertical-align: middle;">
@@ -847,6 +856,7 @@ include "navBar.php";
                         <td data-label="Lot ID">${lot_id}</td>
                         <td data-label="Part Number">${partName} <input type="hidden" name="ids[]" value="${id}"></td>
                         <td data-label="Part Quantity">${qty}</td>
+                        <td data-label="Unit of Measure">${item_unit}</td>
                         <td data-label="Machine Number">${machine}</td>
                         <td data-label="Withdrawal Reason">${withdrawal}</td>
                     
@@ -889,6 +899,7 @@ include "navBar.php";
                 let req_by = $(this).data("req_by");
                 let item_code = $(this).data("item_code");
                 let batch_number = $(this).data("batch_number");
+                let item_unit = $(this).data("item_unit");
 
                 let row = `
                     <tr class="text-center" style="vertical-align: middle;">
@@ -896,6 +907,7 @@ include "navBar.php";
                         <td>${item_code}</td>
                         <td>${batch_number}</td>
                         <td><input type="number" name="quantities[]" value="${approved_qty}" class="form-control" min="1" max="${approved_qty}" required></td>
+                         <td>${item_unit}</td>
                         <td>
                             <select class="form-select" name="return_purposes[]" required>
                                 <option value="">Purpose of Return</option>

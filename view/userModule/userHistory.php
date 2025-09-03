@@ -72,6 +72,7 @@ include "navBar.php";
                                 <th scope="col">Cost Center</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Approved Qty</th>
+                                <th scope="col">UOM</th>
                                 <th scope="col">Approved Reason</th>
                                 <th scope="col">Approved By</th>
                             </tr>
@@ -163,6 +164,7 @@ include "navBar.php";
                                 <th scope="col">Cost Center</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Return Qty</th>
+                                <th scope="col">UOM</th>
                                 <th scope="col">Return Type</th>
                                 <th scope="col">Return Reason</th>
                                 <th scope="col">Received By</th>

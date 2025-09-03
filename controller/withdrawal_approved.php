@@ -42,7 +42,7 @@ while ($row = mysqli_fetch_assoc($result)) {
     $tableRows .= "<tr class='table-row text-center' style='vertical-align: middle;'>
         <td>
             <input type='checkbox' class='select-return' data-id='{$row['id']}'
-                data-approved_qty='{$row['approved_qty']}' data-req_by='{$row['req_by']}' data-item_code='{$row['item_code']}' data-batch_number='{$row['batch_number']}'
+                data-approved_qty='{$row['approved_qty']}' data-req_by='{$row['req_by']}' data-item_code='{$row['item_code']}' data-batch_number='{$row['batch_number']}' data-item_unit='{$row['unit']}'
                 data-part_name='{$row['part_name']}' {$isDisabled} />
         </td>
         <td data-label='Date / Time / Shift'>{$row['dts_approve']}</td>
@@ -57,6 +57,7 @@ while ($row = mysqli_fetch_assoc($result)) {
         <td data-label='Cost Center'>{$row['cost_center']}</td>
         <td data-label='Withdrawal Reason'>{$row['with_reason']}</td>
         <td data-label='Approved Qty'>{$row['approved_qty']}</td>
+        <td data-label='Unit of Measure'>{$row['unit']}</td>
         <td data-label='Approved Reason'>{$row['approved_reason']}</td>
         <td data-label='Approved By'>{$row['approved_by']}</td>
     </tr>";

@@ -12,14 +12,16 @@ if ($con->connect_error) {
 }
 $username = $_SESSION['username'];
 
-if ($_SESSION['user'] == 'Supervisor' || $_SESSION['user'] == 'Kitting') {
+if ($_SESSION['designation'] == 'Supervisor' || $_SESSION['designation'] == 'Kitting' || $_SESSION['designation'] == 'Maintenance Supervisor') {
 
-    $sql = "SELECT * FROM tbl_notif WHERE for_who = '$username' OR for_who = 'admin'";
+    $sql = "SELECT * FROM tbl_notif WHERE for_who = '$username'";
 
-    if ($_SESSION['user'] == 'Supervisor') {
+    if ($_SESSION['designation'] == 'Supervisor') {
         $sql .= " OR for_who = 'adminOnly' OR for_who = 'Supervisor'";
-    } else if ($_SESSION['user'] == 'Kitting') {
+    } else if ($_SESSION['designation'] == 'Kitting') {
         $sql .= " OR for_who = 'Kitting'";
+    } else if ($_SESSION['designation'] == 'Maintenance Supervisor') {
+        $sql .= " OR for_who = 'Maintenance Supervis'";
     }
 
     $sql .= " ORDER BY created_at DESC LIMIT 50";

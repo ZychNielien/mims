@@ -96,7 +96,7 @@ ob_end_flush();
                             <th scope="col">Cost Center</th>
                             <th scope="col">Designation</th>
                             <th scope="col">Supervisor</th>
-                            <th scope="col">Account Type</th>
+                            <th scope="col" style="display: none;">Account Type</th>
 
                         </tr>
                     </thead>
@@ -132,7 +132,8 @@ ob_end_flush();
                                         }
                                         ?>
                                     </td>
-                                    <td data-label="Account Type"><?php echo $sqlRow['account_type']; ?></td>
+                                    <td style="display: none;" data-label="Account Type"><?php echo $sqlRow['account_type']; ?>
+                                    </td>
 
                                 </tr>
                                 <?php
@@ -171,7 +172,7 @@ ob_end_flush();
                             <th scope="col">Cost Center</th>
                             <th scope="col">Designation</th>
                             <th scope="col">Supervisor</th>
-                            <th scope="col">Account Type</th>
+                            <th scope="col" style="display: none;">Account Type</th>
                             <th scope="col">Action</th>
                         </tr>
                     </thead>
@@ -199,7 +200,8 @@ ob_end_flush();
                                         }
                                         ?>
                                     </td>
-                                    <td data-label="Account Type"><?php echo $sqlRow['account_type']; ?></td>
+                                    <td data-label="Account Type" style="display: none;"><?php echo $sqlRow['account_type']; ?>
+                                    </td>
                                     <td data-label="Action">
 
                                         <button class="btn btn-success edit-pass" data-bs-toggle="modal"
@@ -267,7 +269,7 @@ ob_end_flush();
                             <th scope="col">Cost Center</th>
                             <th scope="col">Designation</th>
                             <th scope="col">Supervisor</th>
-                            <th scope="col">Account Type</th>
+                            <th scope="col" style="display: none;">Account Type</th>
                         </tr>
                     </thead>
                     <tbody id="data-table-account">
@@ -300,7 +302,8 @@ ob_end_flush();
                                         }
                                         ?>
                                     </td>
-                                    <td data-label="Account Type"><?php echo $sqlRow['account_type']; ?></td>
+                                    <td data-label="Account Type" style="display: none;"><?php echo $sqlRow['account_type']; ?>
+                                    </td>
                                 </tr>
                                 <?php
                             }
@@ -463,7 +466,7 @@ ob_end_flush();
                                         <th>Badge Number</th>
                                         <th>Cost Center</th>
                                         <th>Designation</th>
-                                        <th>Account Type</th>
+                                        <th style="display: none;">Account Type</th>
                                         <th>Reasons</th>
                                     </tr>
                                 </thead>
@@ -548,7 +551,7 @@ ob_end_flush();
                                         <th>Badge Number</th>
                                         <th>Cost Center</th>
                                         <th>Designation</th>
-                                        <th>Account Type</th>
+                                        <th style="display: none;">Account Type</th>
                                         <th>Reasons</th>
                                     </tr>
                                 </thead>
@@ -1004,7 +1007,7 @@ ob_end_flush();
                     <td>${badgeNumber}</td>
                     <td>${costCenter}</td>
                     <td>${designation}</td>
-                    <td>${accType}</td>
+                    <td style="display: none;">${accType}</td>
                     <td>
                         <input type="text" class="form-control" name="reasons[]" 
                                placeholder="Reason for Account Rejection" autocomplete="OFF">
@@ -1154,7 +1157,7 @@ ob_end_flush();
                         <td>
                             ${designation}
                         </td>
-                        <td>
+                        <td style="display: none;">
                             ${accType}
                         </td>
                         <td>

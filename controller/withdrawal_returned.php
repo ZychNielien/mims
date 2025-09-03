@@ -47,6 +47,7 @@ while ($sqlRow = mysqli_fetch_assoc($result)) {
             <td data-label='Cost Center'>{$sqlRow['cost_center']}</td>
             <td data-label='Qithdrawal Reason'>{$sqlRow['with_reason']}</td>
             <td data-label='Return Qty'>{$sqlRow['return_qty']}</td>
+            <td data-label='Unit of Measure'>{$sqlRow['unit']}</td>
             <td data-label='Return Type'>{$sqlRow['return_purpose']}</td>
             <td data-label='Return Reason'>{$sqlRow['return_reason']}</td>
             <td data-label='Receieved By'>{$sqlRow['received_by']}</td>

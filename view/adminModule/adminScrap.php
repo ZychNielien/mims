@@ -58,11 +58,13 @@ include "navBar.php";
                                 <th scope="col">Lot ID</th>
                                 <th scope="col">Part Number</th>
                                 <th scope="col">Approved Qty.</th>
+                                <th scope="col">UOM</th>
                                 <th scope="col">Batch Number</th>
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Returned By</th>
                                 <th scope="col">Return Qty</th>
+                                <th scope="col">UOM</th>
                                 <th scope="col">Return Type</th>
                                 <th scope="col">Return Reason</th>
                             </tr>
@@ -71,8 +73,9 @@ include "navBar.php";
                         <tbody id="data-table">
                             <?php
                             $userType = $_SESSION['user'];
+                            $designationType = $_SESSION['designation'];
                             $userName = $_SESSION['username'];
-                            $sql = "SELECT tr.*, ti.approver FROM tbl_requested tr JOIN tbl_inventory ti ON tr.part_name = ti.part_name WHERE tr.status = 'returning' AND ti.approver ='$userType' ORDER BY tr.dts_return DESC";
+                            $sql = "SELECT tr.*, ti.approver, ti.unit FROM tbl_requested tr JOIN tbl_inventory ti ON tr.part_name = ti.part_name WHERE tr.status = 'returning' AND ti.approver ='$designationType' ORDER BY tr.dts_return DESC";
 
 
                             $sql_query = mysqli_query($con, $sql);
@@ -90,17 +93,20 @@ include "navBar.php";
                                                 data-exp_date="<?php echo $sqlRow['exp_date']; ?>"
                                                 data-return_reason="<?php echo $sqlRow['return_reason']; ?>"
                                                 data-return_purpose="<?php echo $sqlRow['return_purpose']; ?>"
-                                                data-item_code="<?php echo $sqlRow['item_code']; ?>" />
+                                                data-item_code="<?php echo $sqlRow['item_code']; ?>"
+                                                data-item_unit="<?php echo $sqlRow['unit']; ?>" />
                                         </td>
                                         <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts_return']; ?></td>
                                         <td data-label="Lot Id"><?php echo $sqlRow['lot_id']; ?></td>
                                         <td data-label="Part Name"><?php echo $sqlRow['part_name']; ?></td>
                                         <td data-label="Quantity"><?php echo $sqlRow['approved_qty']; ?></td>
+                                        <td data-label="Unit of Measure"><?php echo $sqlRow['unit']; ?></td>
                                         <td data-label="Batch Number"><?php echo $sqlRow['batch_number']; ?></td>
                                         <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
                                         <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                                         <td data-label="Return By"><?php echo $sqlRow['req_by']; ?></td>
                                         <td data-label="Return Qty"><?php echo $sqlRow['return_qty']; ?></td>
+                                        <td data-label="Unit of Measure"><?php echo $sqlRow['unit']; ?></td>
                                         <td data-label="Return Type"><?php echo $sqlRow['return_purpose']; ?></td>
                                         <td data-label="Return Reason"><?php echo $sqlRow['return_reason']; ?></td>
                                     </tr>
@@ -109,7 +115,7 @@ include "navBar.php";
                             } else {
                                 ?>
                                 <tr>
-                                    <td colspan="12" class="text-center">No items found</td>
+                                    <td colspan="14" class="text-center">No items found</td>
                                 </tr>
                                 <?php
                             }
@@ -154,8 +160,10 @@ include "navBar.php";
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Approved Qty.</th>
+                                <th scope="col">UOM</th>
                                 <th scope="col">Expiration</th>
                                 <th scope="col">Return Qty</th>
+                                <th scope="col">UOM</th>
                                 <th scope="col">Return Reason</th>
                                 <th scope="col">Returned By</th>
                                 <th scope="col">Received By</th>
@@ -165,8 +173,9 @@ include "navBar.php";
                         <tbody id="data-table-return">
                             <?php
                             $userType = $_SESSION['user'];
+                            $userApprover = $_SESSION['designation'];
                             $userName = $_SESSION['username'];
-                            $sql = "SELECT tr.*, ti.approver FROM tbl_requested tr JOIN tbl_inventory ti ON tr.part_name = ti.part_name WHERE tr.status = 'returned' AND ti.approver = '$userType' AND tr.return_purpose = 'Partial' ORDER BY dts_receive DESC";
+                            $sql = "SELECT tr.*, ti.approver, ti.unit FROM tbl_requested tr JOIN tbl_inventory ti ON tr.part_name = ti.part_name WHERE tr.status = 'returned' AND ti.approver = '$userApprover' AND tr.return_purpose = 'Partial' ORDER BY dts_receive DESC";
 
 
                             $sql_query = mysqli_query($con, $sql);
@@ -183,8 +192,10 @@ include "navBar.php";
                                         <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
                                         <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                                         <td data-label="Quantity"><?php echo $sqlRow['approved_qty']; ?></td>
+                                        <td data-label="Unit of Measure"><?php echo $sqlRow['unit']; ?></td>
                                         <td data-label="Reason"><?php echo $sqlRow['exp_date']; ?></td>
                                         <td data-label="Return Qty"><?php echo $sqlRow['return_qty']; ?></td>
+                                        <td data-label="Unit of Measure"><?php echo $sqlRow['unit']; ?></td>
                                         <td data-label="Return Reason"><?php echo $sqlRow['return_reason']; ?></td>
                                         <td data-label="Return By"><?php echo $sqlRow['req_by']; ?></td>
                                         <td data-label="Received By"><?php echo $sqlRow['received_by']; ?></td>
@@ -194,13 +205,13 @@ include "navBar.php";
                             } else {
                                 ?>
                                 <tr>
-                                    <td colspan="13" class="text-center">No items found</td>
+                                    <td colspan="15" class="text-center">No items found</td>
                                 </tr>
                                 <?php
                             }
                             ?>
                             <tr class="no-results text-center" style="display: none;">
-                                <td colspan="13">No results founds</td>
+                                <td colspan="15">No results founds</td>
                             </tr>
                         </tbody>
 
@@ -243,8 +254,10 @@ include "navBar.php";
                                 <th scope="col">Machine No.</th>
                                 <th scope="col">Withdrawal Reason</th>
                                 <th scope="col">Approved Qty.</th>
+                                <th scope="col">UOM</th>
                                 <th scope="col">Expiration</th>
                                 <th scope="col">Return Qty</th>
+                                <th scope="col">UOM</th>
                                 <th scope="col">Return Reason</th>
                                 <th scope="col">Returned By</th>
                                 <th scope="col">Received By</th>
@@ -254,8 +267,9 @@ include "navBar.php";
                         <tbody id="data-table-scrap">
                             <?php
                             $userType = $_SESSION['user'];
+                            $userApprover = $_SESSION['designation'];
                             $userName = $_SESSION['username'];
-                            $sql = "SELECT tr.*, ti.approver FROM tbl_requested tr JOIN tbl_inventory ti ON tr.part_name = ti.part_name WHERE tr.status = 'returned' AND ti.approver = '$userType' AND tr.return_purpose = 'Scrap' ORDER BY dts_receive DESC";
+                            $sql = "SELECT tr.*, ti.approver, ti.unit FROM tbl_requested tr JOIN tbl_inventory ti ON tr.part_name = ti.part_name WHERE tr.status = 'returned' AND ti.approver = '$userApprover' AND tr.return_purpose = 'Scrap' ORDER BY dts_receive DESC";
 
 
                             $sql_query = mysqli_query($con, $sql);
@@ -272,8 +286,10 @@ include "navBar.php";
                                         <td data-label="Machine No"><?php echo $sqlRow['machine_no']; ?></td>
                                         <td data-label="Reason"><?php echo $sqlRow['with_reason']; ?></td>
                                         <td data-label="Quantity"><?php echo $sqlRow['approved_qty']; ?></td>
+                                        <td data-label="Unit of Measure"><?php echo $sqlRow['unit']; ?></td>
                                         <td data-label="Reason"><?php echo $sqlRow['exp_date']; ?></td>
                                         <td data-label="Return Qty"><?php echo $sqlRow['return_qty']; ?></td>
+                                        <td data-label="Unit of Measure"><?php echo $sqlRow['unit']; ?></td>
                                         <td data-label="Return Reason"><?php echo $sqlRow['return_reason']; ?></td>
                                         <td data-label="Return By"><?php echo $sqlRow['req_by']; ?></td>
                                         <td data-label="Received By"><?php echo $sqlRow['received_by']; ?></td>
@@ -283,13 +299,13 @@ include "navBar.php";
                             } else {
                                 ?>
                                 <tr>
-                                    <td colspan="13" class="text-center">No items found</td>
+                                    <td colspan="15" class="text-center">No items found</td>
                                 </tr>
                                 <?php
                             }
                             ?>
                             <tr class="no-results text-center" style="display: none;">
-                                <td colspan="13">No results founds</td>
+                                <td colspan="15">No results founds</td>
                             </tr>
                         </tbody>
 
@@ -317,7 +333,8 @@ include "navBar.php";
                 <form id="receiveForm">
                     <div class="table-responsive">
                         <table class="table table-striped table-bordered">
-                            <thead class="text-center text-white" style="background-color: #900008;">
+                            <thead class="text-center text-white"
+                                style="background-color: #900008; vertical-align: middle">
                                 <tr>
                                     <th>Returning By</th>
                                     <th>Part Number</th>
@@ -325,6 +342,7 @@ include "navBar.php";
                                     <th>Batch Number</th>
                                     <th>Returning Reason</th>
                                     <th>Receiving Quantity</th>
+                                    <th>UOM</th>
                                     <th>Actual Batch Number</th>
                                     <th>Return Purpose</th>
                                 </tr>
@@ -378,6 +396,7 @@ include "navBar.php";
                 let return_reason = $(this).data("return_reason");
                 let return_purpose = $(this).data("return_purpose");
                 let item_code = $(this).data("item_code");
+                let item_unit = $(this).data("item_unit");
 
                 let row = `
                     <tr class="text-center" style="vertical-align: middle;">
@@ -387,6 +406,7 @@ include "navBar.php";
                         <td>${batch_number}</td>
                         <td>${return_reason}</td>
                         <td><input type="number" name="quantities[]" value="${return_qty}" class="form-control" min="1" max="${return_qty}" required></td>
+                        <td>${item_unit}</td>
                         <td><input type="text" name="batchnumbers[]" class="form-control" placeholder="Actual Batch Number" autocomplete="off" required></td>
                         <td>
                             <select class="form-select" name="return_purposes[]">

@@ -124,16 +124,18 @@ if (!isset($_SESSION['username'])) {
                             <li><a class="dropdown-item" href="adminLog.php">Log History</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a href="adminScrap.php" class=" <?php
-                        if ($page == "adminScrap.php") {
-                            echo "nav-link active";
-                        } else {
-                            echo "nav-link text-white";
-                        }
-                        ?>
+                    <?php if ($_SESSION['designation'] !== 'Manager' && $_SESSION['designation'] !== 'IE'): ?>
+                        <li class="nav-item">
+                            <a href="adminScrap.php" class=" <?php
+                            if ($page == "adminScrap.php") {
+                                echo "nav-link active";
+                            } else {
+                                echo "nav-link text-white";
+                            }
+                            ?>
                     " href="#">Return</a>
-                    </li>
+                        </li>
+                    <?php endif; ?>
                     <?php if ($_SESSION['user'] !== 'Kitting'): ?>
                         <li class="nav-item" id="accountRegistrationKitting">
                             <a href="accReg.php" style="<?php

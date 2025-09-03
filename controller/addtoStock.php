@@ -19,6 +19,7 @@ if (isset($_POST['stock_data'])) {
         $lot_id = mysqli_real_escape_string($con, $item['lot_id']);
         $item_code = mysqli_real_escape_string($con, $item['item_code']);
         $username = $_SESSION['username'];
+        $approver_desig = $_SESSION['designation'];
         $today = date('Y-m-d');
         $dts = date('Y-m-d H:i:s');
 
@@ -64,7 +65,7 @@ if (isset($_POST['stock_data'])) {
                 $for_who = "admin";
                 $destination = "Expired";
                 $exp_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
-                             VALUES ('$username','$message','$is_read','$dts','$for_who','$destination')";
+                             VALUES ('$username','$message','$is_read','$dts','$approver_desig','$destination')";
                 if (!mysqli_query($con, $exp_notif)) {
                     echo json_encode(['error' => 'Error in notification INSERT query: ' . mysqli_error($con)]);
                     exit;
@@ -94,7 +95,7 @@ if (isset($_POST['stock_data'])) {
                 $for_who = "admin";
                 $destination = "Expired";
                 $exp_notif = "INSERT INTO `tbl_notif` (username, message, is_read, created_at, for_who, destination) 
-                             VALUES ('$username','$message','$is_read','$dts','$for_who','$destination')";
+                             VALUES ('$username','$message','$is_read','$dts','$approver_desig','$destination')";
                 if (!mysqli_query($con, $exp_notif)) {
                     echo json_encode(['error' => 'Error in notification INSERT query: ' . mysqli_error($con)]);
                     exit;

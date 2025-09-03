@@ -13,6 +13,8 @@ $today = date('Y-m-d');
 $update_sql = "UPDATE tbl_stock SET status = 'Expired' WHERE exp_date <= '$today' AND status != 'Expired'";
 mysqli_query($con, $update_sql);
 
+
+
 $isSSE = !isset($_GET['page']) && !isset($_GET['search']);
 
 if ($isSSE) {

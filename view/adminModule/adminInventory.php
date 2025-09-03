@@ -1123,7 +1123,7 @@ include "navBar.php";
                     </select>
                 </td>
                 <td><input type="text" class="form-control expDateInput" name="addExpDate" readonly disabled placeholder="Has Expiration Date?"></td>
-                <td><input type="text" class="form-control" name="addKittingID" placeholder="Kitting ID" autocomplete="OFF"></td>
+                <td><input type="text" class="form-control" name="addKittingID" placeholder="Badge ID" autocomplete="OFF"></td>
                 <td><button class="btn btn-danger" onclick="this.closest('tr').remove()">Delete</button></td>
             `);
 

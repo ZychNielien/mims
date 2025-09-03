@@ -108,6 +108,7 @@ include "navBar.php";
                                     data-exp_date="<?php echo htmlspecialchars($sqlRow['exp_date']); ?>"
                                     data-batch_number="<?php echo htmlspecialchars($sqlRow['batch_number']); ?>"
                                     data-item_code="<?php echo htmlspecialchars($sqlRow['item_code']); ?>"
+                                    data-item_unit="<?php echo htmlspecialchars($sqlRow['unit']); ?>"
                                     data-total="<?php echo htmlspecialchars($stocks); ?>">
 
                             </td>
@@ -162,6 +163,7 @@ include "navBar.php";
                                         <th>Part Number</th>
                                         <th>Item Code</th>
                                         <th>Approved Quantity</th>
+                                        <th>UOM</th>
                                         <th>Batch Number</th>
                                         <th>Actual Batch Number</th>
                                         <th>Reason</th>
@@ -200,6 +202,7 @@ include "navBar.php";
                                         <th>Item Code</th>
                                         <th>Batch Number</th>
                                         <th>Requested Quantity</th>
+                                        <th>UOM</th>
                                         <th>Rejection Reason</th>
                                     </tr>
                                 </thead>
@@ -294,6 +297,7 @@ include "navBar.php";
                 let item_code = $(this).data("item_code");
                 let exp_date = $(this).data("exp_date");
                 let total = $(this).data("total");
+                let item_unit = $(this).data("item_unit");
 
                 let row;
 
@@ -309,6 +313,7 @@ include "navBar.php";
                 </td>
                 <td>${item_code}</td>
                 <td><input type="number" name="quantities[]" value="${qty}" max="${total}" class="form-control" min="1" step="1" required></td>
+                <td>${item_unit}</td>
                 <td>${batch_number}</td>
                 <td><input type="text" name="batch_numbers[]" class="form-control" placeholder="Actual Batch Number" autocomplete="off"></td>
                 <td><input type="text" name="reasons[]" class="form-control" placeholder="Reason (Optional)" autocomplete="off"></td>
@@ -322,6 +327,7 @@ include "navBar.php";
                 <td>${item_code}</td>
                 <td>${batch_number}</td>
                 <td>${qty}</td>
+                <td>${item_unit}</td>
                 <td style="display:none;"> 
                     <input type="hidden" name="part_names[]" value="${partName}">
                     <input type="hidden" name="request_bys[]" value="${reqBy}">

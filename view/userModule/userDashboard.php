@@ -278,7 +278,8 @@ if ($sql_machine_query) {
                                         data-withdrawal="<?php echo $sqlRow['with_reason']; ?>"
                                         data-total_qty="<?php echo $sqlRow['total_qty']; ?>"
                                         data-item_code="<?php echo $sqlRow['item_code']; ?>"
-                                        data-batch_number="<?php echo $sqlRow['batch_number']; ?>">
+                                        data-batch_number="<?php echo $sqlRow['batch_number']; ?>"
+                                        data-item_unit="<?php echo $sqlRow['unit']; ?>">
                                 </td>
                                 <td data-label="Date / Time / Shift"><?php echo $sqlRow['dts'] ?></td>
                                 <td data-label="Lot Id"><?php echo $sqlRow['lot_id'] ?></td>
@@ -318,12 +319,14 @@ if ($sql_machine_query) {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="updateModalLabel">Update Selected Requests</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="updateForm">
                     <div class="table-responsive">
                         <table class="table table-bordered">
-                            <thead class="text-center text-white" style="background-color: #900008;">
+                            <thead class="text-center text-white"
+                                style="background-color: #900008; vertical-align: middle;">
                                 <tr>
                                     <th>Date / Time / Shift</th>
                                     <th>Lot ID</th>
@@ -331,6 +334,7 @@ if ($sql_machine_query) {
                                     <th>Item Code</th>
                                     <th>Batch Number</th>
                                     <th>Part Quantity</th>
+                                    <th>UOM</th>
                                     <th>Machine Number</th>
                                     <th>Withdrawal Reason</th>
                                 </tr>
@@ -356,17 +360,20 @@ if ($sql_machine_query) {
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteModalLabel">Deletion of Selected Requests</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form id="deleteForm">
                     <div class="table-responsive">
                         <table class="table table-bordered">
-                            <thead class="text-center text-white" style="background-color: #900008;">
+                            <thead class="text-center text-white"
+                                style="background-color: #900008; vertical-align: middle;">
                                 <tr>
                                     <th>Date / Time / Shift</th>
                                     <th>Lot ID</th>
                                     <th>Part Number</th>
                                     <th>Part Quantity</th>
+                                    <th>UOM</th>
                                     <th>Machine Number</th>
                                     <th>Withdrawal Reason</th>
                                 </tr>
@@ -535,6 +542,9 @@ if ($sql_machine_query) {
                 let machine_options = '<?php echo $machine_option; ?>';
                 let batch_number = $(this).data("batch_number");
                 let item_code = $(this).data("item_code");
+                let item_unit = $(this).data("item_unit");
+
+
 
                 let row = `
                             <tr class="text-center" style="vertical-align: middle;">
@@ -544,6 +554,7 @@ if ($sql_machine_query) {
                                 <td>${item_code}</td>
                                 <td>${batch_number}</td>
                                 <td><input type="number" name="quantities[]" value="${qty}" class="form-control" min="1" max="${total_qty + qty}" step="1" required></td>
+                                <td>${item_unit}</td>
                                 <td>                    
                                     <select class="form-select" name="machines[]" required>
                                         <option value="">Select Machine</option>
@@ -622,6 +633,7 @@ if ($sql_machine_query) {
                 let dts = $(this).data("dts");
                 let batch_number = $(this).data("batch_number");
                 let item_code = $(this).data("item_code");
+                let item_unit = $(this).data("item_unit");
 
                 let row = `
                     <tr class=" text-center" style="vertical-align: middle;">
@@ -629,6 +641,7 @@ if ($sql_machine_query) {
                         <td data-label="Lot ID">${lot_id}</td>
                         <td data-label="Part Number">${partName} <input type="hidden" name="ids[]" value="${id}"></td>
                         <td data-label="Part Quantity">${qty}</td>
+                        <td>${item_unit}</td>
                         <td data-label="Machine Number">${machine}</td>
                         <td data-label="Withdrawal Reason">${withdrawal}</td>
 
