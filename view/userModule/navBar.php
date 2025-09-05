@@ -242,8 +242,15 @@ if (!isset($_SESSION['username'])) {
 
                     notificationMenu.empty();
 
-                    if (response.message && response.message === 'No notifications') {
-                        notificationMenu.append('<li class="dropdown-item">No notifications</li>');
+                    if (response.message) {
+                        notificationMenu.append('<li class="dropdown-item">' + response.message + '</li>');
+                        notificationCount.hide();
+                        return;
+                    }
+
+                    if (!Array.isArray(response)) {
+                        console.error("Invalid response format:", response);
+                        notificationMenu.append('<li class="dropdown-item">Error loading notifications</li>');
                         notificationCount.hide();
                         return;
                     }
@@ -252,7 +259,6 @@ if (!isset($_SESSION['username'])) {
 
                     response.forEach(function (notification) {
                         const notificationElement = $('<li class="dropdown-item" data-id="' + notification.id + '">');
-
                         const formattedTimeAgo = timeAgo(notification.created_at);
 
                         let notificationLink = "userHistory.php";
@@ -275,17 +281,13 @@ if (!isset($_SESSION['username'])) {
                     </div>
                 `);
 
-                        if (notification.is_read === 0) {
+                        if (notification.is_read == 0) {
                             notificationElement.addClass('unread');
+                            unreadCount++;
                         }
 
                         notificationMenu.append(notificationElement);
-
                         notificationMenu.append('<hr class="notification-separator">');
-
-                        if (notification.is_read == 0) {
-                            unreadCount++;
-                        }
                     });
 
                     if (unreadCount > 0) {
@@ -295,10 +297,13 @@ if (!isset($_SESSION['username'])) {
                     }
                 },
                 error: function (xhr, status, error) {
-                    console.error('Error fetching notifications:', xhr, status, error);
+                    console.error('Error fetching notifications:', xhr.responseText, status, error);
+                    alert("Response: " + xhr.responseText);
                 }
+
             });
         }
+
 
         // Notification Mark as Read Function
         function markAllAsRead() {
